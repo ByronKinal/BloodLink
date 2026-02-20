@@ -1,0 +1,29 @@
+# Dependencias instaladas
+node_modules/
+
+# Variables de entorno
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+dist/
+build/
+
+# Testing
+coverage/
+.nyc_output/
