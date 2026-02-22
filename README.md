@@ -33,8 +33,8 @@ Proyecto Node.js con Express, MongoDB y PostgreSQL para gestionar donaciones de 
    DB_HOST=localhost
    DB_PORT=5435
    DB_NAME=bloodlink
-   DB_USERNAME=postgres
-   DB_PASSWORD=password
+   DB_USERNAME=root
+   DB_PASSWORD=admin
    DB_SQL_LOGGING=false
 
    JWT_SECRET=MyVerySecretKeyForJWTTokenAuthenticationWith256Bits!
