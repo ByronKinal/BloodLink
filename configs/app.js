@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import { Server as SocketIOServer } from 'socket.io';
 import { Pool } from 'pg';
 import mongoose from 'mongoose';
+import userRoutes from './routes/user.routes.js';  
 
 const BASE_PATH = '/api';
 const mongoUri = process.env.MONGODB_URI;
@@ -71,6 +72,8 @@ const routes = (app) => {
       },
     });
   });
+
+  app.use(userRoutes); 
 };
 
 export const initServer = async () => {
