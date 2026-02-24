@@ -1,4 +1,5 @@
 import { body, validationResult } from 'express-validator';
+import { DONOR_ROLE, STAFF_ROLE } from '../helpers/role-constants.js';
 
 /**
  * Middleware para procesar resultados de validación
@@ -136,4 +137,99 @@ export const validateResetPassword = [
     .withMessage('La nueva contraseña debe tener al menos 8 caracteres'),
 
   handleValidationErrors,
+];
+
+/**
+ * Validaciones para crear usuario (Admin/Staff)
+ */
+export const validateCreateUser = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('El nombre es obligatorio')
+    .isLength({ max: 25 })
+    .withMessage('El nombre no puede tener más de 25 caracteres'),
+
+  body('surname')
+    .trim()
+    .notEmpty()
+    .withMessage('El apellido es obligatorio')
+    .isLength({ max: 25 })
+    .withMessage('El apellido no puede tener más de 25 caracteres'),
+
+  body('username')
+    .trim()
+    .notEmpty()
+    .withMessage('El nombre de usuario es obligatorio')
+    .isLength({ max: 50 })
+    .withMessage('El nombre de usuario no puede tener más de 50 caracteres'),
+
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('El correo electrónico es obligatorio')
+    .isEmail()
+    .withMessage('El correo electrónico no tiene un formato válido')
+    .isLength({ max: 150 })
+    .withMessage('El correo electrónico no puede tener más de 150 caracteres'),
+
+  body('password')
+    .notEmpty()
+    .withMessage('La contraseña es obligatoria')
+    .isLength({ min: 8 })
+    .withMessage('La contraseña debe tener al menos 8 caracteres'),
+
+  body('phone')
+    .notEmpty()
+    .withMessage('El teléfono es obligatorio')
+    .isLength({ min: 8, max: 8 })
+    .withMessage('El teléfono debe tener 8 números')
+    .isNumeric()
+    .withMessage('El teléfono solo debe contener números'),
+
+  body('role')
+    .optional()
+    .isIn([DONOR_ROLE, STAFF_ROLE, 'ADMIN', 'STAFF', 'DONOR']) // Support both formats if legacy code exists
+    .withMessage('Rol inválido'),
+
+  // Validaciones condicionales según el rol
+  body('bloodType')
+    .if((value, { req }) => req.body.role === DONOR_ROLE || req.body.role === 'DONOR')
+    .notEmpty()
+    .withMessage('El tipo de sangre es obligatorio para donantes')
+    .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+    .withMessage('Tipo de sangre inválido'),
+
+  body('staffPosition')
+    .if((value, { req }) => req.body.role === STAFF_ROLE || req.body.role === 'STAFF')
+    .notEmpty()
+    .withMessage('El cargo es obligatorio para el personal (staff)'),
+
+  handleValidationErrors,
+];
+
+/**
+ * Validaciones para actualizar usuario
+ */
+export const validateUpdateUser = [
+  body('name')
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage('El nombre no puede estar vacío'),
+    
+  body('email')
+    .optional()
+    .isEmail()
+    .withMessage('Email inválido'),
+
+  handleValidationErrors,
+];
+
+/**
+ * Validaciones para crear perfil
+ */
+export const validateCreateProfile = [
+    body('phone').notEmpty().withMessage('Teléfono requerido'),
+    handleValidationErrors
 ];
