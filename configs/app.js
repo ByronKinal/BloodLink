@@ -1,79 +1,51 @@
-import http from 'http';
+'use strict';
+
 import express from 'express';
+import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { Server as SocketIOServer } from 'socket.io';
-import { Pool } from 'pg';
 import mongoose from 'mongoose';
-import userRoutes from './routes/user.routes.js';  
+import { Server as SocketIOServer } from 'socket.io';
+import { dbConnection } from './db.js';
+// Ensure models are registered before DB sync
+import '../src/users/user.model.js';
+import '../src/auth/role.model.js';
+import { requestLimit } from '../middlewares/request-limit.js';
+import { corsOptions } from './cors-configuration.js';
+import { helmetConfiguration } from './helmet-configuration.js';
+import {
+  errorHandler,
+  notFound,
+} from '../middlewares/server-genericError-handler.js';
+import userRoutes from '../src/users/user.routes.js';
 
-const BASE_PATH = '/api';
-const mongoUri = process.env.MONGODB_URI;
-
-const buildPostgresConfig = () => {
-  if (process.env.DB_POSTGRES) {
-    return { connectionString: process.env.DB_POSTGRES };
-  }
-
-  return {
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT) || 5432,
-    database: process.env.DB_NAME || 'postgres',
-    user: process.env.DB_USERNAME || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-  };
-};
-
-const pool = new Pool(buildPostgresConfig());
-
-const checkPostgres = async () => {
-  await pool.query('SELECT 1');
-  return true;
-};
-
-const checkMongo = async () => {
-  if (!mongoUri) {
-    throw new Error('Missing MONGODB_URI');
-  }
-
-  if (mongoose.connection.readyState !== 1) {
-    await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 5000,
-    });
-  }
-
-  await mongoose.connection.db.admin().ping();
-  return true;
-};
+const BASE_PATH = '/api/v1';
 
 const middlewares = (app) => {
-  app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: false, limit: '10mb' }));
-  app.use(cors());
-  app.use(helmet());
+  app.use(express.json({ limit: '10mb' }));
+  app.use(cors(corsOptions));
+  app.use(helmet(helmetConfiguration));
+  app.use(requestLimit);
   app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 };
 
 const routes = (app) => {
-  app.get(`${BASE_PATH}/health`, async (req, res) => {
-    const results = await Promise.allSettled([checkPostgres(), checkMongo()]);
-    const postgresOk = results[0].status === 'fulfilled';
-    const mongoOk = results[1].status === 'fulfilled';
-    const status = postgresOk && mongoOk ? 'OK' : 'DEGRADED';
+  app.use(`${BASE_PATH}/users`, userRoutes);
 
-    res.status(status === 'OK' ? 200 : 503).json({
-      status,
-      service: 'BloodLink',
+  app.get(`${BASE_PATH}/health`, (req, res) => {
+    const mongoStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    res.status(200).json({
+      status: 'Healthy',
       timestamp: new Date().toISOString(),
-      checks: {
-        postgres: postgresOk ? 'Online' : 'Offline',
-        mongo: mongoOk ? 'Online' : 'Offline',
-      },
+      service: 'BloodLink Authentication Service',
+      mongo: mongoStatus
     });
   });
 
-  app.use(userRoutes); 
+  // 404 handler (standardized)
+  app.use(notFound);
 };
 
 export const initServer = async () => {
@@ -86,14 +58,31 @@ export const initServer = async () => {
     },
   });
 
+  app.set('trust proxy', 1);
+
   try {
+    // Database Connections
+    await dbConnection(); // Postgres via Sequelize
+    
+    if (process.env.MONGODB_URI) {
+      await mongoose.connect(process.env.MONGODB_URI);
+      console.log('MongoDB | Connected to MongoDB');
+    } else {
+      console.warn('MongoDB | MONGODB_URI not found, skipping Mongo connection');
+    }
+
+    // Seed essential data (roles)
+    try {
+        const { seedRoles } = await import('../helpers/role-seed.js');
+        await seedRoles();
+    } catch (seedError) {
+        // Ignorar si no existe el seed
+    }
+
     middlewares(app);
     routes(app);
 
-    app.use((err, req, res, next) => {
-      console.error('Error:', err.message);
-      res.status(500).json({ error: 'Internal Server Error' });
-    });
+    app.use(errorHandler);
 
     io.on('connection', (socket) => {
       console.log(`Socket connected: ${socket.id}`);
@@ -104,11 +93,11 @@ export const initServer = async () => {
     });
 
     httpServer.listen(PORT, () => {
-      console.log(`BloodLink running on port ${PORT}`);
-      console.log(`Health check: http://localhost:${PORT}/api/health`);
+      console.log(`BloodLink Auth Server running on port ${PORT}`);
+      console.log(`Health check: http://localhost:${PORT}${BASE_PATH}/health`);
     });
   } catch (err) {
-    console.error(`Error starting server: ${err.message}`);
+    console.error(`Error starting Auth Server: ${err.message}`);
     process.exit(1);
   }
 };
