@@ -1,5 +1,5 @@
-import { User } from '../models/user.model.js';
-import { validateUniqueEmail, validatePasswordLength } from '../helpers/validation.helper.js'; 
+import { User } from './user.model.js';
+import { validateUniqueEmail, validatePasswordLength } from '../../helpers/validation.helper.js'; 
 
 export const createUser = async (req, res) => {
   const { firstName, lastName, email, password, role, bloodType, staffPosition } = req.body;

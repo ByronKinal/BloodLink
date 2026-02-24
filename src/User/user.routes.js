@@ -1,6 +1,6 @@
 import express from 'express';
-import { createUser, getUsers, updateUser } from '../controllers/user.controller.js';
-import { checkRole } from '../middlewares/role.middleware.js';  
+import { createUser, getUsers, updateUser } from './user.controller.js';
+import { checkRole } from '../../middlewares/role.middleware.js';
 
 const router = express.Router();
 
