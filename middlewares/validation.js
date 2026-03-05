@@ -1,9 +1,6 @@
-import { body, validationResult } from 'express-validator';
-import { DONOR_ROLE, STAFF_ROLE } from '../helpers/role-constants.js';
+import { body, param, validationResult } from 'express-validator';
+import { ALLOWED_ROLES } from '../helpers/role-constants.js';
 
-/**
- * Middleware para procesar resultados de validación
- */
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -20,9 +17,6 @@ export const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-/**
- * Validaciones para el registro de usuario
- */
 export const validateRegister = [
   body('name')
     .trim()
@@ -73,9 +67,6 @@ export const validateRegister = [
   handleValidationErrors,
 ];
 
-/**
- * Validaciones para el login
- */
 export const validateLogin = [
   body('emailOrUsername')
     .trim()
@@ -87,18 +78,50 @@ export const validateLogin = [
   handleValidationErrors,
 ];
 
-/**
- * Validaciones para verificación de email
- */
 export const validateVerifyEmail = [
-  body('token').notEmpty().withMessage('El token de verificación es requerido'),
+  body().custom((_, { req }) => {
+    const token = req.body?.token;
+    const email = req.body?.email;
+    const activationCode = req.body?.activationCode;
+
+    const hasToken = typeof token === 'string' && token.trim().length > 0;
+    const hasEmailAndCode =
+      typeof email === 'string' &&
+      email.trim().length > 0 &&
+      typeof activationCode === 'string' &&
+      activationCode.trim().length > 0;
+
+    if (!hasToken && !hasEmailAndCode) {
+      throw new Error(
+        'Debes enviar token o email + código de activación para verificar la cuenta'
+      );
+    }
+
+    return true;
+  }),
+
+  body('email')
+    .optional({ checkFalsy: true })
+    .isEmail()
+    .withMessage('Debe proporcionar un email válido'),
+
+  body('activationCode')
+    .optional({ checkFalsy: true })
+    .matches(/^\d{6}$/)
+    .withMessage('El código de activación debe tener 6 dígitos'),
 
   handleValidationErrors,
 ];
 
-/**
- * Validaciones para reenvío de verificación
- */
+export const validateRefreshToken = [
+  body('refreshToken')
+    .trim()
+    .notEmpty()
+    .withMessage('El refresh token es requerido'),
+
+  handleValidationErrors,
+];
+
 export const validateResendVerification = [
   body('email')
     .trim()
@@ -110,9 +133,6 @@ export const validateResendVerification = [
   handleValidationErrors,
 ];
 
-/**
- * Validaciones para forgot password
- */
 export const validateForgotPassword = [
   body('email')
     .trim()
@@ -124,9 +144,6 @@ export const validateForgotPassword = [
   handleValidationErrors,
 ];
 
-/**
- * Validaciones para reset password
- */
 export const validateResetPassword = [
   body('token').notEmpty().withMessage('El token de recuperación es requerido'),
 
@@ -139,97 +156,42 @@ export const validateResetPassword = [
   handleValidationErrors,
 ];
 
-/**
- * Validaciones para crear usuario (Admin/Staff)
- */
-export const validateCreateUser = [
-  body('name')
+export const validateUpdateUserRole = [
+  body('roleName')
     .trim()
     .notEmpty()
-    .withMessage('El nombre es obligatorio')
-    .isLength({ max: 25 })
-    .withMessage('El nombre no puede tener más de 25 caracteres'),
+    .withMessage('roleName es obligatorio')
+    .custom((value) => {
+      const normalized = value.trim().toUpperCase();
 
-  body('surname')
-    .trim()
-    .notEmpty()
-    .withMessage('El apellido es obligatorio')
-    .isLength({ max: 25 })
-    .withMessage('El apellido no puede tener más de 25 caracteres'),
+      if (!ALLOWED_ROLES.includes(normalized)) {
+        throw new Error(
+          `Rol no permitido. Usa uno de: ${ALLOWED_ROLES.join(', ')}`
+        );
+      }
 
-  body('username')
-    .trim()
-    .notEmpty()
-    .withMessage('El nombre de usuario es obligatorio')
-    .isLength({ max: 50 })
-    .withMessage('El nombre de usuario no puede tener más de 50 caracteres'),
-
-  body('email')
-    .trim()
-    .notEmpty()
-    .withMessage('El correo electrónico es obligatorio')
-    .isEmail()
-    .withMessage('El correo electrónico no tiene un formato válido')
-    .isLength({ max: 150 })
-    .withMessage('El correo electrónico no puede tener más de 150 caracteres'),
-
-  body('password')
-    .notEmpty()
-    .withMessage('La contraseña es obligatoria')
-    .isLength({ min: 8 })
-    .withMessage('La contraseña debe tener al menos 8 caracteres'),
-
-  body('phone')
-    .notEmpty()
-    .withMessage('El teléfono es obligatorio')
-    .isLength({ min: 8, max: 8 })
-    .withMessage('El teléfono debe tener 8 números')
-    .isNumeric()
-    .withMessage('El teléfono solo debe contener números'),
-
-  body('role')
-    .optional()
-    .isIn([DONOR_ROLE, STAFF_ROLE, 'ADMIN', 'STAFF', 'DONOR']) // Support both formats if legacy code exists
-    .withMessage('Rol inválido'),
-
-  // Validaciones condicionales según el rol
-  body('bloodType')
-    .if((value, { req }) => req.body.role === DONOR_ROLE || req.body.role === 'DONOR')
-    .notEmpty()
-    .withMessage('El tipo de sangre es obligatorio para donantes')
-    .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
-    .withMessage('Tipo de sangre inválido'),
-
-  body('staffPosition')
-    .if((value, { req }) => req.body.role === STAFF_ROLE || req.body.role === 'STAFF')
-    .notEmpty()
-    .withMessage('El cargo es obligatorio para el personal (staff)'),
+      return true;
+    }),
 
   handleValidationErrors,
 ];
 
-/**
- * Validaciones para actualizar usuario
- */
-export const validateUpdateUser = [
-  body('name')
-    .optional()
+export const validateRoleParam = [
+  param('roleName')
     .trim()
     .notEmpty()
-    .withMessage('El nombre no puede estar vacío'),
-    
-  body('email')
-    .optional()
-    .isEmail()
-    .withMessage('Email inválido'),
+    .withMessage('roleName es obligatorio')
+    .custom((value) => {
+      const normalized = value.trim().toUpperCase();
+
+      if (!ALLOWED_ROLES.includes(normalized)) {
+        throw new Error(
+          `Rol no permitido. Usa uno de: ${ALLOWED_ROLES.join(', ')}`
+        );
+      }
+
+      return true;
+    }),
 
   handleValidationErrors,
-];
-
-/**
- * Validaciones para crear perfil
- */
-export const validateCreateProfile = [
-    body('phone').notEmpty().withMessage('Teléfono requerido'),
-    handleValidationErrors
 ];

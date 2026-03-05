@@ -2,7 +2,7 @@ import {
   getFullImageUrl,
   getDefaultAvatarPath,
 } from '../helpers/cloudinary-service.js';
-import { USER_ROLE } from '../helpers/role-constants.js';
+import { DONOR_ROLE } from '../helpers/role-constants.js';
 
 export const buildUserResponse = (user) => {
   // Obtener la URL de la imagen de perfil
@@ -20,7 +20,7 @@ export const buildUserResponse = (user) => {
     phone:
       user.userProfile && user.userProfile.phone ? user.userProfile.phone : '',
     profilePicture: profilePictureUrl,
-    role: user.userRoles?.[0]?.Role?.Name ?? USER_ROLE,
+    role: user.userRoles?.[0]?.role?.name ?? DONOR_ROLE,
     status: user.status,
     isEmailVerified: user.userEmail ? user.userEmail.email_verified : false,
     createdAt: user.created_at,

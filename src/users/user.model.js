@@ -162,6 +162,10 @@ export const UserEmail = sequelize.define(
       type: DataTypes.STRING(256),
       allowNull: true,
     },
+    email_verification_code: {
+      type: DataTypes.STRING(6),
+      allowNull: true,
+    },
     email_verification_token_expiry: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -204,6 +208,47 @@ export const UserPasswordReset = sequelize.define(
   }
 );
 
+export const UserRefreshToken = sequelize.define(
+  'UserRefreshToken',
+  {
+    id: {
+      type: DataTypes.STRING(16),
+      primaryKey: true,
+      defaultValue: () => generateUUID(),
+    },
+    user_id: {
+      type: DataTypes.STRING(16),
+      allowNull: false,
+      references: {
+        model: User,
+        key: 'id',
+      },
+    },
+    token_hash: {
+      type: DataTypes.STRING(128),
+      allowNull: false,
+      unique: true,
+    },
+    expires_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    revoked_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    tableName: 'user_refresh_tokens',
+    timestamps: false,
+  }
+);
+
 // ================================================================
 // Relaciones de Usuario
 // ================================================================
@@ -219,3 +264,9 @@ User.hasOne(UserPasswordReset, {
   as: 'userPasswordReset',
 });
 UserPasswordReset.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+User.hasMany(UserRefreshToken, {
+  foreignKey: 'user_id',
+  as: 'refreshTokens',
+});
+UserRefreshToken.belongsTo(User, { foreignKey: 'user_id', as: 'user' });

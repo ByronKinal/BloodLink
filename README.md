@@ -25,41 +25,41 @@ Proyecto Node.js con Express, MongoDB y PostgreSQL para gestionar donaciones de 
 
 3. **Configurar variables de entorno** - Crear `.env` en la raíz con el siguiente contenido:
    ```bash
-   NODE_ENV = development
-   PORT = 3006
+NODE_ENV = development
+PORT = 3006
 
-   MONGODB_URI=mongodb://localhost:27017/bloodlink
+MONGODB_URI=mongodb://localhost:27017/bloodlink
 
-   DB_HOST=localhost
-   DB_PORT=5435
-   DB_NAME=bloodlink
-   DB_USERNAME=root
-   DB_PASSWORD=admin
-   DB_SQL_LOGGING=false
+DB_HOST=localhost
+DB_PORT=5435
+DB_NAME=bloodlink
+DB_USERNAME=root
+DB_PASSWORD=admin
+DB_SQL_LOGGING=false
 
-   JWT_SECRET=MyVerySecretKeyForJWTTokenAuthenticationWith256Bits!
-   JWT_EXPIRES_IN=30m
-   JWT_REFRESH_EXPIRES_IN=7d
-   JWT_ISSUER=BloodLinkAuthService
-   JWT_AUDIENCE=BloodLinkApp
+JWT_SECRET=MyVerySecretKeyForJWTTokenAuthenticationWith256Bits!
+JWT_EXPIRES_IN=30m
+JWT_REFRESH_EXPIRES_IN=7d
+JWT_ISSUER=BloodLinkAuthService
+JWT_AUDIENCE=BloodLinkApp
 
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_ENABLE_SSL=true
-   SMTP_USERNAME=kinalsports@gmail.com
-   SMTP_PASSWORD=yrsd prvf kwat toee
-   EMAIL_FROM=kinalsports@gmail.com
-   EMAIL_FROM_NAME=AuthDotnet App
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_ENABLE_SSL=true
+SMTP_USERNAME=kinalsports@gmail.com
+SMTP_PASSWORD=yrsd prvf kwat toee
+EMAIL_FROM=kinalsports@gmail.com
+EMAIL_FROM_NAME=AuthDotnet App
 
-   VERIFICATION_EMAIL_EXPIRY_HOURS=24
-   PASSWORD_RESET_EXPIRY_HOURS=1
+VERIFICATION_EMAIL_EXPIRY_HOURS=24
+PASSWORD_RESET_EXPIRY_HOURS=1
 
-   CLOUDINARY_CLOUD_NAME=dut08rmaz
-   CLOUDINARY_API_KEY=279612751725163
-   CLOUDINARY_API_SECRET=UxGMRqU1iB580Kxb2AlDR4n4hu0
-   CLOUDINARY_BASE_URL=https://res.cloudinary.com/dut08rmaz/image/upload/
-   CLOUDINARY_FOLDER=gastroflow/profiles
-   CLOUDINARY_DEFAULT_AVATAR_FILENAME=default-avatar_ewzxwx.png
+CLOUDINARY_CLOUD_NAME=dhdpzo5sq
+CLOUDINARY_API_KEY=275242198188765
+CLOUDINARY_API_SECRET=CQq9UtvqXFesUmr3Ukp0sTuNIqk
+CLOUDINARY_BASE_URL=https://res.cloudinary.com/dhdpzo5sq/image/upload/
+CLOUDINARY_FOLDER=bloodlink/profiles
+CLOUDINARY_DEFAULT_AVATAR_FILENAME=default-avatar_ewzxwx.png
    ```
 
 4. **Iniciar servidor**
@@ -122,25 +122,58 @@ BloodLink/
 
 Todas las variables están configuradas en el archivo `.env`. Las credenciales compartidas en este README son para desarrollo local.
 
+Variables recomendadas para el nuevo flujo de autenticación:
+
+```bash
+FRONTEND_URL=http://localhost:3000
+
+SEED_ADMIN_ON_STARTUP=true
+SEED_ADMIN_NAME=Admin
+SEED_ADMIN_SURNAME=Root
+SEED_ADMIN_USERNAME=admin
+SEED_ADMIN_EMAIL=admin@bloodlink.local
+SEED_ADMIN_PASSWORD=Admin1234
+SEED_ADMIN_PHONE=12345678
+```
+
+Si no defines `SEED_ADMIN_*`, en la primera ejecución se crea automáticamente un admin por defecto (solo si no existe otro admin):
+
+- Email: `admin@bloodlink.local`
+- Username: `admin`
+- Password: `Admin1234`
+
+Puedes desactivar este comportamiento con `SEED_ADMIN_ON_STARTUP=false`.
+
 ## APIs
 
 ### Health Check
 ```
-GET /api/health
+GET /api/v1/health
 ```
 
-### Usuarios
+### Autenticación (PostgreSQL)
 ```
-GET /api/auth/register      # Registrar usuario
-POST /api/auth/login        # Iniciar sesión
-GET /api/users              # Obtener usuarios
-GET /api/users/:id          # Obtener usuario por ID
+POST /api/v1/auth/register             # Registro (bcryptjs + envío de código/token)
+POST /api/v1/auth/login                # Login (Access Token + Refresh Token)
+POST /api/v1/auth/refresh-token        # Renovar Access Token con Refresh Token
+POST /api/v1/auth/logout               # Revocar Refresh Token actual
+POST /api/v1/auth/verify-email         # Activar cuenta con token o email + activationCode
+POST /api/v1/auth/resend-verification  # Reenviar código/token de activación
+POST /api/v1/auth/forgot-password      # Solicitar recuperación de contraseña
+POST /api/v1/auth/reset-password       # Restablecer contraseña con token
+```
+
+### Usuarios y roles
+```
+GET /api/v1/users/allowed-roles        # Lista de roles válidos
+PUT /api/v1/users/:userId/role         # Cambiar rol (solo ADMIN_ROLE)
+GET /api/v1/users/:userId/roles        # Consultar roles de usuario
+GET /api/v1/users/by-role/:roleName    # Listar usuarios por rol (solo ADMIN_ROLE)
 ```
 
 ## Bases de Datos
 
-- **MongoDB**: Para donaciones e historial
-- **PostgreSQL**: Para usuarios y autenticación
+- **PostgreSQL**: Usuarios, autenticación, roles y tokens
 
 ## Tecnologías
 
