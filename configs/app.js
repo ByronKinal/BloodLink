@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import { dbConnection } from './db.js';
 // Ensure models are registered before DB sync
 import '../src/users/user.model.js';
@@ -17,6 +18,7 @@ import {
 } from '../middlewares/server-genericError-handler.js';
 import authRoutes from '../src/Auth/auth.routes.js';
 import userRoutes from '../src/users/user.routes.js';
+import profileRoutes from '../src/profiles/profile.routes.js';
 
 const BASE_PATH = '/api/v1';
 
@@ -32,12 +34,15 @@ const middlewares = (app) => {
 const routes = (app) => {
   app.use(`${BASE_PATH}/auth`, authRoutes);
   app.use(`${BASE_PATH}/users`, userRoutes);
+  app.use(`${BASE_PATH}/profiles`, profileRoutes);
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
+    const mongoStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
     res.status(200).json({
       status: 'Healthy',
       timestamp: new Date().toISOString(),
       service: 'BloodLink Authentication Service',
+      mongo: mongoStatus,
     });
   });
 
@@ -52,6 +57,14 @@ export const initServer = async () => {
 
   try {
     await dbConnection();
+
+    if (process.env.MONGODB_URI) {
+      await mongoose.connect(process.env.MONGODB_URI);
+      console.log('MongoDB | Connected to MongoDB');
+    } else {
+      console.warn('MongoDB | MONGODB_URI no definido, perfiles Mongo deshabilitados');
+    }
+
     // Seed essential data (roles)
     const { seedRoles } = await import('../helpers/role-seed.js');
     const { seedAdminUser } = await import('../helpers/admin-seed.js');
