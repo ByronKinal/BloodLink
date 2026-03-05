@@ -5,11 +5,11 @@ import {
   UserPasswordReset,
 } from '../src/users/user.model.js';
 import { Role, UserRole } from '../src/auth/role.model.js';
-import { USER_ROLE } from './role-constants.js';
+import { DONOR_ROLE } from './role-constants.js';
 import { hashPassword } from '../utils/password-utils.js';
 import { Op } from 'sequelize';
 
-const DEFAULT_ROLE = USER_ROLE;
+const DEFAULT_ROLE = DONOR_ROLE;
 
 /**
  * Helper para buscar un usuario por email o username

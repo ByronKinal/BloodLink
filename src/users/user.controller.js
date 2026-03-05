@@ -18,6 +18,7 @@ import {
 } from '../../helpers/user-db.js';
 import { getUserProfile, createUserProfile, updateUserProfile } from '../../helpers/profile-operations.js';
 import { assignRoleToUser, removeRoleFromUser, getRoleByName } from '../../helpers/role-db.js';
+import { DONOR_ROLE } from '../../helpers/role-constants.js';
 
 /**
  * Crea un nuevo usuario en el sistema
@@ -50,7 +51,7 @@ export const createUserController = async (req, res) => {
     const user = await createUser({ username, email, password, phone });
 
     // Asignar rol por defecto (donor)
-    const donorRole = await getRoleByName('donor');
+    const donorRole = await getRoleByName(DONOR_ROLE);
     if (donorRole) {
       await assignRoleToUser(user.id, donorRole.id);
     }
