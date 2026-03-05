@@ -22,12 +22,14 @@ import {
 
 const router = Router();
 
-router.post('/register', authRateLimit, validateRegister, register);
-router.post('/login', authRateLimit, validateLogin, login);
-router.post('/refresh-token', authRateLimit, validateRefreshToken, refreshToken);
-router.post('/logout', authRateLimit, validateRefreshToken, logout);
+router.use(authRateLimit);
 
-router.post('/verify-email', authRateLimit, validateVerifyEmail, verifyEmail);
+router.post('/register', validateRegister, register);
+router.post('/login', validateLogin, login);
+router.post('/refresh-token', validateRefreshToken, refreshToken);
+router.post('/logout', validateRefreshToken, logout);
+
+router.post('/verify-email', validateVerifyEmail, verifyEmail);
 router.post(
   '/resend-verification',
   emailRateLimit,
@@ -35,6 +37,6 @@ router.post(
   resendVerification
 );
 router.post('/forgot-password', emailRateLimit, validateForgotPassword, forgotPassword);
-router.post('/reset-password', authRateLimit, validateResetPassword, resetPassword);
+router.post('/reset-password', validateResetPassword, resetPassword);
 
 export default router;
