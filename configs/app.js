@@ -14,7 +14,8 @@ import { helmetConfiguration } from './helmet-configuration.js';
 import {
   errorHandler,
   notFound,
-} from '../middlewares/server-genericError-handler.js';
+} from '../middlewares/errorHandler.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 import authRoutes from '../src/Auth/auth.routes.js';
 import userRoutes from '../src/users/user.routes.js';
 
@@ -34,11 +35,16 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/users`, userRoutes);
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
-    res.status(200).json({
-      status: 'Healthy',
-      timestamp: new Date().toISOString(),
-      service: 'BloodLink Authentication Service',
-    });
+    res.status(200).json(
+      ApiResponse.success(
+        {
+          status: 'Healthy',
+          timestamp: new Date().toISOString(),
+          service: 'BloodLink Authentication Service',
+        },
+        'Servicio disponible'
+      )
+    );
   });
   // 404 handler (standardized)
   app.use(notFound);
