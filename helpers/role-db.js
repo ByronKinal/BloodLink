@@ -5,7 +5,7 @@
 // ================================================================
 
 import { User, UserProfile, UserEmail } from '../src/users/user.model.js';
-import { Role, UserRole } from '../src/auth/role.model.js';
+import { Role, UserRole } from '../src/Auth/role.model.js';
 import { sequelize } from '../configs/db.js';
 import { ALLOWED_ROLES } from './role-constants.js';
 
@@ -15,7 +15,8 @@ import { ALLOWED_ROLES } from './role-constants.js';
  * @returns {Promise<Object|null>} Rol encontrado o null
  */
 export const getRoleByName = async (roleName) => {
-  return Role.findOne({ where: { Name: roleName } });
+  const normalized = (roleName || '').trim().toUpperCase();
+  return Role.findOne({ where: { name: normalized } });
 };
 
 /**
@@ -24,8 +25,9 @@ export const getRoleByName = async (roleName) => {
  * @returns {Promise<number>} Cantidad de usuarios con ese rol
  */
 export const countUsersInRole = async (roleName) => {
+  const normalized = (roleName || '').trim().toUpperCase();
   const count = await UserRole.count({
-    include: [{ model: Role, as: 'Role', where: { Name: roleName } }],
+    include: [{ model: Role, as: 'role', where: { name: normalized } }],
     distinct: true,
     col: 'user_id',
   });
@@ -39,10 +41,10 @@ export const countUsersInRole = async (roleName) => {
  */
 export const getUserRoleNames = async (userId) => {
   const userRoles = await UserRole.findAll({
-    where: { UserId: userId },
-    include: [{ model: Role, as: 'Role' }],
+    where: { user_id: userId },
+    include: [{ model: Role, as: 'role' }],
   });
-  return userRoles.map((ur) => ur.Role?.Name).filter(Boolean);
+  return userRoles.map((ur) => ur.role?.name).filter(Boolean);
 };
 
 /**
@@ -51,6 +53,7 @@ export const getUserRoleNames = async (userId) => {
  * @returns {Promise<Array>} Lista de usuarios con ese rol
  */
 export const getUsersByRole = async (roleName) => {
+  const normalized = (roleName || '').trim().toUpperCase();
   const users = await User.findAll({
     include: [
       { model: UserProfile, as: 'userProfile' },
@@ -58,7 +61,7 @@ export const getUsersByRole = async (roleName) => {
       {
         model: UserRole,
         as: 'userRoles',
-        include: [{ model: Role, as: 'Role', where: { Name: roleName } }],
+        include: [{ model: Role, as: 'role', where: { name: normalized } }],
       },
     ],
   });
@@ -84,7 +87,7 @@ export const setUserSingleRole = async (user, roleName, sequelizeInstance = sequ
   return sequelizeInstance.transaction(async (t) => {
     // Si se está removiendo el rol admin, verificar que no sea el último admin
     const isUserAdmin = (user.userRoles || []).some(
-      (r) => r.Role?.Name === 'ADMIN_ROLE'
+      (r) => r.role?.name === 'ADMIN_ROLE'
     );
     if (isUserAdmin && normalized !== 'ADMIN_ROLE') {
       const adminCount = await countUsersInRole('ADMIN_ROLE');
@@ -104,26 +107,26 @@ export const setUserSingleRole = async (user, roleName, sequelizeInstance = sequ
     }
 
     // Eliminar roles existentes del usuario
-    await UserRole.destroy({ where: { UserId: user.Id }, transaction: t });
+    await UserRole.destroy({ where: { user_id: user.id }, transaction: t });
 
     // Asignar el nuevo rol
     await UserRole.create(
       {
-        UserId: user.Id,
-        RoleId: role.Id,
+        user_id: user.id,
+        role_id: role.id,
       },
       { transaction: t }
     );
 
     // Recargar usuario con roles
-    const updated = await User.findByPk(user.Id, {
+    const updated = await User.findByPk(user.id, {
       include: [
         { model: UserProfile, as: 'userProfile' },
         { model: UserEmail, as: 'userEmail' },
         {
           model: UserRole,
           as: 'userRoles',
-          include: [{ model: Role, as: 'Role' }],
+          include: [{ model: Role, as: 'role' }],
         },
       ],
       transaction: t,

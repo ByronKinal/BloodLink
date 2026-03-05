@@ -2,8 +2,9 @@ import { v2 as cloudinary } from 'cloudinary';
 import { config } from '../configs/config.js';
 import fs from 'fs/promises';
 
-// FIX: Bypass SSL (Cloudinary, etc.)
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+if (process.env.ALLOW_INSECURE_TLS === 'true') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 
 // Configurar Cloudinary
 cloudinary.config({

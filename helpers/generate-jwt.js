@@ -2,23 +2,9 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { config } from '../configs/config.js';
 
-export const generateJWT = (userId, extraClaims = {}, options = {}) => {
+const signToken = (payload, options) => {
   return new Promise((resolve, reject) => {
-    // JWT payload with sub, jti, iat, and optional role
-    const payload = {
-      sub: String(userId), // Ensure sub is string to match .NET behavior
-      jti: crypto.randomUUID(), // Match .NET Guid.NewGuid()
-      iat: Math.floor(Date.now() / 1000), // Match .NET DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-      ...extraClaims, // Include role and other claims
-    };
-
-    const signOptions = {
-      expiresIn: options.expiresIn || config.jwt.expiresIn,
-      issuer: config.jwt.issuer,
-      audience: config.jwt.audience,
-    };
-
-    jwt.sign(payload, config.jwt.secret, signOptions, (err, token) => {
+    jwt.sign(payload, config.jwt.secret, options, (err, token) => {
       if (err) {
         console.error('Error generating JWT:', err);
         reject(err);
@@ -29,46 +15,128 @@ export const generateJWT = (userId, extraClaims = {}, options = {}) => {
   });
 };
 
-export const verifyJWT = (token) => {
+const verifyToken = (token) => {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, config.jwt.secret, (err, decoded) => {
-      if (err) {
-        console.error('Error verifying JWT:', err);
-        reject(err);
-      } else {
-        resolve(decoded);
+    jwt.verify(
+      token,
+      config.jwt.secret,
+      {
+        issuer: config.jwt.issuer,
+        audience: config.jwt.audience,
+      },
+      (err, decoded) => {
+        if (err) {
+          console.error('Error verifying JWT:', err);
+          reject(err);
+        } else {
+          resolve(decoded);
+        }
       }
-    });
+    );
   });
 };
+
+const buildPayload = (userId, tokenType, extraClaims = {}) => ({
+  sub: String(userId),
+  type: tokenType,
+  jti: crypto.randomUUID(),
+  iat: Math.floor(Date.now() / 1000),
+  ...extraClaims,
+});
+
+export const generateAccessToken = async (userId, extraClaims = {}) => {
+  return signToken(buildPayload(userId, 'access', extraClaims), {
+    expiresIn: config.jwt.expiresIn,
+    issuer: config.jwt.issuer,
+    audience: config.jwt.audience,
+  });
+};
+
+export const generateRefreshToken = async (userId, extraClaims = {}) => {
+  return signToken(buildPayload(userId, 'refresh', extraClaims), {
+    expiresIn: config.jwt.refreshExpiresIn,
+    issuer: config.jwt.issuer,
+    audience: config.jwt.audience,
+  });
+};
+
+export const generateTokenPair = async (userId, extraClaims = {}) => {
+  const [accessToken, refreshToken] = await Promise.all([
+    generateAccessToken(userId, extraClaims),
+    generateRefreshToken(userId, extraClaims),
+  ]);
+
+  return { accessToken, refreshToken };
+};
+
+export const verifyAccessToken = async (token) => {
+  const decoded = await verifyToken(token);
+
+  if (decoded.type !== 'access') {
+    const error = new Error('Token inválido para acceso');
+    error.name = 'JsonWebTokenError';
+    throw error;
+  }
+
+  return decoded;
+};
+
+export const verifyRefreshToken = async (token) => {
+  const decoded = await verifyToken(token);
+
+  if (decoded.type !== 'refresh') {
+    const error = new Error('Token inválido para refresh');
+    error.name = 'JsonWebTokenError';
+    throw error;
+  }
+
+  return decoded;
+};
+
+export const generateJWT = generateAccessToken;
+export const verifyJWT = verifyAccessToken;
 
 export const generateVerificationToken = (userId, type, expiresIn = '24h') => {
-  return new Promise((resolve, reject) => {
-    const payload = {
+  return signToken(
+    {
       sub: String(userId),
-      type: type,
+      type,
       iat: Math.floor(Date.now() / 1000),
-    };
-
-    const signOptions = {
+      jti: crypto.randomUUID(),
+    },
+    {
       expiresIn,
-      jwtid: crypto.randomUUID(),
       issuer: config.jwt.issuer,
       audience: config.jwt.audience,
-    };
-
-    jwt.sign(payload, config.jwt.secret, signOptions, (err, token) => {
-      if (err) {
-        console.error('Error generating verification token:', err);
-        reject(err);
-      } else {
-        resolve(token);
-      }
-    });
-  });
+    }
+  );
 };
 
-export const verifyVerificationToken = (token) => {
-  return verifyJWT(token);
+export const verifyVerificationToken = async (token) => {
+  return verifyToken(token);
 };
 
+export const getExpirationTimeInMs = (timeString, fallbackMs = 30 * 60 * 1000) => {
+  if (!timeString || typeof timeString !== 'string') {
+    return fallbackMs;
+  }
+
+  const numeric = parseInt(timeString, 10);
+  if (Number.isNaN(numeric)) {
+    return fallbackMs;
+  }
+
+  const unit = timeString.replace(String(numeric), '').trim().toLowerCase();
+  switch (unit) {
+    case 's':
+      return numeric * 1000;
+    case 'm':
+      return numeric * 60 * 1000;
+    case 'h':
+      return numeric * 60 * 60 * 1000;
+    case 'd':
+      return numeric * 24 * 60 * 60 * 1000;
+    default:
+      return fallbackMs;
+  }
+};

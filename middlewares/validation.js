@@ -1,4 +1,5 @@
-import { body, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
+import { ALLOWED_ROLES } from '../helpers/role-constants.js';
 
 /**
  * Middleware para procesar resultados de validación
@@ -90,7 +91,45 @@ export const validateLogin = [
  * Validaciones para verificación de email
  */
 export const validateVerifyEmail = [
-  body('token').notEmpty().withMessage('El token de verificación es requerido'),
+  body().custom((_, { req }) => {
+    const token = req.body?.token;
+    const email = req.body?.email;
+    const activationCode = req.body?.activationCode;
+
+    const hasToken = typeof token === 'string' && token.trim().length > 0;
+    const hasEmailAndCode =
+      typeof email === 'string' &&
+      email.trim().length > 0 &&
+      typeof activationCode === 'string' &&
+      activationCode.trim().length > 0;
+
+    if (!hasToken && !hasEmailAndCode) {
+      throw new Error(
+        'Debes enviar token o email + código de activación para verificar la cuenta'
+      );
+    }
+
+    return true;
+  }),
+
+  body('email')
+    .optional({ checkFalsy: true })
+    .isEmail()
+    .withMessage('Debe proporcionar un email válido'),
+
+  body('activationCode')
+    .optional({ checkFalsy: true })
+    .matches(/^\d{6}$/)
+    .withMessage('El código de activación debe tener 6 dígitos'),
+
+  handleValidationErrors,
+];
+
+export const validateRefreshToken = [
+  body('refreshToken')
+    .trim()
+    .notEmpty()
+    .withMessage('El refresh token es requerido'),
 
   handleValidationErrors,
 ];
@@ -134,6 +173,46 @@ export const validateResetPassword = [
     .withMessage('La nueva contraseña es obligatoria')
     .isLength({ min: 8 })
     .withMessage('La nueva contraseña debe tener al menos 8 caracteres'),
+
+  handleValidationErrors,
+];
+
+export const validateUpdateUserRole = [
+  body('roleName')
+    .trim()
+    .notEmpty()
+    .withMessage('roleName es obligatorio')
+    .custom((value) => {
+      const normalized = value.trim().toUpperCase();
+
+      if (!ALLOWED_ROLES.includes(normalized)) {
+        throw new Error(
+          `Rol no permitido. Usa uno de: ${ALLOWED_ROLES.join(', ')}`
+        );
+      }
+
+      return true;
+    }),
+
+  handleValidationErrors,
+];
+
+export const validateRoleParam = [
+  param('roleName')
+    .trim()
+    .notEmpty()
+    .withMessage('roleName es obligatorio')
+    .custom((value) => {
+      const normalized = value.trim().toUpperCase();
+
+      if (!ALLOWED_ROLES.includes(normalized)) {
+        throw new Error(
+          `Rol no permitido. Usa uno de: ${ALLOWED_ROLES.join(', ')}`
+        );
+      }
+
+      return true;
+    }),
 
   handleValidationErrors,
 ];

@@ -1,38 +1,22 @@
-// ================================================================
-// RUTAS: Usuarios
-// ================================================================
-
 import { Router } from 'express';
+import { validateJWT } from '../../middlewares/validate-JWT.js';
 import {
-  createUserController,
-  getUserByIdController,
-  getUserByUUIDController,
-  getAllUsersController,
-  updateUserController,
-  deleteUserController,
-  createOrUpdateProfileController,
-  getUserProfileController,
-  assignRoleController,
-  removeRoleController,
+  updateUserRole,
+  getUserRoles,
+  getUsersByRole,
+  getAllowedRoles,
 } from './user.controller.js';
-import { validateCreateUser, validateUpdateUser, validateCreateProfile } from '../../middlewares/validation.js';
+import {
+  validateUpdateUserRole,
+  validateRoleParam,
+} from '../../middlewares/validation.js';
 
 const router = Router();
 
-// Usuarios base
-router.post('/', validateCreateUser, createUserController);
-router.get('/', getAllUsersController);
-router.get('/:id', getUserByIdController);
-router.get('/uuid/:uuid', getUserByUUIDController);
-router.put('/:id', validateUpdateUser, updateUserController);
-router.delete('/:id', deleteUserController);
+router.get('/allowed-roles', validateJWT, getAllowedRoles);
 
-// Perfiles
-router.post('/:id/profile', validateCreateProfile, createOrUpdateProfileController);
-router.get('/:id/profile', getUserProfileController);
-
-// Roles
-router.post('/:id/roles', assignRoleController);
-router.delete('/:id/roles/:roleId', removeRoleController);
+router.put('/:userId/role', validateJWT, validateUpdateUserRole, updateUserRole);
+router.get('/:userId/roles', validateJWT, getUserRoles);
+router.get('/by-role/:roleName', validateJWT, validateRoleParam, getUsersByRole);
 
 export default router;
