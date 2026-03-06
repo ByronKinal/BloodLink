@@ -60,6 +60,8 @@ CLOUDINARY_API_SECRET=CQq9UtvqXFesUmr3Ukp0sTuNIqk
 CLOUDINARY_BASE_URL=https://res.cloudinary.com/dhdpzo5sq/image/upload/
 CLOUDINARY_FOLDER=bloodlink/profiles
 CLOUDINARY_DEFAULT_AVATAR_FILENAME=default-avatar_ewzxwx.png
+
+OPENAI_API_KEY=tu_api_key_openai
    ```
 
 4. **Iniciar servidor**
@@ -170,6 +172,22 @@ PUT /api/v1/users/:userId/role         # Cambiar rol (solo ADMIN_ROLE)
 GET /api/v1/users/:userId/roles        # Consultar roles de usuario
 GET /api/v1/users/by-role/:roleName    # Listar usuarios por rol (solo ADMIN_ROLE)
 ```
+
+### Chatbot IA (donaciones)
+```
+POST /api/v1/ai/ask                    # Consultar dudas médicas orientativas sobre donación
+```
+
+Body JSON:
+```json
+{
+   "question": "Si estuve enfermo hace dos días, ¿puedo donar sangre?"
+}
+```
+
+Notas:
+- Solo responde temas relacionados con donación de sangre.
+- Si la pregunta no es de donación, responde que no es apto para contestar fuera de ese contexto.
 
 ## Bases de Datos
 

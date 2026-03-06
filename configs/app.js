@@ -19,6 +19,7 @@ import {
 import authRoutes from '../src/Auth/auth.routes.js';
 import userRoutes from '../src/users/user.routes.js';
 import profileRoutes from '../src/profiles/profile.routes.js';
+import aiRoutes from '../src/ai/ai.routes.js';
 
 const BASE_PATH = '/api/v1';
 
@@ -32,9 +33,11 @@ const middlewares = (app) => {
 };
 
 const routes = (app) => {
+  app.use('/ai', aiRoutes);
   app.use(`${BASE_PATH}/auth`, authRoutes);
   app.use(`${BASE_PATH}/users`, userRoutes);
   app.use(`${BASE_PATH}/profiles`, profileRoutes);
+  app.use(`${BASE_PATH}/ai`, aiRoutes);
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
     const mongoStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';

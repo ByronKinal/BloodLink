@@ -78,6 +78,17 @@ export const validateLogin = [
   handleValidationErrors,
 ];
 
+export const validateAiAsk = [
+  body('question')
+    .trim()
+    .notEmpty()
+    .withMessage('La pregunta es obligatoria')
+    .isLength({ min: 5, max: 800 })
+    .withMessage('La pregunta debe tener entre 5 y 800 caracteres'),
+
+  handleValidationErrors,
+];
+
 export const validateVerifyEmail = [
   body().custom((_, { req }) => {
     const token = req.body?.token;
