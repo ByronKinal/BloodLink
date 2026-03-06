@@ -189,6 +189,36 @@ Notas:
 - Solo responde temas relacionados con donación de sangre.
 - Si la pregunta no es de donación, responde que no es apto para contestar fuera de ese contexto.
 
+### Gestión de citas
+```
+POST /appointments                      # Crear cita (requiere token de donante)
+GET /appointments/staff                # Ver agenda del día (STAFF_ROLE o ADMIN_ROLE)
+PATCH /appointments/:appointmentId/confirm # Confirmar cita (STAFF_ROLE o ADMIN_ROLE)
+```
+
+`appointmentId` es un ObjectId de MongoDB.
+
+Body para crear cita:
+```json
+{
+   "date": "2026-03-10",
+   "time": "09:30"
+}
+```
+
+Body para confirmar cita:
+```json
+{
+   "staffUserId": "ID_DEL_USUARIO_STAFF"
+}
+```
+
+Notas de lógica:
+- Al crear cita, valida que sea fecha/hora futura y que el horario esté disponible.
+- Las citas se almacenan en MongoDB (colección `appointments`).
+- Confirmar cita pone `status = true` y asigna usuario con `STAFF_ROLE`.
+- Si el staff enviado ya está ocupado en esa misma hora, se reasigna automáticamente a otro `STAFF_ROLE` disponible.
+
 ## Bases de Datos
 
 - **PostgreSQL**: Usuarios, autenticación, roles y tokens

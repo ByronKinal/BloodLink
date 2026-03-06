@@ -1,4 +1,5 @@
-import { body, param, validationResult } from 'express-validator';
+import { body, param, query, validationResult } from 'express-validator';
+import mongoose from 'mongoose';
 import { ALLOWED_ROLES } from '../helpers/role-constants.js';
 
 export const handleValidationErrors = (req, res, next) => {
@@ -85,6 +86,55 @@ export const validateAiAsk = [
     .withMessage('La pregunta es obligatoria')
     .isLength({ min: 5, max: 800 })
     .withMessage('La pregunta debe tener entre 5 y 800 caracteres'),
+
+  handleValidationErrors,
+];
+
+export const validateCreateAppointment = [
+  body('date')
+    .trim()
+    .notEmpty()
+    .withMessage('La fecha es obligatoria')
+    .matches(/^\d{4}-\d{2}-\d{2}$/)
+    .withMessage('La fecha debe tener formato YYYY-MM-DD'),
+
+  body('time')
+    .trim()
+    .notEmpty()
+    .withMessage('La hora es obligatoria')
+    .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
+    .withMessage('La hora debe tener formato HH:mm'),
+
+  handleValidationErrors,
+];
+
+export const validateStaffAgendaQuery = [
+  query('date')
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^\d{4}-\d{2}-\d{2}$/)
+    .withMessage('date debe tener formato YYYY-MM-DD'),
+
+  handleValidationErrors,
+];
+
+export const validateAppointmentIdParam = [
+  param('appointmentId')
+    .trim()
+    .notEmpty()
+    .withMessage('appointmentId es obligatorio')
+    .custom((value) => mongoose.isValidObjectId(value))
+    .withMessage('appointmentId no es un ObjectId válido'),
+
+  handleValidationErrors,
+];
+
+export const validateConfirmAppointment = [
+  body('staffUserId')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 16, max: 16 })
+    .withMessage('staffUserId debe tener 16 caracteres'),
 
   handleValidationErrors,
 ];
