@@ -78,7 +78,6 @@ const profileSchema = new mongoose.Schema(
 );
 
 profileSchema.index({ userId: 1 }, { unique: true });
-profileSchema.index({ email: 1 }, { unique: true });
 
 profileSchema.pre('validate', function (next) {
   this.email = (this.email || '').trim().toLowerCase();

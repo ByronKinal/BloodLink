@@ -1,0 +1,12 @@
+$kind: http-request
+name: New Request
+url: http://localhost:3006/api/v1/ai/ask
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"question\": \"Si tengo fiebre puedo ir a sacar sangre o no\"\r
+
+    }"
+order: 4503599622864095

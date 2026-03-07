@@ -1,0 +1,18 @@
+$kind: http-request
+name: Crear Citas
+url: http://localhost:3006/appointments
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"date\": \"2026-02-20\",\r
+
+    \  \"time\": \"09:30\"\r
+
+    }"
+auth:
+  credentials:
+    token: "{{donor_token}}"
+  type: bearer
+order: 4503599019003963

@@ -1,7 +1,11 @@
-import OpenAI from 'openai';
-
 const FALLBACK_OUT_OF_SCOPE_MESSAGE =
   'Solo puedo responder preguntas relacionadas con donación de sangre. No soy apto para responder temas fuera de ese contexto.';
+
+const SAFETY_NOTE =
+  'Esta información es orientativa y no sustituye una evaluación médica profesional.';
+
+const FALLBACK_IN_SCOPE_MESSAGE =
+  'Puedo orientarte mejor si me dices más detalle (por ejemplo: medicamento, vacuna, fiebre, tatuaje, embarazo o fecha exacta de tu última donación).';
 
 const DONATION_CONTEXT_KEYWORDS = [
   'donar',
@@ -21,6 +25,9 @@ const DONATION_CONTEXT_KEYWORDS = [
   'rh',
   'peso minimo',
   'peso mínimo',
+  'requisito',
+  'requisitos',
+  'quien puede donar',
   'edad minima',
   'edad mínima',
   'intervalo',
@@ -63,33 +70,132 @@ const isDonationRelatedQuestion = (question = '') => {
   );
 };
 
-let client;
+const RULES = [
+  {
+    triggers: ['requisitos', ['edad', 'peso'], 'quien puede donar'],
+    answer:
+      'Requisitos generales: tener buena salud, pesar al menos 50 kg, cumplir la edad permitida por tu banco de sangre (frecuentemente 18 a 65), no tener fiebre ni infecciones activas y llevar documento de identificación.',
+  },
+  {
+    triggers: [
+      'cada cuanto',
+      'intervalo',
+      'cada cuanto puedo donar',
+      ['hombre', 'donar'],
+      ['mujer', 'donar'],
+    ],
+    answer:
+      'Como guía general para sangre total: hombres cada 3 meses y mujeres cada 4 meses. El intervalo exacto puede variar según normativa local y tu evaluación médica.',
+  },
+  {
+    triggers: ['fiebre', 'gripe', 'resfriado', 'covid', 'enfermo'],
+    answer:
+      'Si tienes fiebre, gripe, infección o te sientes enfermo, debes esperar a recuperarte por completo antes de donar. Te evaluarán signos vitales y síntomas el día de la cita.',
+  },
+  {
+    triggers: ['antibiotico', 'medicamento', 'medicina', 'tratamiento'],
+    answer:
+      'Depende del medicamento y del motivo por el que lo tomas. Con antibióticos, normalmente se espera a terminar el tratamiento y estar sin síntomas. Lleva el nombre del fármaco para una evaluación segura.',
+  },
+  {
+    triggers: ['vacuna', 'vacunado', 'vacunacion'],
+    answer:
+      'Después de vacunarte, el tiempo de espera depende del tipo de vacuna y de si presentaste síntomas. Si hubo fiebre o malestar importante, espera a recuperarte y confirma el intervalo con el banco de sangre.',
+  },
+  {
+    triggers: ['tatuaje', 'piercing', 'perforacion', 'microblading'],
+    answer:
+      'Tras tatuaje, piercing o microblading suele requerirse un periodo de espera (con frecuencia 4 a 12 meses, según normativa local y condiciones de bioseguridad). Verifica el criterio de tu centro.',
+  },
+  {
+    triggers: ['embarazo', 'embarazada', 'lactancia', 'postparto'],
+    answer:
+      'Durante el embarazo no se recomienda donar sangre. En lactancia o postparto se requiere evaluación individual y, en muchos centros, un tiempo de espera para proteger a la madre y al bebé.',
+  },
+  {
+    triggers: ['alcohol', 'tomar', 'bebi', 'beber'],
+    answer:
+      'Evita alcohol antes de donar. Llega bien hidratado, con comida ligera previa y sin ayuno prolongado para reducir riesgo de mareo.',
+  },
+  {
+    triggers: ['ayuno', 'comer', 'desayunar', 'hidratar', 'agua', 'dormir'],
+    answer:
+      'Antes de donar: duerme bien, hidrátate y come ligero (evita comidas muy grasosas). No es recomendable llegar en ayunas.',
+  },
+  {
+    triggers: ['anemia', 'hemoglobina', 'hierro'],
+    answer:
+      'Si tienes anemia o hemoglobina baja, probablemente no podrás donar temporalmente. En el banco de sangre se mide hemoglobina para decidir si es seguro donar ese día.',
+  },
+  {
+    triggers: ['presion', 'hipertension', 'hipotension'],
+    answer:
+      'La presión arterial debe estar en rangos seguros el día de la donación. Si tienes hipertensión o hipotensión, puedes requerir valoración adicional según control clínico y tratamiento.',
+  },
+  {
+    triggers: ['cirugia', 'operacion', 'extraccion dental', 'muela'],
+    answer:
+      'Después de cirugía o procedimiento dental puede requerirse espera temporal. El tiempo depende del tipo de procedimiento, sangrado, antibióticos y recuperación clínica.',
+  },
+  {
+    triggers: ['vih', 'hepatitis', 'infeccion'],
+    answer:
+      'Para seguridad del receptor, antecedentes de infecciones transmisibles relevantes pueden impedir donar de forma temporal o permanente. El banco de sangre te orientará con criterios oficiales y confidenciales.',
+  },
+  {
+    triggers: ['grupo sanguineo', 'rh', 'o negativo', 'o positivo', 'a positivo'],
+    answer:
+      'Todos los grupos sanguíneos son valiosos. O negativo suele ser muy solicitado para emergencias, pero cualquier tipo de sangre puede ayudar a pacientes que la necesitan.',
+  },
+  {
+    triggers: ['plaquetas', 'plasma', 'apheresis', 'aferesis'],
+    answer:
+      'Además de sangre total, puedes donar plaquetas o plasma por aféresis. Los requisitos e intervalos cambian según el componente y protocolo del centro.',
+  },
+  {
+    triggers: ['proceso', 'como donar', 'que pasa cuando dono', 'pasos para donar'],
+    answer:
+      'Proceso típico: registro, entrevista médica, control de signos y hemoglobina, donación (unos minutos), y observación breve con hidratación posterior.',
+  },
+];
 
-const getOpenAIClient = () => {
-  if (!process.env.OPENAI_API_KEY) {
-    return null;
+const includesAll = (text, words = []) =>
+  words.every((word) => text.includes(normalizeText(word)));
+
+const getTriggerScore = (normalizedQuestion, trigger) => {
+  if (Array.isArray(trigger)) {
+    return includesAll(normalizedQuestion, trigger) ? 3 + trigger.length : 0;
   }
 
-  if (!client) {
-    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const normalizedTrigger = normalizeText(trigger);
+
+  if (!normalizedQuestion.includes(normalizedTrigger)) {
+    return 0;
   }
 
-  return client;
+  // Reward multi-word phrases because they are usually more specific.
+  const wordsCount = normalizedTrigger.split(/\s+/).filter(Boolean).length;
+  return wordsCount > 1 ? 3 + wordsCount : 1;
 };
 
-const DONATION_SYSTEM_PROMPT = `
-Eres un asistente médico informativo de BloodLink especializado EXCLUSIVAMENTE en dudas sobre donación de sangre.
+const findBestRule = (normalizedQuestion) => {
+  let bestRule = null;
+  let bestScore = 0;
 
-Reglas obligatorias:
-1) Solo responde preguntas relacionadas con donación de sangre, requisitos, contraindicaciones, tiempos de espera y preparación para donar.
-2) Si la pregunta no es de donación de sangre, responde exactamente:
-"Solo puedo responder preguntas relacionadas con donación de sangre. No soy apto para responder temas fuera de ese contexto."
-3) Responde en español, claro y breve.
-4) Nunca inventes datos. Si no estás seguro, dilo con claridad y recomienda consultar un banco de sangre o profesional de salud.
-5) Incluye una nota breve de seguridad: "Esta información es orientativa y no sustituye una evaluación médica profesional.".
-`;
+  for (const rule of RULES) {
+    const score = rule.triggers.reduce(
+      (total, trigger) => total + getTriggerScore(normalizedQuestion, trigger),
+      0
+    );
 
-const OPENAI_ASSISTANT_MODEL = 'gpt-4o-mini';
+    if (score > bestScore) {
+      bestRule = rule;
+      bestScore = score;
+    }
+  }
+
+  return bestRule;
+};
 
 export const askDonationAssistant = async (question) => {
   if (!isDonationRelatedQuestion(question)) {
@@ -100,35 +206,10 @@ export const askDonationAssistant = async (question) => {
     };
   }
 
-  const openai = getOpenAIClient();
-
-  if (!openai) {
-    const error = new Error(
-      'OPENAI_API_KEY no está configurada. Configura la API key para usar el asistente IA.'
-    );
-    error.status = 503;
-    throw error;
-  }
-
-  const response = await openai.responses.create({
-    model: OPENAI_ASSISTANT_MODEL,
-    temperature: 0.2,
-    max_output_tokens: 350,
-    input: [
-      {
-        role: 'system',
-        content: DONATION_SYSTEM_PROMPT,
-      },
-      {
-        role: 'user',
-        content: question,
-      },
-    ],
-  });
-
-  const answer =
-    response.output_text?.trim() ||
-    'No pude generar una respuesta en este momento. Intenta nuevamente.';
+  const normalizedQuestion = normalizeText(question);
+  const matchedRule = findBestRule(normalizedQuestion);
+  const baseAnswer = matchedRule ? matchedRule.answer : FALLBACK_IN_SCOPE_MESSAGE;
+  const answer = `${baseAnswer} ${SAFETY_NOTE}`;
 
   return {
     success: true,

@@ -1,0 +1,11 @@
+$kind: http-request
+name: Ver agendas
+url: http://localhost:3006/appointments/staff?date=2026-03-20
+method: GET
+queryParams:
+  date: 2026-03-20
+auth:
+  type: bearer
+  credentials:
+    token: "{{staff_token}}"
+order: 4503599135486713

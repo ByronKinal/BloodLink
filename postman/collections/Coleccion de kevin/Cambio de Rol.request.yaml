@@ -1,0 +1,16 @@
+$kind: http-request
+name: Cambio de Rol
+url: http://localhost:3006/api/v1/users/{{staff_user_id}}/role
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \  \"roleName\": \"STAFF_ROLE\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{admin_token}}"
+order: 4503598805489718

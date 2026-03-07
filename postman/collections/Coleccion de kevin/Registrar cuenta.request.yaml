@@ -1,0 +1,22 @@
+$kind: http-request
+name: Registrar cuenta
+url: http://localhost:3006/api/v1/auth/register
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\": \"Donor\",\r
+
+    \  \"surname\": \"One\",\r
+
+    \  \"username\": \"donor1\",\r
+
+    \  \"email\": \"kevinaceytuno24@gmail.com\",\r
+
+    \  \"password\": \"Donor1234\",\r
+
+    \  \"phone\": \"12345678\"\r
+
+    }"
+order: 4436181741788513
