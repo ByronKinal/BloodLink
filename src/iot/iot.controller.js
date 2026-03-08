@@ -11,6 +11,7 @@ import { findUserById } from '../../helpers/user-db.js';
 import Appointment from '../appointments/appointment.model.js';
 import TriageForm from '../triage/triage.model.js';
 import Donation from './donation.model.js';
+import BloodBag from '../blood-bags/blood-bag.model.js';
 
 const MAX_DONATION_ML = 600;
 
@@ -141,6 +142,8 @@ export const registerDonationWeight = asyncHandler(async (req, res) => {
   }
 
   const donationDate = new Date();
+  const unitCode = generateUnitCode();
+  
   const created = await Donation.create({
     appointmentId: appointment._id,
     triageFormId: latestTriage._id,
@@ -149,7 +152,7 @@ export const registerDonationWeight = asyncHandler(async (req, res) => {
     recordedByUserId: req.userId,
     donationDate,
     bloodUnit: {
-      unitCode: generateUnitCode(),
+      unitCode,
       bloodType: donorBloodType,
       weightGrams: normalizedWeight,
       volumeMl,
@@ -160,9 +163,32 @@ export const registerDonationWeight = asyncHandler(async (req, res) => {
     source: 'IOT_SIMULATED',
   });
 
+  const expirationDate = new Date(donationDate);
+  expirationDate.setMonth(expirationDate.getMonth() + 2);
+
+  const bloodBag = await BloodBag.create({
+    bagIdentifier: unitCode,
+    donationId: created._id,
+    bloodType: donorBloodType,
+    extractionDate: donationDate,
+    expirationDate,
+    volumeMl,
+    donorUserId: donorUser.id,
+  });
+
   return res.status(201).json({
     success: true,
-    message: 'Donacion registrada exitosamente',
-    data: sanitizeDonation(created),
+    message: 'Donacion y bolsa de sangre registradas exitosamente',
+    data: {
+      donation: sanitizeDonation(created),
+      bloodBag: {
+        id: String(bloodBag._id),
+        bagIdentifier: bloodBag.bagIdentifier,
+        bloodType: bloodBag.bloodType,
+        extractionDate: bloodBag.extractionDate,
+        expirationDate: bloodBag.expirationDate,
+        status: 'Disponible',
+      },
+    },
   });
 });

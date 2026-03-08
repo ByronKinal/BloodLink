@@ -1,0 +1,17 @@
+$kind: http-request
+name: Registrar Donacion (Crea Bolsa Automaticamente)
+url: http://localhost:3006/api/v1/iot/weight
+method: POST
+headers:
+  - name: Authorization
+    value: Bearer {{token}}
+body:
+  type: json
+  content: |
+    {
+      "appointmentId": "{{appointmentId}}",
+      "weightGrams": 450,
+      "notes": "Donacion exitosa",
+      "deviceId": "IOT-001"
+    }
+order: 5

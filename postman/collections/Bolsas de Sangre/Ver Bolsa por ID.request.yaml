@@ -1,0 +1,8 @@
+$kind: http-request
+name: Ver Bolsa por ID
+url: http://localhost:3006/api/v1/blood-bags/{{bagId}}
+method: GET
+headers:
+  - name: Authorization
+    value: Bearer {{token}}
+order: 4

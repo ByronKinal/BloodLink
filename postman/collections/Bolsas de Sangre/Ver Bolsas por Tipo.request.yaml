@@ -1,0 +1,8 @@
+$kind: http-request
+name: Ver Bolsas por Tipo de Sangre
+url: http://localhost:3006/api/v1/blood-bags/type/O+
+method: GET
+headers:
+  - name: Authorization
+    value: Bearer {{token}}
+order: 2

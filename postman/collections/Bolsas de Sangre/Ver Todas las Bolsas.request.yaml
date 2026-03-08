@@ -1,0 +1,8 @@
+$kind: http-request
+name: Ver Todas las Bolsas de Sangre
+url: http://localhost:3006/api/v1/blood-bags
+method: GET
+headers:
+  - name: Authorization
+    value: Bearer {{token}}
+order: 1
