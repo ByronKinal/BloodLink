@@ -1,0 +1,5 @@
+$kind: collection
+description: Colección para probar autenticación, Access/Refresh Token,
+  verificación por correo y administración de roles en BloodLink (PostgreSQL).
+variables:
+  baseUrl: http://localhost:3006/api/v1

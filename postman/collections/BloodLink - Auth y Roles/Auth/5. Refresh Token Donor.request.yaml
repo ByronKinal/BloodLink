@@ -1,0 +1,22 @@
+$kind: http-request
+description: Rota refresh token del Donor y genera nuevo access token.
+url: "{{baseUrl}}/auth/refresh-token"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "refreshToken": "{{refreshTokenDonor}}"
+    }
+scripts:
+  - type: afterResponse
+    code: >-
+      if (pm.response.code === 200) {
+        const response = pm.response.json();
+        if (response.accessToken) pm.environment.set('tokenDonor', response.accessToken);
+        if (response.refreshToken) pm.environment.set('refreshTokenDonor', response.refreshToken);
+      }
+    language: text/javascript
+order: 5000

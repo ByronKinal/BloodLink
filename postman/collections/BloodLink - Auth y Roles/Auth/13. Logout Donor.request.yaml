@@ -1,0 +1,13 @@
+$kind: http-request
+description: Cierra sesión del Donor revocando su refresh token.
+url: "{{baseUrl}}/auth/logout"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "refreshToken": "{{refreshTokenDonor}}"
+    }
+order: 13000

@@ -10,6 +10,7 @@ import { dbConnection } from './db.js';
 import '../src/users/user.model.js';
 import '../src/Auth/role.model.js';
 import '../src/appointments/appointment.model.js';
+import '../src/triage/triage.model.js';
 import { requestLimit } from '../middlewares/request-limit.js';
 import { corsOptions } from './cors-configuration.js';
 import { helmetConfiguration } from './helmet-configuration.js';
@@ -22,6 +23,7 @@ import userRoutes from '../src/users/user.routes.js';
 import profileRoutes from '../src/profiles/profile.routes.js';
 import aiRoutes from '../src/ai/ai.routes.js';
 import appointmentRoutes from '../src/appointments/appointment.routes.js';
+import triageRoutes from '../src/triage/triage.routes.js';
 
 const BASE_PATH = '/api/v1';
 
@@ -37,11 +39,13 @@ const middlewares = (app) => {
 const routes = (app) => {
   app.use('/ai', aiRoutes);
   app.use('/appointments', appointmentRoutes);
+  app.use('/triage', triageRoutes);
   app.use(`${BASE_PATH}/auth`, authRoutes);
   app.use(`${BASE_PATH}/users`, userRoutes);
   app.use(`${BASE_PATH}/profiles`, profileRoutes);
   app.use(`${BASE_PATH}/ai`, aiRoutes);
   app.use(`${BASE_PATH}/appointments`, appointmentRoutes);
+  app.use(`${BASE_PATH}/triage`, triageRoutes);
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
     const mongoStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';

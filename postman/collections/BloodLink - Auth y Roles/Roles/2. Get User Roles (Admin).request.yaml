@@ -1,0 +1,9 @@
+$kind: http-request
+description: Consulta roles de cualquier usuario. Solo ADMIN_ROLE.
+url: "{{baseUrl}}/users/{{targetUserId}}/roles"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{tokenAdmin}}"
+order: 2000

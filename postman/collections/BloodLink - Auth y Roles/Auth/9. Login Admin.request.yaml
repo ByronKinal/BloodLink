@@ -1,0 +1,23 @@
+$kind: http-request
+description: Login de Admin y guarda tokenAdmin/refreshTokenAdmin.
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "emailOrUsername": "{{adminEmail}}",
+      "password": "{{adminPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: >-
+      if (pm.response.code === 200) {
+        const response = pm.response.json();
+        if (response.accessToken) pm.environment.set('tokenAdmin', response.accessToken);
+        if (response.refreshToken) pm.environment.set('refreshTokenAdmin', response.refreshToken);
+      }
+    language: text/javascript
+order: 9000

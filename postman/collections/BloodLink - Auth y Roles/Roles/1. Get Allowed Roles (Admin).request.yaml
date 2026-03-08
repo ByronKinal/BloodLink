@@ -1,0 +1,9 @@
+$kind: http-request
+description: Lista roles permitidos. Solo ADMIN_ROLE.
+url: "{{baseUrl}}/users/allowed-roles"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{tokenAdmin}}"
+order: 1000

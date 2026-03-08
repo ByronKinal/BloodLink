@@ -1,0 +1,14 @@
+$kind: http-request
+description: Verifica la cuenta usando email + código de activación.
+url: "{{baseUrl}}/auth/verify-email"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{testEmail}}",
+      "activationCode": "{{activationCode}}"
+    }
+order: 3000

@@ -1,0 +1,17 @@
+$kind: http-request
+description: Cambia rol de cualquier usuario. Solo ADMIN_ROLE.
+url: "{{baseUrl}}/users/{{targetUserId}}/role"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "roleName": "{{roleName}}"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{tokenAdmin}}"
+order: 3000

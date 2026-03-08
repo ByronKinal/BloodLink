@@ -139,6 +139,200 @@ export const validateConfirmAppointment = [
   handleValidationErrors,
 ];
 
+export const validateCreateTriage = [
+  body('ageYears')
+    .notEmpty()
+    .withMessage('ageYears es obligatorio')
+    .isInt({ min: 0, max: 120 })
+    .withMessage('ageYears debe ser un entero entre 0 y 120')
+    .toInt(),
+
+  body('weightKg')
+    .notEmpty()
+    .withMessage('weightKg es obligatorio')
+    .isFloat({ gt: 0, max: 400 })
+    .withMessage('weightKg debe ser un numero mayor a 0')
+    .toFloat(),
+
+  body('pulseBpm')
+    .notEmpty()
+    .withMessage('pulseBpm es obligatorio')
+    .isInt({ min: 20, max: 220 })
+    .withMessage('pulseBpm debe ser un entero entre 20 y 220')
+    .toInt(),
+
+  body('systolicMmHg')
+    .notEmpty()
+    .withMessage('systolicMmHg es obligatorio')
+    .isInt({ min: 60, max: 260 })
+    .withMessage('systolicMmHg debe ser un entero entre 60 y 260')
+    .toInt(),
+
+  body('diastolicMmHg')
+    .notEmpty()
+    .withMessage('diastolicMmHg es obligatorio')
+    .isInt({ min: 30, max: 180 })
+    .withMessage('diastolicMmHg debe ser un entero entre 30 y 180')
+    .toInt(),
+
+  body('temperatureC')
+    .notEmpty()
+    .withMessage('temperatureC es obligatorio')
+    .isFloat({ min: 32, max: 43 })
+    .withMessage('temperatureC debe ser un numero entre 32 y 43')
+    .toFloat(),
+
+  body('hemoglobinGdl')
+    .notEmpty()
+    .withMessage('hemoglobinGdl es obligatorio')
+    .isFloat({ min: 3, max: 25 })
+    .withMessage('hemoglobinGdl debe ser un numero entre 3 y 25')
+    .toFloat(),
+
+  body('hasFever')
+    .notEmpty()
+    .withMessage('hasFever es obligatorio')
+    .isBoolean()
+    .withMessage('hasFever debe ser booleano')
+    .toBoolean(),
+
+  body('hasInfectionSymptoms')
+    .notEmpty()
+    .withMessage('hasInfectionSymptoms es obligatorio')
+    .isBoolean()
+    .withMessage('hasInfectionSymptoms debe ser booleano')
+    .toBoolean(),
+
+  body('hasChronicDisease')
+    .notEmpty()
+    .withMessage('hasChronicDisease es obligatorio')
+    .isBoolean()
+    .withMessage('hasChronicDisease debe ser booleano')
+    .toBoolean(),
+
+  body('chronicDiseaseControlled')
+    .notEmpty()
+    .withMessage('chronicDiseaseControlled es obligatorio')
+    .isBoolean()
+    .withMessage('chronicDiseaseControlled debe ser booleano')
+    .toBoolean(),
+
+  body('consumedAlcoholLast24h')
+    .notEmpty()
+    .withMessage('consumedAlcoholLast24h es obligatorio')
+    .isBoolean()
+    .withMessage('consumedAlcoholLast24h debe ser booleano')
+    .toBoolean(),
+
+  body('tookAntibioticsLast7d')
+    .notEmpty()
+    .withMessage('tookAntibioticsLast7d es obligatorio')
+    .isBoolean()
+    .withMessage('tookAntibioticsLast7d debe ser booleano')
+    .toBoolean(),
+
+  body('pregnantOrBreastfeeding')
+    .notEmpty()
+    .withMessage('pregnantOrBreastfeeding es obligatorio')
+    .isBoolean()
+    .withMessage('pregnantOrBreastfeeding debe ser booleano')
+    .toBoolean(),
+
+  body('hadTattooOrPiercing')
+    .notEmpty()
+    .withMessage('hadTattooOrPiercing es obligatorio')
+    .isBoolean()
+    .withMessage('hadTattooOrPiercing debe ser booleano')
+    .toBoolean(),
+
+  body('hadRecentSurgery')
+    .notEmpty()
+    .withMessage('hadRecentSurgery es obligatorio')
+    .isBoolean()
+    .withMessage('hadRecentSurgery debe ser booleano')
+    .toBoolean(),
+
+  body('lastTattooOrPiercingDate')
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .withMessage('lastTattooOrPiercingDate debe tener formato de fecha valida')
+    .toDate(),
+
+  body('lastSurgeryDate')
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .withMessage('lastSurgeryDate debe tener formato de fecha valida')
+    .toDate(),
+
+  body('lastDonationDate')
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .withMessage('lastDonationDate debe tener formato de fecha valida')
+    .toDate(),
+
+  body().custom((_, { req }) => {
+    const {
+      hadTattooOrPiercing,
+      lastTattooOrPiercingDate,
+      hadRecentSurgery,
+      lastSurgeryDate,
+      lastDonationDate,
+      hasChronicDisease,
+      chronicDiseaseControlled,
+    } = req.body;
+
+    const now = new Date();
+
+    if (hadTattooOrPiercing && !lastTattooOrPiercingDate) {
+      throw new Error(
+        'Si hadTattooOrPiercing es true, debe enviar lastTattooOrPiercingDate'
+      );
+    }
+
+    if (!hadTattooOrPiercing && lastTattooOrPiercingDate) {
+      throw new Error(
+        'No envies lastTattooOrPiercingDate cuando hadTattooOrPiercing es false'
+      );
+    }
+
+    if (hadRecentSurgery && !lastSurgeryDate) {
+      throw new Error('Si hadRecentSurgery es true, debe enviar lastSurgeryDate');
+    }
+
+    if (!hadRecentSurgery && lastSurgeryDate) {
+      throw new Error('No envies lastSurgeryDate cuando hadRecentSurgery es false');
+    }
+
+    if (!hasChronicDisease && !chronicDiseaseControlled) {
+      throw new Error(
+        'chronicDiseaseControlled no puede ser false cuando hasChronicDisease es false'
+      );
+    }
+
+    const tattooDate = lastTattooOrPiercingDate
+      ? new Date(lastTattooOrPiercingDate)
+      : null;
+    const surgeryDate = lastSurgeryDate ? new Date(lastSurgeryDate) : null;
+    const donationDate = lastDonationDate ? new Date(lastDonationDate) : null;
+
+    if (tattooDate && tattooDate > now) {
+      throw new Error('lastTattooOrPiercingDate no puede ser una fecha futura');
+    }
+
+    if (surgeryDate && surgeryDate > now) {
+      throw new Error('lastSurgeryDate no puede ser una fecha futura');
+    }
+
+    if (donationDate && donationDate > now) {
+      throw new Error('lastDonationDate no puede ser una fecha futura');
+    }
+
+    return true;
+  }),
+
+  handleValidationErrors,
+];
+
 export const validateVerifyEmail = [
   body().custom((_, { req }) => {
     const token = req.body?.token;

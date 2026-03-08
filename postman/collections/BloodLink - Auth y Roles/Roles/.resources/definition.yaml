@@ -1,0 +1,3 @@
+$kind: collection
+description: Todos estos endpoints requieren tokenAdmin en Authorization Bearer.
+order: 2000

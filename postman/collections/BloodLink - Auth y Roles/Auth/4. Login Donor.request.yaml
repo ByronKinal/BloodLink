@@ -1,0 +1,27 @@
+$kind: http-request
+description: Inicia sesión de Donor y guarda tokenDonor/refreshTokenDonor.
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "emailOrUsername": "{{testEmail}}",
+      "password": "{{testPassword}}"
+    }
+scripts:
+  - type: afterResponse
+    code: >-
+      if (pm.response.code === 200) {
+        const response = pm.response.json();
+        if (response.accessToken) pm.environment.set('tokenDonor', response.accessToken);
+        if (response.refreshToken) pm.environment.set('refreshTokenDonor', response.refreshToken);
+        if (response.userDetails && response.userDetails.id) {
+          pm.environment.set('userId', response.userDetails.id);
+          if (!pm.environment.get('targetUserId')) pm.environment.set('targetUserId', response.userDetails.id);
+        }
+      }
+    language: text/javascript
+order: 4000

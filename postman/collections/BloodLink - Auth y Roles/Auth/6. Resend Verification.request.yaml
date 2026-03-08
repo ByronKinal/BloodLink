@@ -1,0 +1,13 @@
+$kind: http-request
+description: Reenvía token y código de activación al correo del usuario.
+url: "{{baseUrl}}/auth/resend-verification"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "{{testEmail}}"
+    }
+order: 6000

@@ -1,0 +1,13 @@
+$kind: http-request
+description: Verifica la cuenta usando token (copiado del correo o logs).
+url: "{{baseUrl}}/auth/verify-email"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "token": "{{verificationToken}}"
+    }
+order: 2000

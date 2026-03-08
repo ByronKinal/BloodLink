@@ -1,0 +1,4 @@
+$kind: collection
+description: Endpoints de registro, verificación de cuenta, login, refresh
+  token, recuperación y restablecimiento.
+order: 1000
