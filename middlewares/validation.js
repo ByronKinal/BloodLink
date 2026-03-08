@@ -607,6 +607,74 @@ export const validateUpdateUserRole = [
   handleValidationErrors,
 ];
 
+export const validateAdminUpdateUser = [
+  param('userId')
+    .trim()
+    .notEmpty()
+    .withMessage('userId es obligatorio')
+    .isLength({ min: 12, max: 12 })
+    .withMessage('userId debe tener 12 caracteres'),
+
+  body('name')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 1, max: 25 })
+    .withMessage('name debe tener entre 1 y 25 caracteres')
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+    .withMessage('name solo puede contener letras y espacios'),
+
+  body('surname')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 1, max: 25 })
+    .withMessage('surname debe tener entre 1 y 25 caracteres')
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+    .withMessage('surname solo puede contener letras y espacios'),
+
+  body('phone')
+    .optional({ checkFalsy: true })
+    .trim()
+    .matches(/^\d{8}$/)
+    .withMessage('phone debe tener exactamente 8 dígitos'),
+
+  body('zone')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('zone debe tener entre 2 y 100 caracteres'),
+
+  body('municipality')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('municipality debe tener entre 2 y 100 caracteres'),
+
+  body('status')
+    .optional()
+    .isBoolean()
+    .withMessage('status debe ser booleano')
+    .toBoolean(),
+
+  body().custom((_, { req }) => {
+    const allowed = ['name', 'surname', 'phone', 'zone', 'municipality', 'status'];
+    const sent = Object.keys(req.body || {});
+
+    if (sent.length === 0) {
+      throw new Error('Debes enviar al menos un campo para actualizar');
+    }
+
+    const invalid = sent.filter((key) => !allowed.includes(key));
+
+    if (invalid.length > 0) {
+      throw new Error(`Campos no permitidos: ${invalid.join(', ')}`);
+    }
+
+    return true;
+  }),
+
+  handleValidationErrors,
+];
+
 export const validateRoleParam = [
   param('roleName')
     .trim()

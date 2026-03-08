@@ -8,10 +8,13 @@ import {
 import {
   ALLOWED_ROLES,
   ADMIN_ROLE,
+  DONOR_ROLE,
+  STAFF_ROLE,
 } from '../../helpers/role-constants.js';
 import { buildUserResponse } from '../../utils/user-helpers.js';
 import { sequelize } from '../../configs/db.js';
 import { ApiResponse } from '../../utils/ApiResponse.js';
+import { User, UserProfile } from './user.model.js';
 
 const ensureAdmin = async (req) => {
   const currentUserId = req.userId;
@@ -114,4 +117,109 @@ export const getAllowedRoles = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(ApiResponse.success(ALLOWED_ROLES, 'Roles permitidos obtenidos exitosamente'));
+});
+
+export const updateUserByAdmin = asyncHandler(async (req, res) => {
+  if (!(await ensureAdmin(req))) {
+    return res
+      .status(403)
+      .json(ApiResponse.error('No autorizado. Solo ADMIN_ROLE puede editar usuarios.'));
+  }
+
+  const { userId } = req.params;
+  const targetUser = await findUserById(userId);
+
+  if (!targetUser) {
+    return res.status(404).json(ApiResponse.error('Usuario no encontrado'));
+  }
+
+  const targetRoles = (targetUser.userRoles || [])
+    .map((ur) => ur.role?.name)
+    .filter(Boolean);
+
+  const isSelfEdit = req.userId === userId;
+
+  if (targetRoles.includes(ADMIN_ROLE) && !isSelfEdit) {
+    return res
+      .status(403)
+      .json(ApiResponse.error('No puedes editar a otros usuarios con ADMIN_ROLE'));
+  }
+
+  const canBeManaged =
+    targetRoles.includes(DONOR_ROLE) || targetRoles.includes(STAFF_ROLE);
+
+  if (!canBeManaged && !isSelfEdit) {
+    return res
+      .status(403)
+      .json(ApiResponse.error('Solo se pueden editar usuarios DONOR_ROLE o STAFF_ROLE'));
+  }
+
+  const {
+    name,
+    surname,
+    phone,
+    zone,
+    municipality,
+    status,
+  } = req.body || {};
+
+  await sequelize.transaction(async (transaction) => {
+    const userUpdates = {};
+    const profileUpdates = {};
+
+    if (typeof name === 'string') {
+      userUpdates.name = name.trim();
+    }
+
+    if (typeof surname === 'string') {
+      userUpdates.surname = surname.trim();
+    }
+
+    if (typeof status === 'boolean') {
+      userUpdates.status = status;
+    }
+
+    if (typeof phone === 'string') {
+      profileUpdates.phone = phone.trim();
+    }
+
+    if (typeof zone === 'string') {
+      profileUpdates.zone = zone.trim();
+    }
+
+    if (typeof municipality === 'string') {
+      profileUpdates.municipality = municipality.trim();
+    }
+
+    if (Object.keys(userUpdates).length > 0) {
+      await User.update(userUpdates, {
+        where: { id: userId },
+        transaction,
+      });
+    }
+
+    if (Object.keys(profileUpdates).length > 0) {
+      const profile = await UserProfile.findOne({
+        where: { user_id: userId },
+        transaction,
+      });
+
+      if (!profile) {
+        const error = new Error('Perfil de usuario no encontrado para actualizar');
+        error.status = 409;
+        throw error;
+      }
+
+      await UserProfile.update(profileUpdates, {
+        where: { user_id: userId },
+        transaction,
+      });
+    }
+  });
+
+  const updatedUser = await findUserById(userId);
+
+  return res
+    .status(200)
+    .json(ApiResponse.success(buildUserResponse(updatedUser), 'Usuario actualizado exitosamente'));
 });

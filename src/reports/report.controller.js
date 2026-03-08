@@ -5,6 +5,9 @@ import {
   normalizeBloodType,
   VALID_BLOOD_TYPES,
 } from '../../utils/blood-compatibility.js';
+import Appointment from '../appointments/appointment.model.js';
+import Donation from '../iot/donation.model.js';
+import { Wallet } from '../incentives/incentive.model.js';
 
 const ensureMongoReady = () => mongoose.connection.readyState === 1;
 
@@ -122,4 +125,55 @@ export const getStockSummaryReport = asyncHandler(async (req, res) => {
       bags: includeBags && selectedBloodType ? selectedTypeBags : undefined,
     },
   });
+  
 });
+
+export const getMyStatsReport = asyncHandler(async (req, res) => {
+
+  if (!ensureMongoReady()){
+    return res.status(503).json({
+      success: false,
+      message: 'MongoDB no esta conectado',
+    });
+  }
+
+  // Por qué: evita pedir userId por query/params; lo tomas del token y previenes ver stats de otro usuario.
+  const userId = req.userId;
+
+  const [appointmentCount, donationCount, donationVolumeAggregation, wallet] =
+    await Promise.all([
+      Appointment.countDocuments({donorUserId: userId}),
+      Donation.countDocuments({donorUserId: userId}),
+      Donation.aggregate([
+        { $match: { donorUserId: userId } },
+        {
+          $group: {
+            _id: null,
+            totalVolumeMl: { $sum: '$bloodUnit.volumeMl' }, 
+          },
+        },
+    ]),
+
+      Wallet.findOne({
+        where: { user_id: userId },
+        attributes: ['total_earned_points'],
+      }),
+    ]);
+
+    const totalBloodDonatedMl = donationVolumeAggregation?.[0]?.totalVolumeMl || 0;
+    const totalEarnedPoints = wallet?.total_earned_points || 0;
+
+    return res.status(200).json({
+      success: true,
+      message: 'Estadisticas del Usuario obtenidas exitosamente',
+      data: {
+        userId,
+        totalBloodDonatedMl,
+        totalBloodDonatedLiters: Number((totalBloodDonatedMl / 1000).toFixed(3)),
+        totalEarnedPoints,
+        appointmentCount,
+        donationCount, // extra útil
+        },
+  });
+});
+

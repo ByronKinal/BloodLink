@@ -1,0 +1,1028 @@
+{
+  "info": {
+    "name": "BloodLink - Full API Generated",
+    "description": "Coleccion generada automaticamente con todos los endpoints detectados en rutas y montajes de app.js.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3006/api/v1" },
+    { "key": "legacyBaseUrl", "value": "http://localhost:3006" },
+    { "key": "tokenAdmin", "value": "" },
+    { "key": "tokenDonor", "value": "" },
+    { "key": "tokenStaff", "value": "" },
+    { "key": "refreshTokenAdmin", "value": "" },
+    { "key": "targetUserId", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "appointmentId", "value": "" },
+    { "key": "rewardId", "value": "" },
+    { "key": "bloodBagId", "value": "" },
+    { "key": "testEmail", "value": "juan.perez.blood@example.com" },
+    { "key": "testUsername", "value": "juanblood" },
+    { "key": "testPassword", "value": "Password123" },
+    { "key": "verificationToken", "value": "" },
+    { "key": "activationCode", "value": "" },
+    { "key": "resetToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Juan\",\n  \"surname\": \"Perez\",\n  \"username\": \"{{testUsername}}\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"phone\": \"12345678\",\n  \"bloodType\": \"O+\",\n  \"zone\": \"Zona 1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailOrUsername\": \"admin@bloodlink.local\",\n  \"password\": \"Admin1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshTokenAdmin}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-token"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshTokenAdmin}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Verify Email (token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{verificationToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-email"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Verify Email (email + code)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\",\n  \"activationCode\": \"{{activationCode}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-email"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Resend Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-verification",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "resend-verification"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{testEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPassword456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET Allowed Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/allowed-roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "allowed-roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Users By Role",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/by-role/DONOR_ROLE",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "by-role", "DONOR_ROLE"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET User Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{targetUserId}}/roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{targetUserId}}", "roles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT Update User Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleName\": \"STAFF_ROLE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{targetUserId}}/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{targetUserId}}", "role"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Admin Edit User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Carlos\",\n  \"surname\": \"Lopez\",\n  \"phone\": \"12345678\",\n  \"zone\": \"Zona 10\",\n  \"municipality\": \"Guatemala\",\n  \"status\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{targetUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{targetUserId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "POST Create Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"roleName\": \"DONOR_ROLE\",\n  \"donorData\": {\n    \"bloodType\": \"O+\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Profile By UserId",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/user/{{targetUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "user", "{{targetUserId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "POST Ask AI",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question\": \"Que recomendaciones tengo para donar sangre esta semana?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ai/ask",
+              "host": ["{{baseUrl}}"],
+              "path": ["ai", "ask"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "POST Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-03-20\",\n  \"time\": \"09:30\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Staff Agenda",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenStaff}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/staff?date=2026-03-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "staff"],
+              "query": [
+                { "key": "date", "value": "2026-03-20", "description": "Opcional" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Confirm Appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenStaff}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"staffUserId\": \"{{userId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/{{appointmentId}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}", "confirm"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Triage",
+      "item": [
+        {
+          "name": "POST Create Triage Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ageYears\": 28,\n  \"weightKg\": 70,\n  \"pulseBpm\": 72,\n  \"systolicMmHg\": 120,\n  \"diastolicMmHg\": 80,\n  \"temperatureC\": 36.6,\n  \"hemoglobinGdl\": 13.8,\n  \"hasFever\": false,\n  \"hasInfectionSymptoms\": false,\n  \"hasChronicDisease\": false,\n  \"chronicDiseaseControlled\": true,\n  \"consumedAlcoholLast24h\": false,\n  \"tookAntibioticsLast7d\": false,\n  \"pregnantOrBreastfeeding\": false,\n  \"hadTattooOrPiercing\": false,\n  \"hadRecentSurgery\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/triage",
+              "host": ["{{baseUrl}}"],
+              "path": ["triage"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET List Triage Forms",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/triage?accountId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["triage"],
+              "query": [
+                { "key": "accountId", "value": "{{userId}}", "description": "Opcional" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "IoT",
+      "item": [
+        {
+          "name": "POST Register Donation Weight",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenStaff}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"{{appointmentId}}\",\n  \"weightGrams\": 450,\n  \"notes\": \"Donacion estable\",\n  \"deviceId\": \"HX711-01\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/iot/weight",
+              "host": ["{{baseUrl}}"],
+              "path": ["iot", "weight"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Blood Bags",
+      "item": [
+        {
+          "name": "GET Blood Bag Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/blood-bags/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["blood-bags", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Compatible Blood Bags",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/blood-bags/match/O+?minVolumeMl=300",
+              "host": ["{{baseUrl}}"],
+              "path": ["blood-bags", "match", "O+"],
+              "query": [
+                { "key": "minVolumeMl", "value": "300", "description": "Opcional" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Blood Bags By Type",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/blood-bags/type/O+",
+              "host": ["{{baseUrl}}"],
+              "path": ["blood-bags", "type", "O+"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Blood Bag By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/blood-bags/{{bloodBagId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["blood-bags", "{{bloodBagId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET All Blood Bags",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/blood-bags",
+              "host": ["{{baseUrl}}"],
+              "path": ["blood-bags"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Audit",
+      "item": [
+        {
+          "name": "GET Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/audit?page=1&limit=20&action=BLOOD_STOCK_INCREASE&bloodType=O+&performedByUserId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["audit"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "action", "value": "BLOOD_STOCK_INCREASE" },
+                { "key": "bloodType", "value": "O+" },
+                { "key": "performedByUserId", "value": "{{userId}}" },
+                { "key": "from", "value": "", "description": "Opcional ISO8601" },
+                { "key": "to", "value": "", "description": "Opcional ISO8601" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "GET Stock Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/stock-summary?bloodType=O+&includeBags=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "stock-summary"],
+              "query": [
+                { "key": "bloodType", "value": "O+", "description": "Opcional" },
+                { "key": "includeBags", "value": "true", "description": "Opcional" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET My Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/my-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "my-stats"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "item": [
+        {
+          "name": "GET Wallet By User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/{{targetUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "{{targetUserId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rewards",
+      "item": [
+        {
+          "name": "GET List Rewards",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rewards",
+              "host": ["{{baseUrl}}"],
+              "path": ["rewards"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Reward By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rewards/{{rewardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rewards", "{{rewardId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Reward",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Camiseta BloodLink\",\n  \"requiredPoints\": 100,\n  \"stock\": 25\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rewards",
+              "host": ["{{baseUrl}}"],
+              "path": ["rewards"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH Update Reward",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stock\": 30,\n  \"status\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rewards/{{rewardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rewards", "{{rewardId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE Reward",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/rewards/{{rewardId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["rewards", "{{rewardId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Redeem Reward",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rewardId\": \"{{rewardId}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rewards/redeem",
+              "host": ["{{baseUrl}}"],
+              "path": ["rewards", "redeem"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Legacy Aliases (sin /api/v1)",
+      "description": "Endpoints adicionales montados en app.js sin el prefijo /api/v1. Se incluyen para cobertura total.",
+      "item": [
+        {
+          "name": "AI POST /ai/ask",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"question\": \"Consulta de donacion\"\n}" },
+            "url": { "raw": "{{legacyBaseUrl}}/ai/ask", "host": ["{{legacyBaseUrl}}"], "path": ["ai", "ask"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Appointments POST /appointments",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"date\": \"2026-03-20\",\n  \"time\": \"09:30\"\n}" },
+            "url": { "raw": "{{legacyBaseUrl}}/appointments", "host": ["{{legacyBaseUrl}}"], "path": ["appointments"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Appointments GET /appointments/staff",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenStaff}}" }],
+            "url": {
+              "raw": "{{legacyBaseUrl}}/appointments/staff?date=2026-03-20",
+              "host": ["{{legacyBaseUrl}}"],
+              "path": ["appointments", "staff"],
+              "query": [{ "key": "date", "value": "2026-03-20" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Appointments PATCH /appointments/:appointmentId/confirm",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenStaff}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"staffUserId\": \"{{userId}}\"\n}" },
+            "url": {
+              "raw": "{{legacyBaseUrl}}/appointments/{{appointmentId}}/confirm",
+              "host": ["{{legacyBaseUrl}}"],
+              "path": ["appointments", "{{appointmentId}}", "confirm"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Triage POST /triage",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tokenDonor}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"ageYears\": 28,\n  \"weightKg\": 70,\n  \"pulseBpm\": 72,\n  \"systolicMmHg\": 120,\n  \"diastolicMmHg\": 80,\n  \"temperatureC\": 36.6,\n  \"hemoglobinGdl\": 13.8,\n  \"hasFever\": false,\n  \"hasInfectionSymptoms\": false,\n  \"hasChronicDisease\": false,\n  \"chronicDiseaseControlled\": true,\n  \"consumedAlcoholLast24h\": false,\n  \"tookAntibioticsLast7d\": false,\n  \"pregnantOrBreastfeeding\": false,\n  \"hadTattooOrPiercing\": false,\n  \"hadRecentSurgery\": false\n}" },
+            "url": { "raw": "{{legacyBaseUrl}}/triage", "host": ["{{legacyBaseUrl}}"], "path": ["triage"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Triage GET /triage",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/triage", "host": ["{{legacyBaseUrl}}"], "path": ["triage"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Blood Bags GET /blood-bags/stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/blood-bags/stats", "host": ["{{legacyBaseUrl}}"], "path": ["blood-bags", "stats"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Blood Bags GET /blood-bags/match/:requiredBloodType",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": {
+              "raw": "{{legacyBaseUrl}}/blood-bags/match/O+?minVolumeMl=300",
+              "host": ["{{legacyBaseUrl}}"],
+              "path": ["blood-bags", "match", "O+"],
+              "query": [{ "key": "minVolumeMl", "value": "300" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Blood Bags GET /blood-bags/type/:bloodType",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/blood-bags/type/O+", "host": ["{{legacyBaseUrl}}"], "path": ["blood-bags", "type", "O+"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Blood Bags GET /blood-bags/:id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/blood-bags/{{bloodBagId}}", "host": ["{{legacyBaseUrl}}"], "path": ["blood-bags", "{{bloodBagId}}"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Blood Bags GET /blood-bags",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/blood-bags", "host": ["{{legacyBaseUrl}}"], "path": ["blood-bags"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Audit GET /audit",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/audit?page=1&limit=20", "host": ["{{legacyBaseUrl}}"], "path": ["audit"], "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "20" }] }
+          },
+          "response": []
+        },
+        {
+          "name": "Reports GET /reports/stock-summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/reports/stock-summary?bloodType=O+&includeBags=true", "host": ["{{legacyBaseUrl}}"], "path": ["reports", "stock-summary"], "query": [{ "key": "bloodType", "value": "O+" }, { "key": "includeBags", "value": "true" }] }
+          },
+          "response": []
+        },
+        {
+          "name": "Reports GET /reports/my-stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenDonor}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/reports/my-stats", "host": ["{{legacyBaseUrl}}"], "path": ["reports", "my-stats"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Wallet GET /wallet/:userId",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/wallet/{{targetUserId}}", "host": ["{{legacyBaseUrl}}"], "path": ["wallet", "{{targetUserId}}"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Rewards GET /rewards",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenDonor}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/rewards", "host": ["{{legacyBaseUrl}}"], "path": ["rewards"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Rewards GET /rewards/:rewardId",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenDonor}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/rewards/{{rewardId}}", "host": ["{{legacyBaseUrl}}"], "path": ["rewards", "{{rewardId}}"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Rewards POST /rewards",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Camiseta BloodLink\",\n  \"requiredPoints\": 100,\n  \"stock\": 25\n}" },
+            "url": { "raw": "{{legacyBaseUrl}}/rewards", "host": ["{{legacyBaseUrl}}"], "path": ["rewards"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Rewards PATCH /rewards/:rewardId",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"stock\": 30\n}" },
+            "url": { "raw": "{{legacyBaseUrl}}/rewards/{{rewardId}}", "host": ["{{legacyBaseUrl}}"], "path": ["rewards", "{{rewardId}}"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Rewards DELETE /rewards/:rewardId",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenAdmin}}" }],
+            "url": { "raw": "{{legacyBaseUrl}}/rewards/{{rewardId}}", "host": ["{{legacyBaseUrl}}"], "path": ["rewards", "{{rewardId}}"] }
+          },
+          "response": []
+        },
+        {
+          "name": "Rewards POST /rewards/redeem",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{tokenDonor}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"rewardId\": \"{{rewardId}}\",\n  \"quantity\": 1\n}" },
+            "url": { "raw": "{{legacyBaseUrl}}/rewards/redeem", "host": ["{{legacyBaseUrl}}"], "path": ["rewards", "redeem"] }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
