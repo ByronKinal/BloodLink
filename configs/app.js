@@ -32,6 +32,7 @@ import triageRoutes from '../src/triage/triage.routes.js';
 import iotRoutes from '../src/iot/iot.routes.js';
 import bloodBagRoutes from '../src/blood-bags/blood-bag.routes.js';
 import auditRoutes from '../src/audit/audit.routes.js';
+import reportRoutes from '../src/reports/report.routes.js';
 import incentiveRoutes from '../src/incentives/incentive.routes.js';
 import rewardRoutes from '../src/rewards/reward.routes.js';
 
@@ -52,6 +53,7 @@ const routes = (app) => {
   app.use('/triage', triageRoutes);
   app.use('/blood-bags', bloodBagRoutes);
   app.use('/audit', auditRoutes);
+  app.use('/reports', reportRoutes);
   app.use('/wallet', incentiveRoutes);
   app.use('/rewards', rewardRoutes);
   app.use(`${BASE_PATH}/auth`, authRoutes);
@@ -63,6 +65,7 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/iot`, iotRoutes);
   app.use(`${BASE_PATH}/blood-bags`, bloodBagRoutes);
   app.use(`${BASE_PATH}/audit`, auditRoutes);
+  app.use(`${BASE_PATH}/reports`, reportRoutes);
   app.use(`${BASE_PATH}/wallet`, incentiveRoutes);
   app.use(`${BASE_PATH}/rewards`, rewardRoutes);
 

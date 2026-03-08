@@ -723,3 +723,34 @@ export const validateAuditQuery = [
 
   handleValidationErrors,
 ];
+
+export const validateStockSummaryQuery = [
+  query('bloodType')
+    .optional({ checkFalsy: true })
+    .trim()
+    .custom((value) => {
+      if (!isValidBloodType(value)) {
+        throw new Error(
+          `bloodType debe ser uno de: ${VALID_BLOOD_TYPES.join(', ')}`
+        );
+      }
+
+      return true;
+    }),
+
+  query('includeBags')
+    .optional()
+    .isBoolean()
+    .withMessage('includeBags debe ser booleano')
+    .toBoolean(),
+
+  query().custom((_, { req }) => {
+    if (req.query.includeBags === true && !req.query.bloodType) {
+      throw new Error('Para includeBags=true debes enviar bloodType');
+    }
+
+    return true;
+  }),
+
+  handleValidationErrors,
+];
