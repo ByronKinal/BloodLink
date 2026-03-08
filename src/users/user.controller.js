@@ -1,4 +1,4 @@
-import { asyncHandler } from '../../middlewares/server-genericError-handler.js';
+import { asyncHandler } from '../../middlewares/errorHandler.js';
 import { findUserById } from '../../helpers/user-db.js';
 import {
   getUserRoleNames,
@@ -11,6 +11,7 @@ import {
 } from '../../helpers/role-constants.js';
 import { buildUserResponse } from '../../utils/user-helpers.js';
 import { sequelize } from '../../configs/db.js';
+import { ApiResponse } from '../../utils/ApiResponse.js';
 
 const ensureAdmin = async (req) => {
   const currentUserId = req.userId;
@@ -33,10 +34,9 @@ const ensureAdmin = async (req) => {
 
 export const updateUserRole = asyncHandler(async (req, res) => {
   if (!(await ensureAdmin(req))) {
-    return res.status(403).json({
-      success: false,
-      message: 'No autorizado. Solo ADMIN_ROLE puede cambiar roles.',
-    });
+    return res
+      .status(403)
+      .json(ApiResponse.error('No autorizado. Solo ADMIN_ROLE puede cambiar roles.'));
   }
 
   const { userId } = req.params;
@@ -44,83 +44,74 @@ export const updateUserRole = asyncHandler(async (req, res) => {
   const normalized = (roleName || '').trim().toUpperCase();
 
   if (!ALLOWED_ROLES.includes(normalized)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Rol no permitido.',
-      allowedRoles: ALLOWED_ROLES,
-    });
+    return res
+      .status(400)
+      .json(ApiResponse.error('Rol no permitido.', { allowedRoles: ALLOWED_ROLES }));
   }
 
   const user = await findUserById(userId);
   if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: 'Usuario no encontrado',
-    });
+    return res.status(404).json(ApiResponse.error('Usuario no encontrado'));
   }
 
   const { updatedUser } = await setUserSingleRole(user, normalized, sequelize);
 
-  return res.status(200).json({
-    success: true,
-    message: 'Rol actualizado exitosamente',
-    data: buildUserResponse(updatedUser),
-  });
+  return res
+    .status(200)
+    .json(
+      ApiResponse.success(buildUserResponse(updatedUser), 'Rol actualizado exitosamente')
+    );
 });
 
 export const getUserRoles = asyncHandler(async (req, res) => {
   if (!(await ensureAdmin(req))) {
-    return res.status(403).json({
-      success: false,
-      message: 'No autorizado. Solo ADMIN_ROLE puede consultar roles.',
-    });
+    return res
+      .status(403)
+      .json(ApiResponse.error('No autorizado. Solo ADMIN_ROLE puede consultar roles.'));
   }
 
   const { userId } = req.params;
 
   const roles = await getUserRoleNames(userId);
-  return res.status(200).json({
-    success: true,
-    data: roles,
-  });
+  return res.status(200).json(ApiResponse.success(roles, 'Roles obtenidos exitosamente'));
 });
 
 export const getUsersByRole = asyncHandler(async (req, res) => {
   if (!(await ensureAdmin(req))) {
-    return res.status(403).json({
-      success: false,
-      message: 'No autorizado. Solo ADMIN_ROLE puede consultar por rol.',
-    });
+    return res
+      .status(403)
+      .json(ApiResponse.error('No autorizado. Solo ADMIN_ROLE puede consultar por rol.'));
   }
 
   const { roleName } = req.params;
   const normalized = (roleName || '').trim().toUpperCase();
 
   if (!ALLOWED_ROLES.includes(normalized)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Rol no permitido.',
-      allowedRoles: ALLOWED_ROLES,
-    });
+    return res
+      .status(400)
+      .json(ApiResponse.error('Rol no permitido.', { allowedRoles: ALLOWED_ROLES }));
   }
 
   const users = await repoGetUsersByRole(normalized);
-  return res.status(200).json({
-    success: true,
-    data: users.map(buildUserResponse),
-  });
+  return res
+    .status(200)
+    .json(
+      ApiResponse.success(users.map(buildUserResponse), 'Usuarios obtenidos exitosamente')
+    );
 });
 
 export const getAllowedRoles = asyncHandler(async (req, res) => {
   if (!(await ensureAdmin(req))) {
-    return res.status(403).json({
-      success: false,
-      message: 'No autorizado. Solo ADMIN_ROLE puede consultar roles permitidos.',
-    });
+    return res
+      .status(403)
+      .json(
+        ApiResponse.error(
+          'No autorizado. Solo ADMIN_ROLE puede consultar roles permitidos.'
+        )
+      );
   }
 
-  return res.status(200).json({
-    success: true,
-    data: ALLOWED_ROLES,
-  });
+  return res
+    .status(200)
+    .json(ApiResponse.success(ALLOWED_ROLES, 'Roles permitidos obtenidos exitosamente'));
 });

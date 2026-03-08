@@ -17,7 +17,8 @@ import { helmetConfiguration } from './helmet-configuration.js';
 import {
   errorHandler,
   notFound,
-} from '../middlewares/server-genericError-handler.js';
+} from '../middlewares/errorHandler.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 import authRoutes from '../src/Auth/auth.routes.js';
 import userRoutes from '../src/users/user.routes.js';
 import profileRoutes from '../src/profiles/profile.routes.js';
@@ -48,6 +49,7 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/triage`, triageRoutes);
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
+<<<<<<< HEAD
     const mongoStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
     res.status(200).json({
       status: 'Healthy',
@@ -55,6 +57,18 @@ const routes = (app) => {
       service: 'BloodLink Authentication Service',
       mongo: mongoStatus,
     });
+=======
+    res.status(200).json(
+      ApiResponse.success(
+        {
+          status: 'Healthy',
+          timestamp: new Date().toISOString(),
+          service: 'BloodLink Authentication Service',
+        },
+        'Servicio disponible'
+      )
+    );
+>>>>>>> 436f622516ff53a30572d0701840f03616da3529
   });
 
   // 404 handler (standardized)
