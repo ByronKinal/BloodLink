@@ -14,24 +14,92 @@ pnpm dev
 
 El endpoint `POST /api/v1/ai/ask` funciona con un bot local basado en reglas, por lo que no requiere API key de OpenAI.
 
-## 2) JSON con URLs correctas (copia y pega)
+## 2) JSON con TODAS las URLs (copia y pega)
 
 ```json
 {
   "health": "http://localhost:3006/api/v1/health",
   "login": "http://localhost:3006/api/v1/auth/login",
   "register": "http://localhost:3006/api/v1/auth/register",
+  "refreshToken": "http://localhost:3006/api/v1/auth/refresh-token",
+  "logout": "http://localhost:3006/api/v1/auth/logout",
   "verifyEmail": "http://localhost:3006/api/v1/auth/verify-email",
+  "resendVerification": "http://localhost:3006/api/v1/auth/resend-verification",
+  "forgotPassword": "http://localhost:3006/api/v1/auth/forgot-password",
+  "resetPassword": "http://localhost:3006/api/v1/auth/reset-password",
+  "usersAllowedRoles": "http://localhost:3006/api/v1/users/allowed-roles",
   "changeUserRole": "http://localhost:3006/api/v1/users/{userId}/role",
-  "appointmentsCreate": "http://localhost:3006/appointments",
-  "appointmentsStaffAgenda": "http://localhost:3006/appointments/staff?date=2026-03-20",
-  "appointmentsConfirm": "http://localhost:3006/appointments/{appointmentId}/confirm",
+  "getUserRoles": "http://localhost:3006/api/v1/users/{userId}/roles",
+  "getUsersByRole": "http://localhost:3006/api/v1/users/by-role/{roleName}",
+  "profilesCreate": "http://localhost:3006/api/v1/profiles",
+  "profilesMe": "http://localhost:3006/api/v1/profiles/me",
+  "profilesByUserId": "http://localhost:3006/api/v1/profiles/user/{userId}",
+  "appointmentsCreate": "http://localhost:3006/api/v1/appointments",
+  "appointmentsStaffAgenda": "http://localhost:3006/api/v1/appointments/staff?date=2026-03-20",
+  "appointmentsConfirm": "http://localhost:3006/api/v1/appointments/{appointmentId}/confirm",
+  "appointmentsCreateLegacyAlias": "http://localhost:3006/appointments",
+  "appointmentsStaffAgendaLegacyAlias": "http://localhost:3006/appointments/staff?date=2026-03-20",
+  "appointmentsConfirmLegacyAlias": "http://localhost:3006/appointments/{appointmentId}/confirm",
   "triageCreate": "http://localhost:3006/api/v1/triage",
   "triageList": "http://localhost:3006/api/v1/triage",
+  "triageCreateLegacyAlias": "http://localhost:3006/triage",
+  "triageListLegacyAlias": "http://localhost:3006/triage",
   "iotWeight": "http://localhost:3006/api/v1/iot/weight",
-  "aiAsk": "http://localhost:3006/api/v1/ai/ask"
+  "iotWeightLegacyAlias": "http://localhost:3006/iot/weight",
+  "aiAsk": "http://localhost:3006/api/v1/ai/ask",
+  "aiAskLegacyAlias": "http://localhost:3006/ai/ask"
 }
 ```
+
+## 2.1) Inventario completo por modulo (metodo + URL)
+
+### Health
+- `GET http://localhost:3006/api/v1/health`
+
+### Auth
+- `POST http://localhost:3006/api/v1/auth/register`
+- `POST http://localhost:3006/api/v1/auth/login`
+- `POST http://localhost:3006/api/v1/auth/refresh-token`
+- `POST http://localhost:3006/api/v1/auth/logout`
+- `POST http://localhost:3006/api/v1/auth/verify-email`
+- `POST http://localhost:3006/api/v1/auth/resend-verification`
+- `POST http://localhost:3006/api/v1/auth/forgot-password`
+- `POST http://localhost:3006/api/v1/auth/reset-password`
+
+### Users / Roles
+- `GET http://localhost:3006/api/v1/users/allowed-roles`
+- `PUT http://localhost:3006/api/v1/users/{userId}/role`
+- `GET http://localhost:3006/api/v1/users/{userId}/roles`
+- `GET http://localhost:3006/api/v1/users/by-role/{roleName}`
+
+### Profiles
+- `POST http://localhost:3006/api/v1/profiles`
+- `GET http://localhost:3006/api/v1/profiles/me`
+- `GET http://localhost:3006/api/v1/profiles/user/{userId}`
+
+### AI
+- `POST http://localhost:3006/api/v1/ai/ask`
+- `POST http://localhost:3006/ai/ask` (alias legacy)
+
+### Appointments
+- `POST http://localhost:3006/api/v1/appointments`
+- `GET http://localhost:3006/api/v1/appointments/staff?date=2026-03-20`
+- `PATCH http://localhost:3006/api/v1/appointments/{appointmentId}/confirm`
+
+Alias legacy habilitado en backend (tambien funciona):
+- `POST http://localhost:3006/appointments`
+- `GET http://localhost:3006/appointments/staff?date=2026-03-20`
+- `PATCH http://localhost:3006/appointments/{appointmentId}/confirm`
+
+### Triage
+- `POST http://localhost:3006/api/v1/triage`
+- `GET http://localhost:3006/api/v1/triage`
+- `POST http://localhost:3006/triage` (alias legacy)
+- `GET http://localhost:3006/triage` (alias legacy)
+
+### IoT
+- `POST http://localhost:3006/api/v1/iot/weight`
+- `POST http://localhost:3006/iot/weight` (alias legacy)
 
 ## 3) Variables recomendadas en Postman (solo tokens/ids)
 
@@ -74,8 +142,6 @@ Body (raw JSON):
 
 **POST** `http://localhost:3006/api/v1/auth/register`
 
-Headers:
-- `Content-Type: application/json`
 
 Body (raw JSON):
 ```json
@@ -177,11 +243,6 @@ Body (raw JSON):
 
 **PUT** `http://localhost:3006/api/v1/users/{{staff_user_id}}/role`
 
-Headers:
-- `Authorization: Bearer {{admin_token}}`
-- `Content-Type: application/json`
-
-Body (raw JSON):
 ```json
 {
   "roleName": "STAFF_ROLE"
@@ -192,7 +253,7 @@ Body (raw JSON):
 
 ## 4.10 Crear cita (DONOR)
 
-**POST** `http://localhost:3006/appointments`
+**POST** `http://localhost:3006/api/v1/appointments`
 
 Headers:
 - `Authorization: Bearer {{donor_token}}`
@@ -208,7 +269,7 @@ Body (raw JSON):
 
 ## 4.11 Ver agenda del día (STAFF_ROLE o ADMIN_ROLE)
 
-**GET** `http://localhost:3006/appointments/staff?date=2026-03-20`
+**GET** `http://localhost:3006/api/v1/appointments/staff?date=2026-03-20`
 
 Headers:
 - `Authorization: Bearer {{staff_token}}`
@@ -217,12 +278,7 @@ Headers:
 
 ## 4.12 Confirmar cita (STAFF_ROLE o ADMIN_ROLE)
 
-**PATCH** `http://localhost:3006/appointments/{{appointment_id}}/confirm`
-
-Headers:
-- `Authorization: Bearer {{staff_token}}`
-- `Content-Type: application/json`
-
+**PATCH** `http://localhost:3006/api/v1/appointments/{{appointment_id}}/confirm`
 
 Body (raw JSON):
 ```json
@@ -237,8 +293,6 @@ Body (raw JSON):
 
 **POST** `http://localhost:3006/api/v1/triage`
 
-Headers:
-- `Authorization: Bearer {{donor_token}}`
 
 Body (raw JSON):
 ```json
@@ -274,8 +328,6 @@ Notas:
 
 **GET** `http://localhost:3006/api/v1/triage`
 
-Headers:
-- `Authorization: Bearer {{admin_token}}`
 
 Opcional por cuenta:
 - `GET http://localhost:3006/api/v1/triage?accountId={{donor_user_id}}`
@@ -286,9 +338,6 @@ Opcional por cuenta:
 
 **POST** `http://localhost:3006/api/v1/iot/weight`
 
-Headers:
-- `Authorization: Bearer {{staff_token}}`
-- `Content-Type: application/json`
 
 Body (raw JSON):
 ```json

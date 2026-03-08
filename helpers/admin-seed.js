@@ -135,6 +135,9 @@ export const seedAdminUser = async () => {
     email: seedConfig.email,
     password: seedConfig.password,
     phone: seedConfig.phone,
+    bloodType: 'O+',
+    zone: 'Zona 1',
+    municipality: 'Guatemala',
   });
 
   await ensureUserIsAdmin(newUser.id, adminRole.id);

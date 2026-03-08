@@ -5,7 +5,6 @@ import {
 import { DONOR_ROLE } from '../helpers/role-constants.js';
 
 export const buildUserResponse = (user) => {
-  // Obtener la URL de la imagen de perfil
   const profilePictureUrl =
     user.userProfile && user.userProfile.profile_picture
       ? getFullImageUrl(user.userProfile.profile_picture)
@@ -37,11 +36,6 @@ export const buildUserResponse = (user) => {
   };
 };
 
-/**
- * Calcula la edad de un usuario basada en su fecha de nacimiento
- * @param {Date} dateOfBirth - Fecha de nacimiento
- * @returns {number} Edad en años
- */
 export const calculateAge = (dateOfBirth) => {
   const today = new Date();
   const birthDate = new Date(dateOfBirth);
@@ -55,15 +49,9 @@ export const calculateAge = (dateOfBirth) => {
   return age;
 };
 
-/**
- * Verifica si un usuario puede donar sangre
- * @param {Object} profile - Perfil del usuario
- * @returns {Object} Resultado con motivo si no puede donar
- */
 export const canUserDonate = (profile) => {
   const age = calculateAge(profile.date_of_birth);
   
-  // Verificar edad (18-65 años)
   if (age < 18 || age > 65) {
     return {
       can_donate: false,
@@ -71,7 +59,6 @@ export const canUserDonate = (profile) => {
     };
   }
   
-  // Verificar peso (mínimo 50kg)
   if (profile.weight_kg && profile.weight_kg < 50) {
     return {
       can_donate: false,
@@ -79,7 +66,6 @@ export const canUserDonate = (profile) => {
     };
   }
   
-  // Verificar condiciones médicas
   if (profile.medical_conditions && profile.medical_conditions.toLowerCase().includes('diabetes')) {
     return {
       can_donate: false,
@@ -93,12 +79,6 @@ export const canUserDonate = (profile) => {
   };
 };
 
-/**
- * Obtiene información de compatibilidad de sangre
- * @param {string} bloodType - Tipo de sangre (A, B, AB, O)
- * @param {string} rhFactor - Factor RH (+ o -)
- * @returns {Object} Información de compatibilidad
- */
 export const getBloodTypeInfo = (bloodType, rhFactor) => {
   const compatibilityMap = {
     'O+': { can_receive_from: ['O+', 'O-'], can_donate_to: ['O+', 'A+', 'B+', 'AB+'] },

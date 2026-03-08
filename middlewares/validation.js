@@ -166,8 +166,8 @@ export const validateConfirmAppointment = [
   body('staffUserId')
     .optional({ checkFalsy: true })
     .trim()
-    .isLength({ min: 16, max: 16 })
-    .withMessage('staffUserId debe tener 16 caracteres'),
+    .isLength({ min: 12, max: 12 })
+    .withMessage('staffUserId debe tener 12 caracteres'),
 
   handleValidationErrors,
 ];

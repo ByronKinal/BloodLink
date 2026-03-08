@@ -1,8 +1,3 @@
-// ================================================================
-// MODELO: User
-// ================================================================
-// Define el esquema de la tabla 'users' en PostgreSQL con Sequelize
-// ================================================================
 
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../../configs/db.js';
@@ -12,7 +7,7 @@ export const User = sequelize.define(
   'User',
   {
     id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       primaryKey: true,
       defaultValue: () => generateUUID(),
     },
@@ -102,12 +97,12 @@ export const UserProfile = sequelize.define(
   'UserProfile',
   {
     id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       primaryKey: true,
       defaultValue: () => generateUUID(),
     },
     user_id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       allowNull: false,
       references: {
         model: User,
@@ -162,12 +157,12 @@ export const UserEmail = sequelize.define(
   'UserEmail',
   {
     id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       primaryKey: true,
       defaultValue: () => generateUUID(),
     },
     user_id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       allowNull: false,
       references: {
         model: User,
@@ -202,12 +197,12 @@ export const UserPasswordReset = sequelize.define(
   'UserPasswordReset',
   {
     id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       primaryKey: true,
       defaultValue: () => generateUUID(),
     },
     user_id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       allowNull: false,
       references: {
         model: User,
@@ -233,12 +228,12 @@ export const UserRefreshToken = sequelize.define(
   'UserRefreshToken',
   {
     id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       primaryKey: true,
       defaultValue: () => generateUUID(),
     },
     user_id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       allowNull: false,
       references: {
         model: User,
@@ -269,10 +264,6 @@ export const UserRefreshToken = sequelize.define(
     timestamps: false,
   }
 );
-
-// ================================================================
-// Relaciones de Usuario
-// ================================================================
 
 User.hasOne(UserProfile, { foreignKey: 'user_id', as: 'userProfile' });
 UserProfile.belongsTo(User, { foreignKey: 'user_id', as: 'user' });

@@ -6,7 +6,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { dbConnection } from './db.js';
-// Ensure models are registered before DB sync
 import '../src/users/user.model.js';
 import '../src/Auth/role.model.js';
 import '../src/appointments/appointment.model.js';
@@ -69,7 +68,6 @@ const routes = (app) => {
     );
   });
 
-  // 404 handler (standardized)
   app.use(notFound);
 };
 
@@ -88,7 +86,6 @@ export const initServer = async () => {
       console.warn('MongoDB | MONGODB_URI no definido, perfiles Mongo deshabilitados');
     }
 
-    // Seed essential data (roles)
     const { seedRoles } = await import('../helpers/role-seed.js');
     const { seedAdminUser } = await import('../helpers/admin-seed.js');
     await seedRoles();

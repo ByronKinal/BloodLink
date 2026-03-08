@@ -8,7 +8,7 @@ export const Role = sequelize.define(
   'Role',
   {
     id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       primaryKey: true,
       defaultValue: () => generateUUID(),
     },
@@ -37,12 +37,12 @@ export const UserRole = sequelize.define(
   'UserRole',
   {
     id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       primaryKey: true,
       defaultValue: () => generateUUID(),
     },
     user_id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       allowNull: false,
       references: {
         model: User,
@@ -50,7 +50,7 @@ export const UserRole = sequelize.define(
       },
     },
     role_id: {
-      type: DataTypes.STRING(16),
+      type: DataTypes.STRING(12),
       allowNull: false,
       references: {
         model: Role,
@@ -66,7 +66,6 @@ export const UserRole = sequelize.define(
   }
 );
 
-// Associations
 User.hasMany(UserRole, { foreignKey: 'user_id', as: 'userRoles' });
 UserRole.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 

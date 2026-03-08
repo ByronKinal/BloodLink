@@ -1,8 +1,8 @@
-# Use this workspace to collaborate
+
 workspace:
   id: ""
 
-# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
 cloudResources:
   collections:
     ..\postman\collections\NexusBank API - Colección Ordenada (ES): 49128659-1fe34d52-67ce-4dd8-9ee8-00fb22c7458f
@@ -10,8 +10,3 @@ cloudResources:
   environments:
     ..\postman\environments\New Environment.environment.yaml: 49128659-1bf57fe2-951b-48a9-9f91-7393973b8341
 
-# All resources in the `postman/` folder are automatically registered in Local View.
-# Point to additional files outside the `postman/` folder to register them individually. Example:
-#localResources:
-#  collections:
-#    - ../tests/E2E Test Collection/

@@ -6,7 +6,6 @@ if (process.env.ALLOW_INSECURE_TLS === 'true') {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 }
 
-// Configurar Cloudinary
 cloudinary.config({
   cloud_name: config.cloudinary.cloudName,
   api_key: config.cloudinary.apiKey,
@@ -28,7 +27,6 @@ export const uploadImage = async (filePath, fileName) => {
 
     const result = await cloudinary.uploader.upload(filePath, options);
 
-    // Eliminar archivo local después de subir exitosamente
     try {
       await fs.unlink(filePath);
     } catch {
@@ -98,7 +96,6 @@ export const getDefaultAvatarUrl = () => {
 
 export const getDefaultAvatarPath = () => {
   const defaultPath = config.cloudinary.defaultAvatarPath;
-  // If dotenv didn't expand nested vars, build from env pieces
   if (defaultPath && defaultPath.includes('${')) {
     const folder = process.env.CLOUDINARY_FOLDER;
     const filename = process.env.CLOUDINARY_DEFAULT_AVATAR_FILENAME;

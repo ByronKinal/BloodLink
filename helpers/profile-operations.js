@@ -12,12 +12,6 @@ export const getUserProfileHelper = async (userId) => {
 };
 
 
-/**
- * Crea un perfil para un usuario
- * @param {number} userId - ID del usuario
- * @param {Object} profileData - Datos del perfil
- * @returns {Promise<Object>} Perfil creado
- */
 export const createUserProfile = async (userId, profileData) => {
   const {
     first_name,
@@ -69,11 +63,6 @@ export const createUserProfile = async (userId, profileData) => {
   }
 };
 
-/**
- * Obtiene el perfil de un usuario
- * @param {number} userId - ID del usuario
- * @returns {Promise<Object|null>} Perfil encontrado o null
- */
 export const getUserProfile = async (userId) => {
   try {
     const result = await sequelize.query(
@@ -87,18 +76,11 @@ export const getUserProfile = async (userId) => {
   }
 };
 
-/**
- * Actualiza el perfil de un usuario
- * @param {number} userId - ID del usuario
- * @param {Object} profileUpdates - Datos a actualizar
- * @returns {Promise<Object>} Perfil actualizado
- */
 export const updateUserProfile = async (userId, profileUpdates) => {
   try {
     const fields = [];
     const values = [];
 
-    // Construir la query dinámica
     Object.keys(profileUpdates).forEach((key) => {
       if (key !== 'id' && key !== 'user_id' && key !== 'created_at') {
         fields.push(`${key} = ?`);
@@ -127,57 +109,6 @@ export const updateUserProfile = async (userId, profileUpdates) => {
   }
 };
 
-/**
- * Elimina el perfil de un usuario
- * @param {number} userId - ID del usuario
- *try {
-    await sequelize.query(
-      'DELETE FROM user_profiles WHERE user_id = ?',
-      { replacements: [userId] }
-    );
-    return true;
-  } catch (error) {
-    console.error('Error al eliminar perfil de usuario:', error);
-    throw error;
-  }
-export const deleteUserProfile = async (userId) => {
-  await pool.query('DELETE FROM user_profiles WHERE user_id = $1', [userId]);
-  return true;
-};
-try {
-    const result = await sequelize.query(
-      `UPDATE user_profiles 
-       SET last_donation_date = ?, updated_at = CURRENT_TIMESTAMP
-       WHERE user_id = ?
-       RETURNING *`,
-      { replacements: [donationDate, userId], type: sequelize.QueryTypes.UPDATE }
-    );
-    return result[0];
-  } catch (error) {
-    console.error('Error al actualizar fecha de donación:', error);
-    throw error;
-  }onationDate = async (userId, donationDate) => {
-  const result = await pool.query(
-    `UPDATE user_profiles 
-     SET last_donation_date = $1, updated_at = CURRENT_TIMESTAMP
-     WHERE user_id = $2
-  try {
-    const result = await sequelize.query(
-      `UPDATE user_profiles 
-       SET can_donate = ?, updated_at = CURRENT_TIMESTAMP
-       WHERE user_id = ?
-       RETURNING *`,
-      { replacements: [canDonate, userId], type: sequelize.QueryTypes.UPDATE }
-    );
-    return result[0];
-  } catch (error) {
-    console.error('Error al actualizar estado de donación:', error);
-    throw error;
-  }e donación del usuario
- * @param {number} userId - ID del usuario
- * @param {boolean} canDonate - Si puede donar o no
- * @returns {Promise<Object>} Perfil actualizado
- */
 export const updateDonationStatus = async (userId, canDonate) => {
   const result = await pool.query(
     `UPDATE user_profiles 

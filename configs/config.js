@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const config = {
-  // JWT Configuration
+
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -12,7 +12,6 @@ export const config = {
     audience: process.env.JWT_AUDIENCE,
   },
 
-  // SMTP Configuration (aligned with .NET SmtpSettings)
   smtp: {
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT, 10) || 587,
@@ -23,14 +22,12 @@ export const config = {
     fromName: process.env.EMAIL_FROM_NAME,
   },
 
-  // File Upload Configuration (aligned with .NET FileValidator)
   upload: {
-    maxSize: 5 * 1024 * 1024, // 5MB (aligned with .NET)
-    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'], // aligned with .NET
+    maxSize: 5 * 1024 * 1024, 
+    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'], 
     uploadPath: process.env.UPLOAD_PATH,
   },
 
-  // Cloudinary Configuration
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,
@@ -49,12 +46,9 @@ export const config = {
     folder: process.env.CLOUDINARY_FOLDER,
   },
 
-  // Rate Limiting (aligned with .NET AuthPolicy and ApiPolicy)
   rateLimit: {
-    // General API rate limiting (aligned with .NET ApiPolicy: 20 tokens per minute)
-    windowMs: 1 * 60 * 1000, // 1 minute
+    windowMs: 1 * 60 * 1000, 
     maxRequests: 20,
-    // Auth endpoints rate limiting (strict anti brute-force)
     authWindowMs:
       (process.env.AUTH_RATE_LIMIT_WINDOW_MINUTES
         ? parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MINUTES, 10)
@@ -64,18 +58,15 @@ export const config = {
     authMaxRequests: process.env.AUTH_RATE_LIMIT_MAX_REQUESTS
       ? parseInt(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS, 10)
       : 5,
-    // Email endpoints rate limiting (more restrictive for security)
-    emailWindowMs: 15 * 60 * 1000, // 15 minutes
+    emailWindowMs: 15 * 60 * 1000, 
     emailMaxRequests: 3,
   },
 
-  // Security (aligned with .NET Security configuration)
   security: {
     saltRounds: 12,
     maxLoginAttempts: 5,
     lockoutTime: 30 * 60 * 1000,
     passwordMinLength: 8,
-    // IP Filtering (aligned with .NET IpFilteringMiddleware)
     blacklistedIPs: process.env.BLACKLISTED_IPS
       ? process.env.BLACKLISTED_IPS.split(',').map((ip) => ip.trim())
       : [],
@@ -87,12 +78,10 @@ export const config = {
       : [],
   },
 
-  // App Settings (aligned with .NET AppSettings)
   app: {
     frontendUrl: process.env.FRONTEND_URL,
   },
 
-  // Security Settings (aligned with .NET Security config)
   cors: {
     allowedOrigins: process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
@@ -102,9 +91,7 @@ export const config = {
       : [],
   },
 
-  // Verification tokens
   verification: {
-    // Read expirations from env (hours) for easy configuration and parity with .NET
     emailTokenExpiry:
       (process.env.VERIFICATION_EMAIL_EXPIRY_HOURS
         ? parseInt(process.env.VERIFICATION_EMAIL_EXPIRY_HOURS, 10)

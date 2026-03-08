@@ -8,7 +8,7 @@ export const helmetConfiguration = {
     },
   },
   hsts: {
-    maxAge: 31536000, // 1 año
+    maxAge: 31536000, 
     includeSubDomains: true,
     preload: true,
   },
