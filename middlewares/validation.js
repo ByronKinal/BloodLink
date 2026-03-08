@@ -162,6 +162,17 @@ export const validateAppointmentIdParam = [
   handleValidationErrors,
 ];
 
+export const validateWalletUserIdParam = [
+  param('userId')
+    .trim()
+    .notEmpty()
+    .withMessage('userId es obligatorio')
+    .isLength({ min: 12, max: 12 })
+    .withMessage('userId debe tener 12 caracteres'),
+
+  handleValidationErrors,
+];
+
 export const validateConfirmAppointment = [
   body('staffUserId')
     .optional({ checkFalsy: true })

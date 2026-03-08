@@ -12,6 +12,7 @@ import Appointment from '../appointments/appointment.model.js';
 import TriageForm from '../triage/triage.model.js';
 import Donation from './donation.model.js';
 import BloodBag from '../blood-bags/blood-bag.model.js';
+import { awardPointsForDonation } from '../../helpers/incentive-operations.js';
 
 const MAX_DONATION_ML = 600;
 
@@ -176,9 +177,16 @@ export const registerDonationWeight = asyncHandler(async (req, res) => {
     donorUserId: donorUser.id,
   });
 
+  const incentive = await awardPointsForDonation({
+    userId: donorUser.id,
+    donationId: created._id,
+    appointmentId: appointment._id,
+    volumeMl,
+  });
+
   return res.status(201).json({
     success: true,
-    message: 'Donacion y bolsa de sangre registradas exitosamente',
+    message: 'Donacion, bolsa de sangre e incentivos registrados exitosamente',
     data: {
       donation: sanitizeDonation(created),
       bloodBag: {
@@ -189,6 +197,7 @@ export const registerDonationWeight = asyncHandler(async (req, res) => {
         expirationDate: bloodBag.expirationDate,
         status: 'Disponible',
       },
+      incentive,
     },
   });
 });
