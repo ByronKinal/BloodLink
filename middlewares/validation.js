@@ -5,6 +5,7 @@ import {
   isValidBloodType,
   VALID_BLOOD_TYPES,
 } from '../utils/blood-compatibility.js';
+import { BLOOD_STOCK_AUDIT_ACTIONS } from '../utils/audit-constants.js';
 
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -646,6 +647,79 @@ export const validateBloodMatchParams = [
     .isInt({ min: 1, max: 600 })
     .withMessage('minVolumeMl debe ser un entero entre 1 y 600')
     .toInt(),
+
+  handleValidationErrors,
+];
+
+export const validateAuditQuery = [
+  query('page')
+    .optional()
+    .isInt({ min: 1, max: 100000 })
+    .withMessage('page debe ser un entero mayor o igual a 1')
+    .toInt(),
+
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('limit debe ser un entero entre 1 y 100')
+    .toInt(),
+
+  query('action')
+    .optional({ checkFalsy: true })
+    .trim()
+    .custom((value) => {
+      const normalized = String(value || '').trim().toUpperCase();
+
+      if (!BLOOD_STOCK_AUDIT_ACTIONS.includes(normalized)) {
+        throw new Error(
+          `action debe ser uno de: ${BLOOD_STOCK_AUDIT_ACTIONS.join(', ')}`
+        );
+      }
+
+      return true;
+    }),
+
+  query('bloodType')
+    .optional({ checkFalsy: true })
+    .trim()
+    .custom((value) => {
+      if (!isValidBloodType(value)) {
+        throw new Error(
+          `bloodType debe ser uno de: ${VALID_BLOOD_TYPES.join(', ')}`
+        );
+      }
+
+      return true;
+    }),
+
+  query('performedByUserId')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 12, max: 12 })
+    .withMessage('performedByUserId debe tener 12 caracteres'),
+
+  query('from')
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .withMessage('from debe ser una fecha valida en formato ISO8601')
+    .toDate(),
+
+  query('to')
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .withMessage('to debe ser una fecha valida en formato ISO8601')
+    .toDate(),
+
+  query().custom((_, { req }) => {
+    const from = req.query.from ? new Date(req.query.from) : null;
+    const to = req.query.to ? new Date(req.query.to) : null;
+
+    if (from && to && from > to) {
+      throw new Error('from no puede ser mayor que to');
+    }
+
+    return true;
+  }),
 
   handleValidationErrors,
 ];

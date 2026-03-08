@@ -13,6 +13,7 @@ import TriageForm from '../triage/triage.model.js';
 import Donation from './donation.model.js';
 import BloodBag from '../blood-bags/blood-bag.model.js';
 import { awardPointsForDonation } from '../../helpers/incentive-operations.js';
+import { BLOOD_STOCK_INCREASE } from '../../utils/audit-constants.js';
 
 const MAX_DONATION_ML = 600;
 
@@ -175,6 +176,21 @@ export const registerDonationWeight = asyncHandler(async (req, res) => {
     expirationDate,
     volumeMl,
     donorUserId: donorUser.id,
+  });
+
+  await req.logBloodStockAudit?.({
+    action: BLOOD_STOCK_INCREASE,
+    bloodType: donorBloodType,
+    volumeDeltaMl: volumeMl,
+    reason: 'Ingreso de nueva bolsa desde registro de donacion',
+    relatedBagId: bloodBag._id,
+    relatedDonationId: created._id,
+    metadata: {
+      unitCode,
+      source: 'IOT_SIMULATED',
+      donorUserId: donorUser.id,
+      appointmentId: String(appointment._id),
+    },
   });
 
   const incentive = await awardPointsForDonation({

@@ -12,6 +12,7 @@ import '../src/appointments/appointment.model.js';
 import '../src/triage/triage.model.js';
 import '../src/iot/donation.model.js';
 import '../src/blood-bags/blood-bag.model.js';
+import '../src/audit/audit-log.model.js';
 import '../src/incentives/incentive.model.js';
 import '../src/rewards/reward.model.js';
 import { requestLimit } from '../middlewares/request-limit.js';
@@ -30,6 +31,7 @@ import appointmentRoutes from '../src/appointments/appointment.routes.js';
 import triageRoutes from '../src/triage/triage.routes.js';
 import iotRoutes from '../src/iot/iot.routes.js';
 import bloodBagRoutes from '../src/blood-bags/blood-bag.routes.js';
+import auditRoutes from '../src/audit/audit.routes.js';
 import incentiveRoutes from '../src/incentives/incentive.routes.js';
 import rewardRoutes from '../src/rewards/reward.routes.js';
 
@@ -49,6 +51,7 @@ const routes = (app) => {
   app.use('/appointments', appointmentRoutes);
   app.use('/triage', triageRoutes);
   app.use('/blood-bags', bloodBagRoutes);
+  app.use('/audit', auditRoutes);
   app.use('/wallet', incentiveRoutes);
   app.use('/rewards', rewardRoutes);
   app.use(`${BASE_PATH}/auth`, authRoutes);
@@ -59,6 +62,7 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/triage`, triageRoutes);
   app.use(`${BASE_PATH}/iot`, iotRoutes);
   app.use(`${BASE_PATH}/blood-bags`, bloodBagRoutes);
+  app.use(`${BASE_PATH}/audit`, auditRoutes);
   app.use(`${BASE_PATH}/wallet`, incentiveRoutes);
   app.use(`${BASE_PATH}/rewards`, rewardRoutes);
 
