@@ -130,6 +130,27 @@ export const UserProfile = sequelize.define(
         isNumeric: { msg: 'El teléfono solo debe contener números.' },
       },
     },
+    blood_type: {
+      type: DataTypes.STRING(3),
+      allowNull: false,
+      validate: {
+        notEmpty: { msg: 'El tipo de sangre es obligatorio.' },
+        isIn: {
+          args: [['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']],
+          msg: 'Tipo de sangre no válido.',
+        },
+      },
+    },
+    zone: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      defaultValue: null,
+    },
+    municipality: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      defaultValue: null,
+    },
   },
   {
     tableName: 'user_profiles',

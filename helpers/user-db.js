@@ -74,8 +74,18 @@ export const createNewUser = async (userData) => {
   const transaction = await User.sequelize.transaction();
 
   try {
-    const { name, surname, username, email, password, phone, profilePicture } =
-      userData;
+    const {
+      name,
+      surname,
+      username,
+      email,
+      password,
+      phone,
+      profilePicture,
+      bloodType,
+      zone,
+      municipality,
+    } = userData;
     const hashedPassword = await hashPassword(password);
 
     const user = await User.create(
@@ -97,6 +107,9 @@ export const createNewUser = async (userData) => {
         user_id: user.id,
         phone,
         profile_picture: profilePicture || getDefaultAvatarPath(),
+        blood_type: String(bloodType || '').trim().toUpperCase(),
+        zone: zone ? String(zone).trim() : null,
+        municipality: municipality ? String(municipality).trim() : null,
       },
       { transaction }
     );

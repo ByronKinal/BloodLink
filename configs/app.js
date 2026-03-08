@@ -11,6 +11,7 @@ import '../src/users/user.model.js';
 import '../src/Auth/role.model.js';
 import '../src/appointments/appointment.model.js';
 import '../src/triage/triage.model.js';
+import '../src/iot/donation.model.js';
 import { requestLimit } from '../middlewares/request-limit.js';
 import { corsOptions } from './cors-configuration.js';
 import { helmetConfiguration } from './helmet-configuration.js';
@@ -25,6 +26,7 @@ import profileRoutes from '../src/profiles/profile.routes.js';
 import aiRoutes from '../src/ai/ai.routes.js';
 import appointmentRoutes from '../src/appointments/appointment.routes.js';
 import triageRoutes from '../src/triage/triage.routes.js';
+import iotRoutes from '../src/iot/iot.routes.js';
 
 const BASE_PATH = '/api/v1';
 
@@ -41,34 +43,30 @@ const routes = (app) => {
   app.use('/ai', aiRoutes);
   app.use('/appointments', appointmentRoutes);
   app.use('/triage', triageRoutes);
+  app.use('/iot', iotRoutes);
   app.use(`${BASE_PATH}/auth`, authRoutes);
   app.use(`${BASE_PATH}/users`, userRoutes);
   app.use(`${BASE_PATH}/profiles`, profileRoutes);
   app.use(`${BASE_PATH}/ai`, aiRoutes);
   app.use(`${BASE_PATH}/appointments`, appointmentRoutes);
   app.use(`${BASE_PATH}/triage`, triageRoutes);
+  app.use(`${BASE_PATH}/iot`, iotRoutes);
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
-<<<<<<< HEAD
-    const mongoStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
-    res.status(200).json({
-      status: 'Healthy',
-      timestamp: new Date().toISOString(),
-      service: 'BloodLink Authentication Service',
-      mongo: mongoStatus,
-    });
-=======
+    const mongoStatus =
+      mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+
     res.status(200).json(
       ApiResponse.success(
         {
           status: 'Healthy',
           timestamp: new Date().toISOString(),
           service: 'BloodLink Authentication Service',
+          mongo: mongoStatus,
         },
         'Servicio disponible'
       )
     );
->>>>>>> 436f622516ff53a30572d0701840f03616da3529
   });
 
   // 404 handler (standardized)

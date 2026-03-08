@@ -65,6 +65,39 @@ export const validateRegister = [
     .matches(/^\d{8}$/)
     .withMessage('El número de teléfono debe tener exactamente 8 dígitos'),
 
+  body('bloodType')
+    .trim()
+    .notEmpty()
+    .withMessage('El tipo de sangre es obligatorio')
+    .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+    .withMessage('bloodType debe ser uno de: A+, A-, B+, B-, AB+, AB-, O+, O-'),
+
+  body('zone')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('zone debe tener entre 2 y 100 caracteres'),
+
+  body('municipality')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('municipality debe tener entre 2 y 100 caracteres'),
+
+  body().custom((_, { req }) => {
+    const hasZone =
+      typeof req.body?.zone === 'string' && req.body.zone.trim().length > 0;
+    const hasMunicipality =
+      typeof req.body?.municipality === 'string' &&
+      req.body.municipality.trim().length > 0;
+
+    if (!hasZone && !hasMunicipality) {
+      throw new Error('Debes enviar zone o municipality para registrar al donador');
+    }
+
+    return true;
+  }),
+
   handleValidationErrors,
 ];
 
@@ -135,6 +168,36 @@ export const validateConfirmAppointment = [
     .trim()
     .isLength({ min: 16, max: 16 })
     .withMessage('staffUserId debe tener 16 caracteres'),
+
+  handleValidationErrors,
+];
+
+export const validateIotWeightDonation = [
+  body('appointmentId')
+    .trim()
+    .notEmpty()
+    .withMessage('appointmentId es obligatorio')
+    .custom((value) => mongoose.isValidObjectId(value))
+    .withMessage('appointmentId debe ser un ObjectId valido'),
+
+  body('weightGrams')
+    .notEmpty()
+    .withMessage('weightGrams es obligatorio')
+    .isFloat({ gt: 0, max: 600 })
+    .withMessage('weightGrams debe ser un numero mayor a 0 y no mayor a 600')
+    .toFloat(),
+
+  body('notes')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 300 })
+    .withMessage('notes no puede exceder 300 caracteres'),
+
+  body('deviceId')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 80 })
+    .withMessage('deviceId no puede exceder 80 caracteres'),
 
   handleValidationErrors,
 ];

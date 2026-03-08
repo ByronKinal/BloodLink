@@ -19,6 +19,15 @@ export const buildUserResponse = (user) => {
     email: user.email,
     phone:
       user.userProfile && user.userProfile.phone ? user.userProfile.phone : '',
+    bloodType:
+      user.userProfile && user.userProfile.blood_type
+        ? user.userProfile.blood_type
+        : null,
+    zone: user.userProfile && user.userProfile.zone ? user.userProfile.zone : null,
+    municipality:
+      user.userProfile && user.userProfile.municipality
+        ? user.userProfile.municipality
+        : null,
     profilePicture: profilePictureUrl,
     role: user.userRoles?.[0]?.role?.name ?? DONOR_ROLE,
     status: user.status,

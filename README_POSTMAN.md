@@ -2,6 +2,10 @@
 
 Este documento está hecho para usar URL completa sin `{{base_url}}`.
 
+Nota: los endpoints protegidos aceptan JWT en:
+- `Authorization: Bearer <token>`
+- o `x-token: <token>`
+
 ## 1) Levantar API
 
 ```bash
@@ -22,6 +26,9 @@ El endpoint `POST /api/v1/ai/ask` funciona con un bot local basado en reglas, po
   "appointmentsCreate": "http://localhost:3006/appointments",
   "appointmentsStaffAgenda": "http://localhost:3006/appointments/staff?date=2026-03-20",
   "appointmentsConfirm": "http://localhost:3006/appointments/{appointmentId}/confirm",
+  "triageCreate": "http://localhost:3006/api/v1/triage",
+  "triageList": "http://localhost:3006/api/v1/triage",
+  "iotWeight": "http://localhost:3006/api/v1/iot/weight",
   "aiAsk": "http://localhost:3006/api/v1/ai/ask"
 }
 ```
@@ -37,6 +44,7 @@ No uses `base_url`, solo estas variables:
 - `donor_user_id`
 - `staff_user_id`
 - `appointment_id`
+- `triage_form_id`
 
 ## 4) Requests listas para copiar y pegar
 
@@ -77,7 +85,10 @@ Body (raw JSON):
   "username": "donor1",
   "email": "donor1@bloodlink.local",
   "password": "Donor1234",
-  "phone": "12345678"
+  "phone": "12345678",
+  "bloodType": "O+",
+  "zone": "Zona 1",
+  "municipality": "Guatemala"
 }
 ```
 
@@ -98,7 +109,7 @@ Body (raw JSON):
 }
 ```
 
-## 4.5 Login 
+## 4.5 Login DONOR
 
 **POST** `http://localhost:3006/api/v1/auth/login`
 
@@ -125,7 +136,10 @@ Body (raw JSON):
   "username": "staff1",
   "email": "staff1@bloodlink.local",
   "password": "Staff1234",
-  "phone": "87654321"
+  "phone": "87654321",
+  "bloodType": "A+",
+  "zone": "Zona 10",
+  "municipality": "Guatemala"
 }
 ```
 
@@ -163,6 +177,10 @@ Body (raw JSON):
 
 **PUT** `http://localhost:3006/api/v1/users/{{staff_user_id}}/role`
 
+Headers:
+- `Authorization: Bearer {{admin_token}}`
+- `Content-Type: application/json`
+
 Body (raw JSON):
 ```json
 {
@@ -176,6 +194,8 @@ Body (raw JSON):
 
 **POST** `http://localhost:3006/appointments`
 
+Headers:
+- `Authorization: Bearer {{donor_token}}`
 
 Body (raw JSON):
 ```json
@@ -199,6 +219,10 @@ Headers:
 
 **PATCH** `http://localhost:3006/appointments/{{appointment_id}}/confirm`
 
+Headers:
+- `Authorization: Bearer {{staff_token}}`
+- `Content-Type: application/json`
+
 
 Body (raw JSON):
 ```json
@@ -209,7 +233,83 @@ Body (raw JSON):
 
 ---
 
-## 4.13 Chatbot (donaciones, gratis)
+## 4.13 Crear triaje (DONOR)
+
+**POST** `http://localhost:3006/api/v1/triage`
+
+Headers:
+- `Authorization: Bearer {{donor_token}}`
+
+Body (raw JSON):
+```json
+{
+  "ageYears": 25,
+  "weightKg": 68,
+  "pulseBpm": 76,
+  "systolicMmHg": 118,
+  "diastolicMmHg": 78,
+  "temperatureC": 36.7,
+  "hemoglobinGdl": 13.8,
+  "hasFever": false,
+  "hasInfectionSymptoms": false,
+  "hasChronicDisease": false,
+  "chronicDiseaseControlled": true,
+  "consumedAlcoholLast24h": false,
+  "tookAntibioticsLast7d": false,
+  "pregnantOrBreastfeeding": false,
+  "hadTattooOrPiercing": true,
+  "lastTattooOrPiercingDate": "2025-10-01",
+  "hadRecentSurgery": false,
+  "lastDonationDate": "2025-12-01"
+}
+```
+
+Notas:
+- Si envías otro formulario antes de 24h, responde `429`.
+- El resultado viene en `data.evaluation.result` con valor `APTO` o `NO APTO`.
+
+---
+
+## 4.14 Listar formularios de triaje
+
+**GET** `http://localhost:3006/api/v1/triage`
+
+Headers:
+- `Authorization: Bearer {{admin_token}}`
+
+Opcional por cuenta:
+- `GET http://localhost:3006/api/v1/triage?accountId={{donor_user_id}}`
+
+---
+
+## 4.15 Registrar donación (IoT simulado)
+
+**POST** `http://localhost:3006/api/v1/iot/weight`
+
+Headers:
+- `Authorization: Bearer {{staff_token}}`
+- `Content-Type: application/json`
+
+Body (raw JSON):
+```json
+{
+  "appointmentId": "{{appointment_id}}",
+  "weightGrams": 470,
+  "deviceId": "SCALE-01",
+  "notes": "Extraccion sin incidencias"
+}
+```
+
+Reglas importantes:
+- Solo `ADMIN_ROLE` y `STAFF_ROLE` pueden usar este endpoint.
+- Si el donador está `NO APTO` en su último triaje, no permite registrar donación.
+- La cita debe existir y estar confirmada.
+- El máximo permitido por extracción es `600 ml`.
+- `donationDate` se asigna automáticamente por backend.
+
+---
+
+## 4.16 Chatbot (donaciones, gratis)
 
 **POST** `http://localhost:3006/api/v1/ai/ask`
 
