@@ -1,6 +1,10 @@
 import { body, param, query, validationResult } from 'express-validator';
 import mongoose from 'mongoose';
 import { ALLOWED_ROLES } from '../helpers/role-constants.js';
+import {
+  isValidBloodType,
+  VALID_BLOOD_TYPES,
+} from '../utils/blood-compatibility.js';
 
 export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
@@ -618,6 +622,30 @@ export const validateRoleParam = [
 
       return true;
     }),
+
+  handleValidationErrors,
+];
+
+export const validateBloodMatchParams = [
+  param('requiredBloodType')
+    .trim()
+    .notEmpty()
+    .withMessage('requiredBloodType es obligatorio')
+    .custom((value) => {
+      if (!isValidBloodType(value)) {
+        throw new Error(
+          `requiredBloodType debe ser uno de: ${VALID_BLOOD_TYPES.join(', ')}`
+        );
+      }
+
+      return true;
+    }),
+
+  query('minVolumeMl')
+    .optional()
+    .isInt({ min: 1, max: 600 })
+    .withMessage('minVolumeMl debe ser un entero entre 1 y 600')
+    .toInt(),
 
   handleValidationErrors,
 ];

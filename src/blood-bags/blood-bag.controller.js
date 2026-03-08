@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 import { asyncHandler } from '../../middlewares/errorHandler.js';
+import { findUsersByIds } from '../../helpers/user-db.js';
+import {
+  getCompatibleDonorTypes,
+  normalizeBloodType,
+  VALID_BLOOD_TYPES,
+} from '../../utils/blood-compatibility.js';
 import BloodBag from './blood-bag.model.js';
 
 const ensureMongoReady = () => mongoose.connection.readyState === 1;
@@ -20,7 +26,7 @@ const sanitizeBloodBag = (bag) => ({
 
 const getBloodTypeStats = (bags) => {
   const stats = {};
-  const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  const bloodTypes = VALID_BLOOD_TYPES;
   
   bloodTypes.forEach(type => {
     stats[type] = {
@@ -47,6 +53,119 @@ const getBloodTypeStats = (bags) => {
 
   return stats;
 };
+
+export const getCompatibleBloodBags = asyncHandler(async (req, res) => {
+  if (!ensureMongoReady()) {
+    return res.status(503).json({
+      success: false,
+      message: 'MongoDB no esta conectado',
+    });
+  }
+
+  const requiredBloodType = normalizeBloodType(req.params.requiredBloodType);
+  const compatibleDonorTypes = getCompatibleDonorTypes(requiredBloodType);
+
+  if (compatibleDonorTypes.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: `Tipo de sangre invalido. Tipos validos: ${VALID_BLOOD_TYPES.join(', ')}`,
+    });
+  }
+
+  const minVolumeMl = Number(req.query.minVolumeMl || 1);
+  const now = new Date();
+
+  const bags = await BloodBag.find({
+    bloodType: { $in: compatibleDonorTypes },
+    expirationDate: { $gt: now },
+    volumeMl: { $gte: minVolumeMl },
+  })
+    .sort({ expirationDate: 1, createdAt: -1 })
+    .lean();
+
+  const sanitized = bags.map((bag) =>
+    sanitizeBloodBag({
+      ...bag,
+      status: 'Disponible',
+    })
+  );
+
+  const donorAvailability = new Map();
+
+  sanitized.forEach((bag) => {
+    if (!donorAvailability.has(bag.donorUserId)) {
+      donorAvailability.set(bag.donorUserId, {
+        availableBags: 0,
+        totalAvailableVolumeMl: 0,
+        earliestExpirationDate: bag.expirationDate,
+        bloodTypes: new Set(),
+      });
+    }
+
+    const donorData = donorAvailability.get(bag.donorUserId);
+    donorData.availableBags += 1;
+    donorData.totalAvailableVolumeMl += bag.volumeMl;
+    donorData.bloodTypes.add(bag.bloodType);
+
+    if (new Date(bag.expirationDate) < new Date(donorData.earliestExpirationDate)) {
+      donorData.earliestExpirationDate = bag.expirationDate;
+    }
+  });
+
+  const donorUserIds = Array.from(donorAvailability.keys());
+  const donorUsers = await findUsersByIds(donorUserIds).catch(() => []);
+  const donorUserMap = new Map(donorUsers.map((donorUser) => [donorUser.id, donorUser]));
+
+  const availableDonors = donorUserIds.map((donorUserId) => {
+    const donorData = donorAvailability.get(donorUserId);
+    const donorUser = donorUserMap.get(donorUserId);
+
+    return {
+      donorUserId,
+      availableBags: donorData.availableBags,
+      totalAvailableVolumeMl: donorData.totalAvailableVolumeMl,
+      earliestExpirationDate: donorData.earliestExpirationDate,
+      bloodTypes: Array.from(donorData.bloodTypes),
+      donor: donorUser
+        ? {
+            id: donorUser.id,
+            name: donorUser.name,
+            surname: donorUser.surname,
+            username: donorUser.username,
+            bloodType: donorUser.userProfile?.blood_type || null,
+            zone: donorUser.userProfile?.zone || null,
+            municipality: donorUser.userProfile?.municipality || null,
+            status: donorUser.status,
+          }
+        : null,
+    };
+  });
+
+  const totalAvailableVolumeMl = sanitized.reduce(
+    (sum, bag) => sum + bag.volumeMl,
+    0
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: 'Match sanguineo generado exitosamente',
+    data: {
+      requiredBloodType,
+      compatibleDonorTypes,
+      criteria: {
+        status: 'Disponible',
+        minVolumeMl,
+      },
+      summary: {
+        availableCompatibleBags: sanitized.length,
+        availableCompatibleDonors: availableDonors.length,
+        totalAvailableVolumeMl,
+      },
+      donors: availableDonors,
+      bloodBags: sanitized,
+    },
+  });
+});
 
 export const getAllBloodBags = asyncHandler(async (req, res) => {
   if (!ensureMongoReady()) {
@@ -91,7 +210,7 @@ export const getBloodBagsByType = asyncHandler(async (req, res) => {
 
   const { bloodType } = req.params;
 
-  const validBloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  const validBloodTypes = VALID_BLOOD_TYPES;
   if (!validBloodTypes.includes(bloodType)) {
     return res.status(400).json({
       success: false,

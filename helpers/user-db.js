@@ -44,6 +44,25 @@ export const findUserById = async (userId) => {
   });
 };
 
+export const findUsersByIds = async (userIds = []) => {
+  const uniqueUserIds = Array.from(
+    new Set((userIds || []).map((id) => String(id || '').trim()).filter(Boolean))
+  );
+
+  if (uniqueUserIds.length === 0) {
+    return [];
+  }
+
+  return User.findAll({
+    where: {
+      id: {
+        [Op.in]: uniqueUserIds,
+      },
+    },
+    include: USER_RELATIONS,
+  });
+};
+
 export const findUserByEmail = async (email) => {
   return User.findOne({
     where: { email: normalize(email) },

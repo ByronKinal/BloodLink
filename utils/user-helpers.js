@@ -3,6 +3,10 @@ import {
   getDefaultAvatarPath,
 } from '../helpers/cloudinary-service.js';
 import { DONOR_ROLE } from '../helpers/role-constants.js';
+import {
+  BLOOD_COMPATIBILITY_MATRIX,
+  normalizeBloodType,
+} from './blood-compatibility.js';
 
 export const buildUserResponse = (user) => {
   const profilePictureUrl =
@@ -80,17 +84,18 @@ export const canUserDonate = (profile) => {
 };
 
 export const getBloodTypeInfo = (bloodType, rhFactor) => {
-  const compatibilityMap = {
-    'O+': { can_receive_from: ['O+', 'O-'], can_donate_to: ['O+', 'A+', 'B+', 'AB+'] },
-    'O-': { can_receive_from: ['O-'], can_donate_to: ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'] },
-    'A+': { can_receive_from: ['A+', 'A-', 'O+', 'O-'], can_donate_to: ['A+', 'AB+'] },
-    'A-': { can_receive_from: ['A-', 'O-'], can_donate_to: ['A+', 'A-', 'AB+', 'AB-'] },
-    'B+': { can_receive_from: ['B+', 'B-', 'O+', 'O-'], can_donate_to: ['B+', 'AB+'] },
-    'B-': { can_receive_from: ['B-', 'O-'], can_donate_to: ['B+', 'B-', 'AB+', 'AB-'] },
-    'AB+': { can_receive_from: ['AB+', 'AB-', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-'], can_donate_to: ['AB+'] },
-    'AB-': { can_receive_from: ['AB-', 'A-', 'B-', 'O-'], can_donate_to: ['AB+', 'AB-'] },
+  const normalizedRhFactor =
+    rhFactor === 'positive' ? '+' : rhFactor === 'negative' ? '-' : rhFactor || '';
+
+  const normalizedKey = normalizeBloodType(`${bloodType || ''}${normalizedRhFactor}`);
+  const compatibility = BLOOD_COMPATIBILITY_MATRIX[normalizedKey];
+
+  if (!compatibility) {
+    return null;
+  }
+
+  return {
+    can_receive_from: [...compatibility.canReceiveFrom],
+    can_donate_to: [...compatibility.canDonateTo],
   };
-  
-  const key = `${bloodType}${rhFactor === 'positive' ? '+' : rhFactor === 'negative' ? '-' : rhFactor}`;
-  return compatibilityMap[key] || null;
 };
