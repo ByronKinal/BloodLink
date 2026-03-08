@@ -1,0 +1,16 @@
+$kind: http-request
+name: Actualizar Premio
+url: http://localhost:3006/api/v1/rewards/{{rewardId}}
+method: PATCH
+headers:
+  - name: Authorization
+    value: Bearer {{tokenStaff}}
+body:
+  type: json
+  content: |
+    {
+      "requiredPoints": 45,
+      "stock": 25,
+      "status": true
+    }
+order: 11

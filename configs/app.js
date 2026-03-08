@@ -13,6 +13,7 @@ import '../src/triage/triage.model.js';
 import '../src/iot/donation.model.js';
 import '../src/blood-bags/blood-bag.model.js';
 import '../src/incentives/incentive.model.js';
+import '../src/rewards/reward.model.js';
 import { requestLimit } from '../middlewares/request-limit.js';
 import { corsOptions } from './cors-configuration.js';
 import { helmetConfiguration } from './helmet-configuration.js';
@@ -30,6 +31,7 @@ import triageRoutes from '../src/triage/triage.routes.js';
 import iotRoutes from '../src/iot/iot.routes.js';
 import bloodBagRoutes from '../src/blood-bags/blood-bag.routes.js';
 import incentiveRoutes from '../src/incentives/incentive.routes.js';
+import rewardRoutes from '../src/rewards/reward.routes.js';
 
 const BASE_PATH = '/api/v1';
 
@@ -48,6 +50,7 @@ const routes = (app) => {
   app.use('/triage', triageRoutes);
   app.use('/blood-bags', bloodBagRoutes);
   app.use('/wallet', incentiveRoutes);
+  app.use('/rewards', rewardRoutes);
   app.use(`${BASE_PATH}/auth`, authRoutes);
   app.use(`${BASE_PATH}/users`, userRoutes);
   app.use(`${BASE_PATH}/profiles`, profileRoutes);
@@ -57,6 +60,7 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/iot`, iotRoutes);
   app.use(`${BASE_PATH}/blood-bags`, bloodBagRoutes);
   app.use(`${BASE_PATH}/wallet`, incentiveRoutes);
+  app.use(`${BASE_PATH}/rewards`, rewardRoutes);
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
     const mongoStatus =

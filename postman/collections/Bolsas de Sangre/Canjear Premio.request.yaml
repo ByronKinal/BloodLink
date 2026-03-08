@@ -1,0 +1,15 @@
+$kind: http-request
+name: Canjear Premio
+url: http://localhost:3006/api/v1/rewards/redeem
+method: POST
+headers:
+  - name: Authorization
+    value: Bearer {{tokenDonor}}
+body:
+  type: json
+  content: |
+    {
+      "rewardId": "{{rewardId}}",
+      "quantity": 1
+    }
+order: 12

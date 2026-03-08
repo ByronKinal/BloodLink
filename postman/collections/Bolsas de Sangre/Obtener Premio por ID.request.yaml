@@ -1,0 +1,8 @@
+$kind: http-request
+name: Obtener Premio por ID
+url: http://localhost:3006/api/v1/rewards/{{rewardId}}
+method: GET
+headers:
+  - name: Authorization
+    value: Bearer {{tokenDonor}}
+order: 10

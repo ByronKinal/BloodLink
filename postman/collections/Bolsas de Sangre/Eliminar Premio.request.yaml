@@ -1,0 +1,8 @@
+$kind: http-request
+name: Eliminar Premio
+url: http://localhost:3006/api/v1/rewards/{{rewardId}}
+method: DELETE
+headers:
+  - name: Authorization
+    value: Bearer {{tokenStaff}}
+order: 13

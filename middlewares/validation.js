@@ -173,6 +173,103 @@ export const validateWalletUserIdParam = [
   handleValidationErrors,
 ];
 
+export const validateRewardIdParam = [
+  param('rewardId')
+    .trim()
+    .notEmpty()
+    .withMessage('rewardId es obligatorio')
+    .isLength({ min: 12, max: 12 })
+    .withMessage('rewardId debe tener 12 caracteres'),
+
+  handleValidationErrors,
+];
+
+export const validateCreateReward = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('name es obligatorio')
+    .isLength({ min: 2, max: 120 })
+    .withMessage('name debe tener entre 2 y 120 caracteres'),
+
+  body('requiredPoints')
+    .notEmpty()
+    .withMessage('requiredPoints es obligatorio')
+    .isInt({ min: 1, max: 100000 })
+    .withMessage('requiredPoints debe ser un entero entre 1 y 100000')
+    .toInt(),
+
+  body('stock')
+    .notEmpty()
+    .withMessage('stock es obligatorio')
+    .isInt({ min: 0, max: 100000 })
+    .withMessage('stock debe ser un entero entre 0 y 100000')
+    .toInt(),
+
+  handleValidationErrors,
+];
+
+export const validateUpdateReward = [
+  body('name')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 120 })
+    .withMessage('name debe tener entre 2 y 120 caracteres'),
+
+  body('requiredPoints')
+    .optional()
+    .isInt({ min: 1, max: 100000 })
+    .withMessage('requiredPoints debe ser un entero entre 1 y 100000')
+    .toInt(),
+
+  body('stock')
+    .optional()
+    .isInt({ min: 0, max: 100000 })
+    .withMessage('stock debe ser un entero entre 0 y 100000')
+    .toInt(),
+
+  body('status')
+    .optional()
+    .isBoolean()
+    .withMessage('status debe ser booleano')
+    .toBoolean(),
+
+  body().custom((_, { req }) => {
+    const allowed = ['name', 'requiredPoints', 'stock', 'status'];
+    const sent = Object.keys(req.body || {});
+
+    if (sent.length === 0) {
+      throw new Error('Debes enviar al menos un campo para actualizar');
+    }
+
+    const invalid = sent.filter((key) => !allowed.includes(key));
+    if (invalid.length > 0) {
+      throw new Error(`Campos no permitidos: ${invalid.join(', ')}`);
+    }
+
+    return true;
+  }),
+
+  handleValidationErrors,
+];
+
+export const validateRedeemReward = [
+  body('rewardId')
+    .trim()
+    .notEmpty()
+    .withMessage('rewardId es obligatorio')
+    .isLength({ min: 12, max: 12 })
+    .withMessage('rewardId debe tener 12 caracteres'),
+
+  body('quantity')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('quantity debe ser un entero entre 1 y 100')
+    .toInt(),
+
+  handleValidationErrors,
+];
+
 export const validateConfirmAppointment = [
   body('staffUserId')
     .optional({ checkFalsy: true })

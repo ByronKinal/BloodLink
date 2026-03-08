@@ -1,6 +1,7 @@
 import { sequelize } from '../configs/db.js';
 import { findUserById } from './user-db.js';
 import { IncentiveTransaction, Wallet } from '../src/incentives/incentive.model.js';
+import { Reward, RewardRedemption } from '../src/rewards/reward.model.js';
 
 export const calculateDonationPoints = (volumeMl) => {
   const normalized = Number(volumeMl);
@@ -121,20 +122,44 @@ export const getWalletByUserId = async (userId) => {
     limit: 50,
   });
 
+  const redemptions = await RewardRedemption.findAll({
+    where: { user_id: userId },
+    include: [{ model: Reward, as: 'reward' }],
+    order: [['created_at', 'DESC']],
+    limit: 50,
+  });
+
+  const donationMovements = transactions.map((trx) => ({
+    id: trx.id,
+    donationId: trx.donation_id,
+    appointmentId: trx.appointment_id,
+    points: trx.points,
+    volumeMl: trx.volume_ml,
+    transactionType: trx.transaction_type,
+    description: trx.description,
+    createdAt: trx.created_at,
+  }));
+
+  const redemptionMovements = redemptions.map((redemption) => ({
+    id: redemption.id,
+    rewardId: redemption.reward_id,
+    rewardName: redemption.reward?.name || null,
+    points: -Math.abs(redemption.points_spent),
+    quantity: redemption.quantity,
+    transactionType: 'REWARD_REDEEM',
+    description: `Canje de premio: ${redemption.reward?.name || 'N/A'}`,
+    createdAt: redemption.created_at,
+  }));
+
+  const movements = [...donationMovements, ...redemptionMovements]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 100);
+
   return {
     userId,
     balancePoints: wallet.balance_points,
     totalEarnedPoints: wallet.total_earned_points,
-    transactionCount: transactions.length,
-    transactions: transactions.map((trx) => ({
-      id: trx.id,
-      donationId: trx.donation_id,
-      appointmentId: trx.appointment_id,
-      points: trx.points,
-      volumeMl: trx.volume_ml,
-      transactionType: trx.transaction_type,
-      description: trx.description,
-      createdAt: trx.created_at,
-    })),
+    transactionCount: movements.length,
+    transactions: movements,
   };
 };
