@@ -52,7 +52,6 @@ const profileSchema = new mongoose.Schema(
     roleName: {
       type: String,
       required: true,
-      enum: [DONOR_ROLE, STAFF_ROLE],
       trim: true,
       uppercase: true,
     },

@@ -42,14 +42,7 @@ export const validateCreateProfile = [
   body('roleName')
     .trim()
     .notEmpty()
-    .withMessage('roleName es obligatorio')
-    .custom((value) => {
-      const normalized = normalizeRole(value);
-      if (![DONOR_ROLE, STAFF_ROLE].includes(normalized)) {
-        throw new Error(`roleName debe ser ${DONOR_ROLE} o ${STAFF_ROLE}`);
-      }
-      return true;
-    }),
+    .withMessage('roleName es obligatorio'),
 
   body('donorData.bloodType')
     .if((_, { req }) => normalizeRole(req.body.roleName) === DONOR_ROLE)
