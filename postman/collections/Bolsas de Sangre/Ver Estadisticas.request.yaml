@@ -1,8 +1,0 @@
-$kind: http-request
-name: Ver Estadisticas de Bolsas
-url: http://localhost:3006/api/v1/blood-bags/stats
-method: GET
-headers:
-  - name: Authorization
-    value: Bearer {{token}}
-order: 3

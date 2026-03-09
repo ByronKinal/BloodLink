@@ -1,9 +1,0 @@
-$kind: http-request
-description: Lista usuarios por rol. Solo ADMIN_ROLE.
-url: "{{baseUrl}}/users/by-role/{{roleName}}"
-method: GET
-auth:
-  type: bearer
-  credentials:
-    token: "{{tokenAdmin}}"
-order: 4000

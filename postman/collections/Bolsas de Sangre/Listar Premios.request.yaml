@@ -1,8 +1,0 @@
-$kind: http-request
-name: Listar Premios
-url: http://localhost:3006/api/v1/rewards
-method: GET
-headers:
-  - name: Authorization
-    value: Bearer {{tokenDonor}}
-order: 9

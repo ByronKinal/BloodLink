@@ -5,7 +5,7 @@ const SAFETY_NOTE =
   'Esta información es orientativa y no sustituye una evaluación médica profesional.';
 
 const FALLBACK_IN_SCOPE_MESSAGE =
-  'Puedo orientarte mejor si me dices más detalle (por ejemplo: medicamento, vacuna, fiebre, tatuaje, embarazo o fecha exacta de tu última donación).';
+  'Entiendo que tu pregunta es sobre donación de sangre. Puedo darte orientación general, pero para una evaluación precisa según tu situación particular y normativa local, el personal del banco de sangre es la mejor fuente. ¿Hay algún aspecto específico sobre tu salud o requisitos de donación que quieras consultar?';
 
 const DONATION_CONTEXT_KEYWORDS = [
   'donar',
@@ -49,6 +49,44 @@ const DONATION_CONTEXT_KEYWORDS = [
   'hepatitis',
   'presion arterial',
   'presión arterial',
+  'ets',
+  'enfermedad de trasmision sexual',
+  'enfermedad de transmisión sexual',
+  'sifilis',
+  'sífilis',
+  'gonorrea',
+  'clamidia',
+  'tricomoniasis',
+  'herpes',
+  'condiloma',
+  'verrugas genitales',
+  'infección sexual',
+  'infeccion sexual',
+  'paludismo',
+  'malaria',
+  'chagas',
+  'enfermedad de chagas',
+  'tuberculosis',
+  'tb',
+  'leucemia',
+  'cancer',
+  'cáncer',
+  'diabetes',
+  'hipertension',
+  'hipertensión',
+  'asma',
+  'mareo',
+  'desmayo',
+  'sincope',
+  'condición médica',
+  'historial médico',
+  'medicamentos que tomo',
+  'puedo donar si',
+  'puedo donar con',
+  'me permite donar',
+  'impedimento para donar',
+  'contraindicación',
+  'riesgo de donación',
 ];
 
 const normalizeText = (text = '') =>
@@ -138,9 +176,14 @@ const RULES = [
       'Después de cirugía o procedimiento dental puede requerirse espera temporal. El tiempo depende del tipo de procedimiento, sangrado, antibióticos y recuperación clínica.',
   },
   {
-    triggers: ['vih', 'hepatitis', 'infeccion'],
+    triggers: ['vih', 'hepatitis', 'infeccion', 'sida'],
     answer:
       'Para seguridad del receptor, antecedentes de infecciones transmisibles relevantes pueden impedir donar de forma temporal o permanente. El banco de sangre te orientará con criterios oficiales y confidenciales.',
+  },
+  {
+    triggers: ['ets', 'trasmision sexual', 'transmisión sexual', 'sifilis', 'gonorrea', 'clamidia', 'herpes', ['enfermedad', 'sexual']],
+    answer:
+      'Si tienes o tuviste una enfermedad de transmisión sexual, el banco de sangre requiere información detallada para evaluar el riesgo residual. Algunas condiciones pueden ser temporales tras tratamiento y cura documentada, mientras que otras pueden requerir exclusión prolongada. La evaluación es confidencial y basada en criterios de seguridad transfusional.',
   },
   {
     triggers: ['grupo sanguineo', 'rh', 'o negativo', 'o positivo', 'a positivo'],
@@ -156,6 +199,11 @@ const RULES = [
     triggers: ['proceso', 'como donar', 'que pasa cuando dono', 'pasos para donar'],
     answer:
       'Proceso típico: registro, entrevista médica, control de signos y hemoglobina, donación (unos minutos), y observación breve con hidratación posterior.',
+  },
+  {
+    triggers: [['puedo', 'donar', 'si'], ['puedo', 'donar', 'con'], ['puedo', 'donar', 'aunque'], 'me permite donar', 'me deja donar', 'puedo ser donante'],
+    answer:
+      'La capacidad para donar depende de tu condición específica. Las donaciones requieren estar en buen estado general, sin infecciones activas y cumplir requisitos de edad, peso y hemoglobina. Para una evaluación precisa de tu situación particular, el personal del banco de sangre hará preguntas detalladas y realizará exámenes estándar (signos vitales, hemoglobina, antecedentes médicos).',
   },
 ];
 
@@ -208,8 +256,30 @@ export const askDonationAssistant = async (question) => {
 
   const normalizedQuestion = normalizeText(question);
   const matchedRule = findBestRule(normalizedQuestion);
-  const baseAnswer = matchedRule ? matchedRule.answer : FALLBACK_IN_SCOPE_MESSAGE;
-  const answer = `${baseAnswer} ${SAFETY_NOTE}`;
+  
+  let answer;
+  if (matchedRule) {
+    answer = `${matchedRule.answer} ${SAFETY_NOTE}`;
+  } else {
+    // Si la pregunta es sobre donación pero no tiene regla específica,
+    // responde reconociendo que es sobre donación pero recomienda confirmación
+    const contextItems = [];
+    if (normalizedQuestion.includes('puedo') || normalizedQuestion.includes('me permite')) {
+      contextItems.push('tu eligibilidad');
+    }
+    if (normalizedQuestion.includes('riesgo') || normalizedQuestion.includes('peligro')) {
+      contextItems.push('los riesgos potenciales');
+    }
+    if (normalizedQuestion.includes('cuando') || normalizedQuestion.includes('cuanto tiempo')) {
+      contextItems.push('los plazos de espera');
+    }
+    
+    const contextPhrase = contextItems.length > 0 
+      ? ` Aunque no tengo una respuesta predefinida para ${contextItems.join(' y ')},`
+      : '';
+    
+    answer = `Entiendo que tu pregunta es sobre donación de sangre.${contextPhrase} el banco de sangre puede evaluarte correctamente según tu situación particular y normativa local. Te recomendamos que contactes directamente para una evaluación precisa. ${SAFETY_NOTE}`;
+  }
 
   return {
     success: true,

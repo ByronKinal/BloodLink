@@ -22,6 +22,7 @@ import {
   errorHandler,
   notFound,
 } from '../middlewares/errorHandler.js';
+import { setupSwagger } from './swagger.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import authRoutes from '../src/Auth/auth.routes.js';
 import userRoutes from '../src/users/user.routes.js';
@@ -48,6 +49,8 @@ const middlewares = (app) => {
 };
 
 const routes = (app) => {
+  setupSwagger(app);
+
   app.use('/ai', aiRoutes);
   app.use('/appointments', appointmentRoutes);
   app.use('/triage', triageRoutes);

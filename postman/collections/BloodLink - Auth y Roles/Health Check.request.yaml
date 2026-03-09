@@ -1,5 +1,0 @@
-$kind: http-request
-description: Verifica que el servidor de BloodLink esté funcionando.
-url: "{{baseUrl}}/health"
-method: GET
-order: 3000

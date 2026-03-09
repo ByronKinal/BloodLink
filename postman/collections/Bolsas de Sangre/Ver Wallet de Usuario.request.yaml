@@ -1,8 +1,0 @@
-$kind: http-request
-name: Ver Wallet de Usuario
-url: http://localhost:3006/api/v1/wallet/{{userId}}
-method: GET
-headers:
-  - name: Authorization
-    value: Bearer {{token}}
-order: 6

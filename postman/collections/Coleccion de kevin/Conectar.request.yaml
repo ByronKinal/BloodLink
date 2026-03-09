@@ -1,5 +1,0 @@
-$kind: http-request
-name: Conectar
-url: http://localhost:3006/api/v1/health
-method: GET
-order: 3657319339335887
