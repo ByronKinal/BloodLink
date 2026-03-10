@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Appointment from '../src/appointments/appointment.model.js';
+import TriageForm from '../src/triage/triage.model.js';
 import {
   ADMIN_ROLE,
   DONOR_ROLE,
@@ -165,6 +166,28 @@ export const createAppointmentHelper = async ({ donorUserId, date, time }) => {
     throw error;
   }
 
+  const latestTriage = await TriageForm.findOne({ accountId: donorUserId })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!latestTriage) {
+    const error = new Error(
+      'Debes completar el formulario de triaje antes de crear una cita'
+    );
+    error.status = 403;
+    throw error;
+  }
+
+  if (latestTriage?.evaluation?.result !== 'APTO') {
+    const triageReasons = latestTriage?.evaluation?.reasons || [];
+    const reasonText = triageReasons.length > 0 ? ` Motivo: ${triageReasons.join(' ')}` : '';
+    const error = new Error(
+      `No puedes crear cita porque tu ultimo triaje esta marcado como NO APTO.${reasonText}`
+    );
+    error.status = 403;
+    throw error;
+  }
+
   const scheduleDate = asScheduleDate(normalizedDate, normalizedTime);
   if (Number.isNaN(scheduleDate.getTime()) || scheduleDate <= new Date()) {
     const error = new Error('La cita debe programarse en una fecha y hora futura');
@@ -225,6 +248,47 @@ export const getStaffAgendaHelper = async ({ requesterUserId, date }) => {
 
   return {
     selectedDate,
+    appointments: hydratedAppointments,
+  };
+};
+
+export const getAllAppointmentsHelper = async ({
+  requesterUserId,
+  date,
+  status,
+}) => {
+  assertMongoReady();
+
+  const requesterRoles = await getUserRoleNames(requesterUserId);
+  assertRoles(requesterRoles, [STAFF_ROLE, ADMIN_ROLE]);
+
+  const query = {};
+
+  if (date) {
+    query.appointmentDate = normalizeDate(date);
+  }
+
+  if (typeof status === 'string' && status.trim().length > 0) {
+    const normalizedStatus = status.trim().toLowerCase();
+
+    if (normalizedStatus !== 'true' && normalizedStatus !== 'false') {
+      const error = new Error('status debe ser true o false');
+      error.status = 400;
+      throw error;
+    }
+
+    query.status = normalizedStatus === 'true';
+  }
+
+  const appointments = await Appointment.find(query)
+    .sort({ appointmentDate: 1, appointmentTime: 1, createdAt: 1 })
+    .lean();
+
+  const hydratedAppointments = await Promise.all(
+    appointments.map((appointment) => hydrateAppointment(appointment))
+  );
+
+  return {
     appointments: hydratedAppointments,
   };
 };

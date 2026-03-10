@@ -57,6 +57,21 @@ export const updateUserRole = asyncHandler(async (req, res) => {
     return res.status(404).json(ApiResponse.error('Usuario no encontrado'));
   }
 
+  const targetRoles = (user.userRoles || [])
+    .map((ur) => ur.role?.name)
+    .filter(Boolean);
+
+  const isSelfUpdate = req.userId === userId;
+  const targetIsAdmin = targetRoles.includes(ADMIN_ROLE);
+
+  if (targetIsAdmin && !isSelfUpdate) {
+    return res.status(403).json(
+      ApiResponse.error(
+        'Este usuario ya tiene ADMIN_ROLE y su rol no se puede modificar nuevamente.'
+      )
+    );
+  }
+
   const { updatedUser } = await setUserSingleRole(user, normalized, sequelize);
 
   return res

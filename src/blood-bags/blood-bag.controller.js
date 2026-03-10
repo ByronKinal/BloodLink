@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { asyncHandler } from '../../middlewares/errorHandler.js';
 import { findUsersByIds } from '../../helpers/user-db.js';
+import { getUserRoleNames } from '../../helpers/role-db.js';
+import { ADMIN_ROLE, STAFF_ROLE } from '../../helpers/role-constants.js';
 import {
   getCompatibleDonorTypes,
   normalizeBloodType,
@@ -9,6 +11,18 @@ import {
 import BloodBag from './blood-bag.model.js';
 
 const ensureMongoReady = () => mongoose.connection.readyState === 1;
+
+const hasPersonnelRole = (roles = []) =>
+  roles.includes(ADMIN_ROLE) || roles.includes(STAFF_ROLE);
+
+const getEffectiveBagStatus = (bag) => {
+  const now = new Date();
+  if (now > new Date(bag.expirationDate)) {
+    return 'Caducado';
+  }
+
+  return bag.availabilityStatus || 'Disponible';
+};
 
 const sanitizeBloodBag = (bag) => ({
   id: String(bag._id),
@@ -19,7 +33,7 @@ const sanitizeBloodBag = (bag) => ({
   expirationDate: bag.expirationDate,
   volumeMl: bag.volumeMl,
   donorUserId: bag.donorUserId,
-  status: bag.status,
+  status: getEffectiveBagStatus(bag),
   createdAt: bag.createdAt,
   updatedAt: bag.updatedAt,
 });
@@ -41,10 +55,10 @@ const getBloodTypeStats = (bags) => {
   bags.forEach(bag => {
     const type = bag.bloodType;
     stats[type].total++;
-    stats[type].totalVolumeMl += bag.volumeMl;
     
     if (bag.status === 'Disponible') {
       stats[type].disponible++;
+      stats[type].totalVolumeMl += bag.volumeMl;
       stats[type].disponibleVolumeMl += bag.volumeMl;
     } else if (bag.status === 'Caducado') {
       stats[type].caducado++;
@@ -78,17 +92,16 @@ export const getCompatibleBloodBags = asyncHandler(async (req, res) => {
   const bags = await BloodBag.find({
     bloodType: { $in: compatibleDonorTypes },
     expirationDate: { $gt: now },
+    $or: [
+      { availabilityStatus: 'Disponible' },
+      { availabilityStatus: { $exists: false } },
+    ],
     volumeMl: { $gte: minVolumeMl },
   })
     .sort({ expirationDate: 1, createdAt: -1 })
     .lean();
 
-  const sanitized = bags.map((bag) =>
-    sanitizeBloodBag({
-      ...bag,
-      status: 'Disponible',
-    })
-  );
+  const sanitized = bags.map((bag) => sanitizeBloodBag(bag));
 
   const donorAvailability = new Map();
 
@@ -177,15 +190,7 @@ export const getAllBloodBags = asyncHandler(async (req, res) => {
 
   const bags = await BloodBag.find().sort({ createdAt: -1 }).lean();
 
-  const sanitized = bags.map(bag => {
-    const now = new Date();
-    return {
-      ...sanitizeBloodBag({
-        ...bag,
-        status: now > bag.expirationDate ? 'Caducado' : 'Disponible',
-      }),
-    };
-  });
+  const sanitized = bags.map((bag) => sanitizeBloodBag(bag));
 
   const stats = getBloodTypeStats(sanitized);
 
@@ -220,15 +225,7 @@ export const getBloodBagsByType = asyncHandler(async (req, res) => {
 
   const bags = await BloodBag.find({ bloodType }).sort({ createdAt: -1 }).lean();
 
-  const sanitized = bags.map(bag => {
-    const now = new Date();
-    return {
-      ...sanitizeBloodBag({
-        ...bag,
-        status: now > bag.expirationDate ? 'Caducado' : 'Disponible',
-      }),
-    };
-  });
+  const sanitized = bags.map((bag) => sanitizeBloodBag(bag));
 
   const disponibles = sanitized.filter(b => b.status === 'Disponible');
   const caducadas = sanitized.filter(b => b.status === 'Caducado');
@@ -242,7 +239,7 @@ export const getBloodBagsByType = asyncHandler(async (req, res) => {
       count: sanitized.length,
       disponibles: disponibles.length,
       caducadas: caducadas.length,
-      totalVolumeMl: sanitized.reduce((sum, b) => sum + b.volumeMl, 0),
+      totalVolumeMl: disponibles.reduce((sum, b) => sum + b.volumeMl, 0),
       disponibleVolumeMl: disponibles.reduce((sum, b) => sum + b.volumeMl, 0),
     },
   });
@@ -274,13 +271,7 @@ export const getBloodBagById = asyncHandler(async (req, res) => {
     });
   }
 
-  const now = new Date();
-  const sanitized = {
-    ...sanitizeBloodBag({
-      ...bag,
-      status: now > bag.expirationDate ? 'Caducado' : 'Disponible',
-    }),
-  };
+  const sanitized = sanitizeBloodBag(bag);
 
   return res.status(200).json({
     success: true,
@@ -300,9 +291,9 @@ export const getBloodBagStats = asyncHandler(async (req, res) => {
   const bags = await BloodBag.find().lean();
 
   const now = new Date();
-  const sanitized = bags.map(bag => ({
+  const sanitized = bags.map((bag) => ({
     ...bag,
-    status: now > bag.expirationDate ? 'Caducado' : 'Disponible',
+    status: getEffectiveBagStatus(bag),
   }));
 
   const stats = getBloodTypeStats(sanitized);
@@ -310,7 +301,9 @@ export const getBloodBagStats = asyncHandler(async (req, res) => {
   const totalBags = sanitized.length;
   const totalDisponibles = sanitized.filter(b => b.status === 'Disponible').length;
   const totalCaducadas = sanitized.filter(b => b.status === 'Caducado').length;
-  const totalVolume = sanitized.reduce((sum, b) => sum + b.volumeMl, 0);
+  const totalVolume = sanitized
+    .filter((b) => b.status === 'Disponible')
+    .reduce((sum, b) => sum + b.volumeMl, 0);
   const disponibleVolume = sanitized.filter(b => b.status === 'Disponible').reduce((sum, b) => sum + b.volumeMl, 0);
 
   return res.status(200).json({
@@ -326,5 +319,64 @@ export const getBloodBagStats = asyncHandler(async (req, res) => {
       },
       byBloodType: stats,
     },
+  });
+});
+
+export const updateBloodBagStatus = asyncHandler(async (req, res) => {
+  if (!ensureMongoReady()) {
+    return res.status(503).json({
+      success: false,
+      message: 'MongoDB no esta conectado',
+    });
+  }
+
+  const requesterRoles = await getUserRoleNames(req.userId);
+  if (!hasPersonnelRole(requesterRoles)) {
+    return res.status(403).json({
+      success: false,
+      message: 'Solo personal autorizado puede actualizar el estado de bolsas',
+    });
+  }
+
+  const { id } = req.params;
+  const { status } = req.body || {};
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'ID invalido',
+    });
+  }
+
+  const normalizedStatus = String(status || '').trim();
+  if (!['Disponible', 'No disponible'].includes(normalizedStatus)) {
+    return res.status(400).json({
+      success: false,
+      message: 'status debe ser Disponible o No disponible',
+    });
+  }
+
+  const bag = await BloodBag.findById(id);
+  if (!bag) {
+    return res.status(404).json({
+      success: false,
+      message: 'Bolsa de sangre no encontrada',
+    });
+  }
+
+  if (new Date() > bag.expirationDate && normalizedStatus === 'Disponible') {
+    return res.status(409).json({
+      success: false,
+      message: 'No puedes marcar como Disponible una bolsa caducada',
+    });
+  }
+
+  bag.availabilityStatus = normalizedStatus;
+  await bag.save();
+
+  return res.status(200).json({
+    success: true,
+    message: 'Estado de la bolsa actualizado exitosamente',
+    data: sanitizeBloodBag(bag),
   });
 });

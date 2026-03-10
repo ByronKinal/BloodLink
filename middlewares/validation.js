@@ -103,6 +103,14 @@ export const validateRegister = [
     return true;
   }),
 
+  body().custom((_, { req }) => {
+    if (!req.file) {
+      throw new Error('La foto de perfil es obligatoria (campo profilePicture)');
+    }
+
+    return true;
+  }),
+
   handleValidationErrors,
 ];
 
@@ -316,191 +324,191 @@ export const validateIotWeightDonation = [
 ];
 
 export const validateCreateTriage = [
-  body('ageYears')
+  body('edadAnios')
     .notEmpty()
-    .withMessage('ageYears es obligatorio')
+    .withMessage('edadAnios es obligatorio')
     .isInt({ min: 0, max: 120 })
-    .withMessage('ageYears debe ser un entero entre 0 y 120')
+    .withMessage('edadAnios debe ser un entero entre 0 y 120')
     .toInt(),
 
-  body('weightKg')
+  body('pesoKg')
     .notEmpty()
-    .withMessage('weightKg es obligatorio')
+    .withMessage('pesoKg es obligatorio')
     .isFloat({ gt: 0, max: 400 })
-    .withMessage('weightKg debe ser un numero mayor a 0')
+    .withMessage('pesoKg debe ser un numero mayor a 0')
     .toFloat(),
 
-  body('pulseBpm')
+  body('pulsoBpm')
     .notEmpty()
-    .withMessage('pulseBpm es obligatorio')
+    .withMessage('pulsoBpm es obligatorio')
     .isInt({ min: 20, max: 220 })
-    .withMessage('pulseBpm debe ser un entero entre 20 y 220')
+    .withMessage('pulsoBpm debe ser un entero entre 20 y 220')
     .toInt(),
 
-  body('systolicMmHg')
+  body('presionSistolicaMmHg')
     .notEmpty()
-    .withMessage('systolicMmHg es obligatorio')
+    .withMessage('presionSistolicaMmHg es obligatorio')
     .isInt({ min: 60, max: 260 })
-    .withMessage('systolicMmHg debe ser un entero entre 60 y 260')
+    .withMessage('presionSistolicaMmHg debe ser un entero entre 60 y 260')
     .toInt(),
 
-  body('diastolicMmHg')
+  body('presionDiastolicaMmHg')
     .notEmpty()
-    .withMessage('diastolicMmHg es obligatorio')
+    .withMessage('presionDiastolicaMmHg es obligatorio')
     .isInt({ min: 30, max: 180 })
-    .withMessage('diastolicMmHg debe ser un entero entre 30 y 180')
+    .withMessage('presionDiastolicaMmHg debe ser un entero entre 30 y 180')
     .toInt(),
 
-  body('temperatureC')
+  body('temperaturaC')
     .notEmpty()
-    .withMessage('temperatureC es obligatorio')
+    .withMessage('temperaturaC es obligatorio')
     .isFloat({ min: 32, max: 43 })
-    .withMessage('temperatureC debe ser un numero entre 32 y 43')
+    .withMessage('temperaturaC debe ser un numero entre 32 y 43')
     .toFloat(),
 
-  body('hemoglobinGdl')
+  body('hemoglobinaGdl')
     .notEmpty()
-    .withMessage('hemoglobinGdl es obligatorio')
+    .withMessage('hemoglobinaGdl es obligatorio')
     .isFloat({ min: 3, max: 25 })
-    .withMessage('hemoglobinGdl debe ser un numero entre 3 y 25')
+    .withMessage('hemoglobinaGdl debe ser un numero entre 3 y 25')
     .toFloat(),
 
-  body('hasFever')
+  body('tieneFiebre')
     .notEmpty()
-    .withMessage('hasFever es obligatorio')
+    .withMessage('tieneFiebre es obligatorio')
     .isBoolean()
-    .withMessage('hasFever debe ser booleano')
+    .withMessage('tieneFiebre debe ser booleano')
     .toBoolean(),
 
-  body('hasInfectionSymptoms')
+  body('tieneSintomasInfeccion')
     .notEmpty()
-    .withMessage('hasInfectionSymptoms es obligatorio')
+    .withMessage('tieneSintomasInfeccion es obligatorio')
     .isBoolean()
-    .withMessage('hasInfectionSymptoms debe ser booleano')
+    .withMessage('tieneSintomasInfeccion debe ser booleano')
     .toBoolean(),
 
-  body('hasChronicDisease')
+  body('tieneEnfermedadCronica')
     .notEmpty()
-    .withMessage('hasChronicDisease es obligatorio')
+    .withMessage('tieneEnfermedadCronica es obligatorio')
     .isBoolean()
-    .withMessage('hasChronicDisease debe ser booleano')
+    .withMessage('tieneEnfermedadCronica debe ser booleano')
     .toBoolean(),
 
-  body('chronicDiseaseControlled')
+  body('enfermedadCronicaControlada')
     .notEmpty()
-    .withMessage('chronicDiseaseControlled es obligatorio')
+    .withMessage('enfermedadCronicaControlada es obligatorio')
     .isBoolean()
-    .withMessage('chronicDiseaseControlled debe ser booleano')
+    .withMessage('enfermedadCronicaControlada debe ser booleano')
     .toBoolean(),
 
-  body('consumedAlcoholLast24h')
+  body('consumioAlcoholUltimas24h')
     .notEmpty()
-    .withMessage('consumedAlcoholLast24h es obligatorio')
+    .withMessage('consumioAlcoholUltimas24h es obligatorio')
     .isBoolean()
-    .withMessage('consumedAlcoholLast24h debe ser booleano')
+    .withMessage('consumioAlcoholUltimas24h debe ser booleano')
     .toBoolean(),
 
-  body('tookAntibioticsLast7d')
+  body('tomoAntibioticosUltimos7d')
     .notEmpty()
-    .withMessage('tookAntibioticsLast7d es obligatorio')
+    .withMessage('tomoAntibioticosUltimos7d es obligatorio')
     .isBoolean()
-    .withMessage('tookAntibioticsLast7d debe ser booleano')
+    .withMessage('tomoAntibioticosUltimos7d debe ser booleano')
     .toBoolean(),
 
-  body('pregnantOrBreastfeeding')
+  body('embarazadaOLactando')
     .notEmpty()
-    .withMessage('pregnantOrBreastfeeding es obligatorio')
+    .withMessage('embarazadaOLactando es obligatorio')
     .isBoolean()
-    .withMessage('pregnantOrBreastfeeding debe ser booleano')
+    .withMessage('embarazadaOLactando debe ser booleano')
     .toBoolean(),
 
-  body('hadTattooOrPiercing')
+  body('tuvoTatuajeOPiercing')
     .notEmpty()
-    .withMessage('hadTattooOrPiercing es obligatorio')
+    .withMessage('tuvoTatuajeOPiercing es obligatorio')
     .isBoolean()
-    .withMessage('hadTattooOrPiercing debe ser booleano')
+    .withMessage('tuvoTatuajeOPiercing debe ser booleano')
     .toBoolean(),
 
-  body('hadRecentSurgery')
+  body('tuvoCirugiaReciente')
     .notEmpty()
-    .withMessage('hadRecentSurgery es obligatorio')
+    .withMessage('tuvoCirugiaReciente es obligatorio')
     .isBoolean()
-    .withMessage('hadRecentSurgery debe ser booleano')
+    .withMessage('tuvoCirugiaReciente debe ser booleano')
     .toBoolean(),
 
-  body('lastTattooOrPiercingDate')
+  body('fechaUltimoTatuajeOPiercing')
     .optional({ checkFalsy: true })
     .isISO8601()
-    .withMessage('lastTattooOrPiercingDate debe tener formato de fecha valida')
+    .withMessage('fechaUltimoTatuajeOPiercing debe tener formato de fecha valida')
     .toDate(),
 
-  body('lastSurgeryDate')
+  body('fechaUltimaCirugia')
     .optional({ checkFalsy: true })
     .isISO8601()
-    .withMessage('lastSurgeryDate debe tener formato de fecha valida')
+    .withMessage('fechaUltimaCirugia debe tener formato de fecha valida')
     .toDate(),
 
-  body('lastDonationDate')
+  body('fechaUltimaDonacion')
     .optional({ checkFalsy: true })
     .isISO8601()
-    .withMessage('lastDonationDate debe tener formato de fecha valida')
+    .withMessage('fechaUltimaDonacion debe tener formato de fecha valida')
     .toDate(),
 
   body().custom((_, { req }) => {
     const {
-      hadTattooOrPiercing,
-      lastTattooOrPiercingDate,
-      hadRecentSurgery,
-      lastSurgeryDate,
-      lastDonationDate,
-      hasChronicDisease,
-      chronicDiseaseControlled,
+      tuvoTatuajeOPiercing,
+      fechaUltimoTatuajeOPiercing,
+      tuvoCirugiaReciente,
+      fechaUltimaCirugia,
+      fechaUltimaDonacion,
+      tieneEnfermedadCronica,
+      enfermedadCronicaControlada,
     } = req.body;
 
     const now = new Date();
 
-    if (hadTattooOrPiercing && !lastTattooOrPiercingDate) {
+    if (tuvoTatuajeOPiercing && !fechaUltimoTatuajeOPiercing) {
       throw new Error(
-        'Si hadTattooOrPiercing es true, debe enviar lastTattooOrPiercingDate'
+        'Si tuvoTatuajeOPiercing es true, debe enviar fechaUltimoTatuajeOPiercing'
       );
     }
 
-    if (!hadTattooOrPiercing && lastTattooOrPiercingDate) {
+    if (!tuvoTatuajeOPiercing && fechaUltimoTatuajeOPiercing) {
       throw new Error(
-        'No envies lastTattooOrPiercingDate cuando hadTattooOrPiercing es false'
+        'No envies fechaUltimoTatuajeOPiercing cuando tuvoTatuajeOPiercing es false'
       );
     }
 
-    if (hadRecentSurgery && !lastSurgeryDate) {
-      throw new Error('Si hadRecentSurgery es true, debe enviar lastSurgeryDate');
+    if (tuvoCirugiaReciente && !fechaUltimaCirugia) {
+      throw new Error('Si tuvoCirugiaReciente es true, debe enviar fechaUltimaCirugia');
     }
 
-    if (!hadRecentSurgery && lastSurgeryDate) {
-      throw new Error('No envies lastSurgeryDate cuando hadRecentSurgery es false');
+    if (!tuvoCirugiaReciente && fechaUltimaCirugia) {
+      throw new Error('No envies fechaUltimaCirugia cuando tuvoCirugiaReciente es false');
     }
 
-    if (!hasChronicDisease && !chronicDiseaseControlled) {
+    if (!tieneEnfermedadCronica && !enfermedadCronicaControlada) {
       throw new Error(
-        'chronicDiseaseControlled no puede ser false cuando hasChronicDisease es false'
+        'enfermedadCronicaControlada no puede ser false cuando tieneEnfermedadCronica es false'
       );
     }
 
-    const tattooDate = lastTattooOrPiercingDate
-      ? new Date(lastTattooOrPiercingDate)
+    const tattooDate = fechaUltimoTatuajeOPiercing
+      ? new Date(fechaUltimoTatuajeOPiercing)
       : null;
-    const surgeryDate = lastSurgeryDate ? new Date(lastSurgeryDate) : null;
-    const donationDate = lastDonationDate ? new Date(lastDonationDate) : null;
+    const surgeryDate = fechaUltimaCirugia ? new Date(fechaUltimaCirugia) : null;
+    const donationDate = fechaUltimaDonacion ? new Date(fechaUltimaDonacion) : null;
 
     if (tattooDate && tattooDate > now) {
-      throw new Error('lastTattooOrPiercingDate no puede ser una fecha futura');
+      throw new Error('fechaUltimoTatuajeOPiercing no puede ser una fecha futura');
     }
 
     if (surgeryDate && surgeryDate > now) {
-      throw new Error('lastSurgeryDate no puede ser una fecha futura');
+      throw new Error('fechaUltimaCirugia no puede ser una fecha futura');
     }
 
     if (donationDate && donationDate > now) {
-      throw new Error('lastDonationDate no puede ser una fecha futura');
+      throw new Error('fechaUltimaDonacion no puede ser una fecha futura');
     }
 
     return true;

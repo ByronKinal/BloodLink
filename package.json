@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon --legacy-watch --watch configs --watch helpers --watch middlewares --watch src --watch utils --ext js,json index.js"
   },
   "keywords": [
     "mongodb",

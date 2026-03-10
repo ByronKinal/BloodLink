@@ -39,6 +39,12 @@ const bloodBagSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    availabilityStatus: {
+      type: String,
+      enum: ['Disponible', 'No disponible'],
+      default: 'Disponible',
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -53,11 +59,11 @@ bloodBagSchema.virtual('status').get(function () {
   if (now > this.expirationDate) {
     return 'Caducado';
   }
-  return 'Disponible';
+  return this.availabilityStatus || 'Disponible';
 });
 
 bloodBagSchema.index({ bloodType: 1, expirationDate: 1 });
-bloodBagSchema.index({ status: 1 });
+bloodBagSchema.index({ availabilityStatus: 1 });
 
 const BloodBag = mongoose.model('BloodBag', bloodBagSchema);
 

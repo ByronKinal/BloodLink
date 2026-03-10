@@ -16,6 +16,8 @@ import {
   sendWelcomeEmail,
   sendPasswordChangedEmail,
 } from './email-service.js';
+import { uploadImage, deleteImage } from './cloudinary-service.js';
+import { FileValidator } from './file-validator.js';
 import {
   generateTokenPair,
   verifyRefreshToken,
@@ -63,8 +65,17 @@ const buildTokenResponse = async (user) => {
   };
 };
 
-export const registerUserHelper = async (userData) => {
+export const registerUserHelper = async (userData, profilePictureFile) => {
   const { email, username, password, name } = userData;
+
+  if (!profilePictureFile) {
+    throw new Error('La foto de perfil es obligatoria');
+  }
+
+  const fileValidation = FileValidator.validateImage(profilePictureFile);
+  if (!fileValidation.isValid) {
+    throw new Error(fileValidation.errorMessage || 'Archivo de imagen inválido');
+  }
 
   const passwordValidation = validatePasswordStrength(password);
   if (!passwordValidation.isValid) {
@@ -76,7 +87,24 @@ export const registerUserHelper = async (userData) => {
     throw new Error('Ya existe un usuario con este email o nombre de usuario');
   }
 
-  const newUser = await createNewUser(userData);
+  const secureFileName = FileValidator.generateSecureFileName(
+    profilePictureFile.originalname
+  );
+  const uploadedProfilePicture = await uploadImage(
+    profilePictureFile.path,
+    secureFileName
+  );
+
+  let newUser;
+  try {
+    newUser = await createNewUser({
+      ...userData,
+      profilePicture: uploadedProfilePicture,
+    });
+  } catch (error) {
+    await deleteImage(uploadedProfilePicture);
+    throw error;
+  }
 
   const verificationToken = generateEmailVerificationToken();
   const activationCode = generateActivationCode();

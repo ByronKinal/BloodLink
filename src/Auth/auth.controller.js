@@ -23,7 +23,7 @@ const toApiSuccess = (result, defaultMessage = 'Operación exitosa') => {
 
 export const register = asyncHandler(async (req, res) => {
   try {
-    const result = await registerUserHelper(req.body);
+    const result = await registerUserHelper(req.body, req.file);
     return res.status(201).json(toApiSuccess(result, 'Usuario registrado exitosamente'));
   } catch (error) {
     let statusCode = 400;

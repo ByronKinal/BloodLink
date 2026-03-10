@@ -3,6 +3,7 @@ import {
   buildAppointmentResponse,
   confirmAppointmentHelper,
   createAppointmentHelper,
+  getAllAppointmentsHelper,
   getStaffAgendaHelper,
 } from '../../helpers/appointment-operations.js';
 
@@ -79,6 +80,29 @@ export const confirmAppointment = asyncHandler(async (req, res) => {
     return res.status(error.status || 400).json({
       success: false,
       message: error.message || 'No se pudo confirmar la cita',
+    });
+  }
+});
+
+export const listAppointments = asyncHandler(async (req, res) => {
+  try {
+    const { date, status } = req.query;
+
+    const result = await getAllAppointmentsHelper({
+      requesterUserId: req.userId,
+      date,
+      status,
+    });
+
+    return res.status(200).json({
+      success: true,
+      total: result.appointments.length,
+      data: result.appointments.map(buildAppointmentResponse),
+    });
+  } catch (error) {
+    return res.status(error.status || 400).json({
+      success: false,
+      message: error.message || 'No se pudo listar las citas',
     });
   }
 });

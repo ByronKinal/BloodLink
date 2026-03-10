@@ -14,10 +14,9 @@ cloudinary.config({
 
 export const uploadImage = async (filePath, fileName) => {
   try {
-    const folder = config.cloudinary.folder;
     const options = {
       public_id: fileName,
-      folder: folder,
+      folder: config.cloudinary.folder,
       resource_type: 'image',
       transformation: [
         { width: 400, height: 400, crop: 'fill', gravity: 'face' },
@@ -33,11 +32,12 @@ export const uploadImage = async (filePath, fileName) => {
       console.warn('Warning: Could not delete local file:', filePath);
     }
 
-    if (result.error) {
+    if (result?.error) {
       throw new Error(`Error uploading image: ${result.error.message}`);
     }
 
-    return fileName;
+    // Store final delivery URL to avoid mismatches in URL reconstruction.
+    return result.secure_url || result.url;
   } catch (error) {
     console.error('Error uploading to Cloudinary:', error?.message || error);
 
@@ -59,12 +59,27 @@ export const deleteImage = async (imagePath) => {
       return true;
     }
 
-    const folder = config.cloudinary.folder;
-    const publicId = imagePath.includes('/')
-      ? imagePath
-      : `${folder}/${imagePath}`;
-    const result = await cloudinary.uploader.destroy(publicId);
+    let publicId;
 
+    if (typeof imagePath === 'string' && /^https?:\/\//i.test(imagePath)) {
+      const url = new URL(imagePath);
+      const uploadMarker = '/image/upload/';
+      const uploadIndex = url.pathname.indexOf(uploadMarker);
+
+      if (uploadIndex >= 0) {
+        publicId = url.pathname
+          .slice(uploadIndex + uploadMarker.length)
+          .replace(/^v\d+\//, '')
+          .replace(/^\/+/, '');
+      }
+    }
+
+    if (!publicId) {
+      const folder = config.cloudinary.folder;
+      publicId = imagePath.includes('/') ? imagePath : `${folder}/${imagePath}`;
+    }
+
+    const result = await cloudinary.uploader.destroy(publicId);
     return result.result;
   } catch (error) {
     console.error('Error deleting from Cloudinary:', error);
@@ -77,25 +92,58 @@ export const getFullImageUrl = (imagePath) => {
     return getDefaultAvatarUrl();
   }
 
-  const baseUrl = config.cloudinary.baseUrl;
+  if (typeof imagePath === 'string' && /^https?:\/\//i.test(imagePath)) {
+    try {
+      const url = new URL(imagePath);
+
+      if (url.hostname.includes('res.cloudinary.com')) {
+        const uploadMarker = '/image/upload/';
+        const uploadIndex = url.pathname.indexOf(uploadMarker);
+
+        if (uploadIndex >= 0) {
+          let tail = url.pathname.slice(uploadIndex + uploadMarker.length);
+
+          // Remove optional version segment like v1741623000/ if present.
+          tail = tail.replace(/^v\d+\//, '');
+
+          const publicId = decodeURIComponent(tail).replace(/^\/+/, '');
+
+          if (publicId) {
+            return cloudinary.url(publicId, {
+              secure: true,
+              resource_type: 'image',
+              type: 'upload',
+            });
+          }
+        }
+      }
+
+      return imagePath;
+    } catch {
+      return imagePath;
+    }
+  }
+
   const folder = config.cloudinary.folder;
+  const publicId = imagePath.includes('/')
+    ? imagePath
+    : `${folder}/${imagePath}`;
 
-  const pathToUse = !imagePath
-    ? config.cloudinary.defaultAvatarPath
-    : imagePath.includes('/')
-      ? imagePath
-      : `${folder}/${imagePath}`;
-
-  return `${baseUrl}${pathToUse}`;
+  return cloudinary.url(publicId, {
+    secure: true,
+    resource_type: 'image',
+    type: 'upload',
+  });
 };
 
 export const getDefaultAvatarUrl = () => {
-  const defaultPath = config.cloudinary.defaultAvatarPath;
+  const defaultPath = getDefaultAvatarPath();
   return getFullImageUrl(defaultPath);
 };
 
 export const getDefaultAvatarPath = () => {
   const defaultPath = config.cloudinary.defaultAvatarPath;
+
   if (defaultPath && defaultPath.includes('${')) {
     const folder = process.env.CLOUDINARY_FOLDER;
     const filename = process.env.CLOUDINARY_DEFAULT_AVATAR_FILENAME;
@@ -103,9 +151,7 @@ export const getDefaultAvatarPath = () => {
       return [folder, filename].filter(Boolean).join('/');
     }
   }
-  if (defaultPath && defaultPath.includes('/')) {
-    return defaultPath.split('/').pop();
-  }
+
   return defaultPath;
 };
 
@@ -116,4 +162,3 @@ export default {
   getDefaultAvatarUrl,
   getDefaultAvatarPath,
 };
-

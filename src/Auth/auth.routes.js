@@ -10,6 +10,7 @@ import {
   resetPassword,
 } from './auth.controller.js';
 import { authRateLimit, emailRateLimit } from '../../middlewares/request-limit.js';
+import { upload, handleUploadError } from '../../helpers/file-upload.js';
 import {
   validateRegister,
   validateLogin,
@@ -22,17 +23,21 @@ import {
 
 const router = Router();
 
-router.use(authRateLimit);
+router.post(
+  '/register',
+  authRateLimit,
+  upload.single('profilePicture'),
+  handleUploadError,
+  validateRegister,
+  register
+);
+router.post('/login', authRateLimit, validateLogin, login);
+router.post('/refresh-token', authRateLimit, validateRefreshToken, refreshToken);
+router.post('/logout', authRateLimit, validateRefreshToken, logout);
 
-router.post('/register', validateRegister, register);
-router.post('/login', validateLogin, login);
-router.post('/refresh-token', validateRefreshToken, refreshToken);
-router.post('/logout', validateRefreshToken, logout);
-
-router.post('/verify-email', validateVerifyEmail, verifyEmail);
+router.post('/verify-email', authRateLimit, validateVerifyEmail, verifyEmail);
 router.post(
   '/resend-verification',
-  emailRateLimit,
   validateResendVerification,
   resendVerification
 );

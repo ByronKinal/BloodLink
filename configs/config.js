@@ -25,7 +25,7 @@ export const config = {
   upload: {
     maxSize: 5 * 1024 * 1024, 
     allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'], 
-    uploadPath: process.env.UPLOAD_PATH,
+    uploadPath: process.env.UPLOAD_PATH || './uploads',
   },
 
   cloudinary: {

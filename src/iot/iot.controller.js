@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import { asyncHandler } from '../../middlewares/errorHandler.js';
 import {
   ADMIN_ROLE,
-  DONOR_ROLE,
   STAFF_ROLE,
 } from '../../helpers/role-constants.js';
 import { getUserRoleNames } from '../../helpers/role-db.js';
@@ -90,14 +89,6 @@ export const registerDonationWeight = asyncHandler(async (req, res) => {
     return res.status(404).json({
       success: false,
       message: 'No se encontro el donador asociado a la cita',
-    });
-  }
-
-  const donorRoles = await getUserRoleNames(donorUser.id);
-  if (!donorRoles.includes(DONOR_ROLE)) {
-    return res.status(409).json({
-      success: false,
-      message: 'El usuario de la cita no tiene rol DONOR_ROLE',
     });
   }
 

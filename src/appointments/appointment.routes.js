@@ -4,6 +4,7 @@ import {
   confirmAppointment,
   createAppointment,
   getStaffAgenda,
+  listAppointments,
 } from './appointment.controller.js';
 import {
   validateAppointmentIdParam,
@@ -14,6 +15,7 @@ import {
 
 const router = Router();
 
+router.get('/', validateJWT, listAppointments);
 router.post('/', validateJWT, validateCreateAppointment, createAppointment);
 router.get('/staff', validateJWT, validateStaffAgendaQuery, getStaffAgenda);
 router.patch(
