@@ -6,7 +6,7 @@ import {
 } from '../../helpers/role-constants.js';
 import TriageForm from './triage.model.js';
 
-const HOURS_24_IN_MS = 0 ;/24 * 60 * 60 * 1000;
+const HOURS_24_IN_MS = 0 ;//24 * 60 * 60 * 1000;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 const MIN_AGE = 18;

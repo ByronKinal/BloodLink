@@ -43,6 +43,20 @@ export const authRateLimit = rateLimit({
   },
 });
 
+export const aiRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'Demasiadas consultas a la IA, intenta de nuevo en un minuto.',
+      retryAfter: 60,
+    });
+  },
+});
+
 export const emailRateLimit = rateLimit({
   windowMs: config.rateLimit.emailWindowMs, 
   max: config.rateLimit.emailMaxRequests, 
