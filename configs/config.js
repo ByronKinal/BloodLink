@@ -47,8 +47,8 @@ export const config = {
   },
 
   rateLimit: {
-    windowMs: 1 * 60 * 1000, 
-    maxRequests: 20,
+    //windowMs: 1 * 60 * 1000, 
+    //maxRequests: 20,
     authWindowMs:
       (process.env.AUTH_RATE_LIMIT_WINDOW_MINUTES
         ? parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MINUTES, 10)
