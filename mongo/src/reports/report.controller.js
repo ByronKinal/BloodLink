@@ -7,7 +7,7 @@ import {
 } from '../../utils/blood-compatibility.js';
 import Appointment from '../appointments/appointment.model.js';
 import Donation from '../iot/donation.model.js';
-import { Wallet } from '../incentives/incentive.model.js';
+import { getWalletByUserId } from '../../helpers/incentive-operations.js';
 
 const ensureMongoReady = () => mongoose.connection.readyState === 1;
 
@@ -154,14 +154,11 @@ export const getMyStatsReport = asyncHandler(async (req, res) => {
         },
     ]),
 
-      Wallet.findOne({
-        where: { user_id: userId },
-        attributes: ['total_earned_points'],
-      }),
+      getWalletByUserId(userId),
     ]);
 
     const totalBloodDonatedMl = donationVolumeAggregation?.[0]?.totalVolumeMl || 0;
-    const totalEarnedPoints = wallet?.total_earned_points || 0;
+    const totalEarnedPoints = wallet?.totalEarnedPoints || wallet?.total_earned_points || 0;
 
     return res.status(200).json({
       success: true,

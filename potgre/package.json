@@ -1,19 +1,22 @@
 {
-  "name": "bloodlink",
+  "name": "bloodlink-postgres-service",
   "version": "1.0.0",
-  "description": "BloodLink - Sistema de donación de sangre con MongoDB y PostgreSQL",
+  "description": "BloodLink PostgreSQL Microservice - Authentication, Users, Incentives, Rewards, and Internal API",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon --legacy-watch --watch configs --watch helpers --watch middlewares --watch src --watch utils --ext js,json index.js"
+    "dev": "nodemon --legacy-watch --watch configs --watch helpers --watch middlewares --watch src --watch utils --ext js,json index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "mongodb",
     "postgresql",
-    "express",
-    "bloodlink"
+    "sequelize",
+    "microservice",
+    "bloodlink",
+    "authentication",
+    "users",
+    "incentives"
   ],
   "author": "",
   "license": "ISC",
@@ -32,7 +35,6 @@
     "express-validator": "^7.3.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.2.1",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",

@@ -3,6 +3,10 @@ import { User, UserProfile, UserEmail } from '../src/users/user.model.js';
 import { Role, UserRole } from '../src/Auth/role.model.js';
 import { sequelize } from '../configs/db.js';
 import { ALLOWED_ROLES } from './role-constants.js';
+import {
+  fetchUserRoleNamesFromPostgresService,
+  shouldUsePostgresService,
+} from './postgres-service-client.js';
 
 
 export const getRoleByName = async (roleName) => {
@@ -22,6 +26,10 @@ export const countUsersInRole = async (roleName) => {
 
 
 export const getUserRoleNames = async (userId) => {
+  if (shouldUsePostgresService()) {
+    return fetchUserRoleNamesFromPostgresService(userId);
+  }
+
   const userRoles = await UserRole.findAll({
     where: { user_id: userId },
     include: [{ model: Role, as: 'role' }],

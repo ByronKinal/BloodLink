@@ -2,6 +2,11 @@ import { sequelize } from '../configs/db.js';
 import { findUserById } from './user-db.js';
 import { IncentiveTransaction, Wallet } from '../src/incentives/incentive.model.js';
 import { Reward, RewardRedemption } from '../src/rewards/reward.model.js';
+import {
+  awardDonationPointsInPostgresService,
+  fetchWalletFromPostgresService,
+  shouldUsePostgresService,
+} from './postgres-service-client.js';
 
 export const calculateDonationPoints = (volumeMl) => {
   const normalized = Number(volumeMl);
@@ -33,6 +38,15 @@ export const awardPointsForDonation = async ({
   appointmentId,
   volumeMl,
 }) => {
+  if (shouldUsePostgresService()) {
+    return awardDonationPointsInPostgresService({
+      userId,
+      donationId,
+      appointmentId,
+      volumeMl,
+    });
+  }
+
   const user = await findUserById(userId);
 
   if (!user) {
@@ -99,6 +113,10 @@ export const awardPointsForDonation = async ({
 };
 
 export const getWalletByUserId = async (userId) => {
+  if (shouldUsePostgresService()) {
+    return fetchWalletFromPostgresService(userId);
+  }
+
   const user = await findUserById(userId);
 
   if (!user) {

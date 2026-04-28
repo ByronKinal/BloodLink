@@ -1,5 +1,5 @@
 import 'dotenv/config.js';
-import { initServer } from './configs/app.js';
+import { initMongoServer } from './configs/app.js';
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
@@ -11,4 +11,4 @@ process.on('unhandledRejection', (err, promise) => {
   process.exit(1);
 });
 
-initServer();
+initMongoServer();

@@ -1,6 +1,11 @@
 import crypto from 'crypto';
 import { Op } from 'sequelize';
 import {
+  fetchUserByIdFromPostgresService,
+  fetchUsersByIdsFromPostgresService,
+  shouldUsePostgresService,
+} from './postgres-service-client.js';
+import {
   User,
   UserProfile,
   UserEmail,
@@ -39,12 +44,20 @@ export const findUserByEmailOrUsername = async (emailOrUsername) => {
 };
 
 export const findUserById = async (userId) => {
+  if (shouldUsePostgresService()) {
+    return fetchUserByIdFromPostgresService(userId);
+  }
+
   return User.findByPk(userId, {
     include: USER_RELATIONS,
   });
 };
 
 export const findUsersByIds = async (userIds = []) => {
+  if (shouldUsePostgresService()) {
+    return fetchUsersByIdsFromPostgresService(userIds);
+  }
+
   const uniqueUserIds = Array.from(
     new Set((userIds || []).map((id) => String(id || '').trim()).filter(Boolean))
   );
