@@ -1,6 +1,6 @@
 import { asyncHandler } from '../../middlewares/errorHandler.js';
 import { findUserById, findUsersByIds } from '../../helpers/user-db.js';
-import { getUserRoleNames } from '../../helpers/role-db.js';
+import { getUserRoleNames, getUsersByRole } from '../../helpers/role-db.js';
 import { awardPointsForDonation, getWalletByUserId } from '../../helpers/incentive-operations.js';
 
 const parseIds = (value) =>
@@ -73,3 +73,12 @@ export const awardDonationPoints = asyncHandler(async (req, res) => {
     data: result,
   });
 });
+
+export const getInternalUsersByRole = asyncHandler(async (req, res) => {
+  const users = await getUsersByRole(req.params.roleName);
+
+  return res.status(200).json({
+    success: true,
+    data: users,
+  });
+});

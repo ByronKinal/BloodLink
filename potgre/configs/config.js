@@ -23,8 +23,8 @@ export const config = {
   },
 
   upload: {
-    maxSize: 5 * 1024 * 1024, 
-    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'], 
+    maxSize: 5 * 1024 * 1024,
+    allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
     uploadPath: process.env.UPLOAD_PATH || './uploads',
   },
 
@@ -35,20 +35,20 @@ export const config = {
     baseUrl: process.env.CLOUDINARY_BASE_URL,
     defaultAvatarPath:
       process.env.CLOUDINARY_DEFAULT_AVATAR &&
-      !process.env.CLOUDINARY_DEFAULT_AVATAR.includes('${')
+        !process.env.CLOUDINARY_DEFAULT_AVATAR.includes('${')
         ? process.env.CLOUDINARY_DEFAULT_AVATAR
         : [
-            process.env.CLOUDINARY_FOLDER,
-            process.env.CLOUDINARY_DEFAULT_AVATAR_FILENAME,
-          ]
-            .filter(Boolean)
-            .join('/'),
+          process.env.CLOUDINARY_FOLDER,
+          process.env.CLOUDINARY_DEFAULT_AVATAR_FILENAME,
+        ]
+          .filter(Boolean)
+          .join('/'),
     folder: process.env.CLOUDINARY_FOLDER,
   },
 
   rateLimit: {
-    //windowMs: 1 * 60 * 1000, 
-    //maxRequests: 20,
+    windowMs: 1 * 60 * 1000,
+    maxRequests: 100,
     authWindowMs:
       (process.env.AUTH_RATE_LIMIT_WINDOW_MINUTES
         ? parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MINUTES, 10)
@@ -58,7 +58,7 @@ export const config = {
     authMaxRequests: process.env.AUTH_RATE_LIMIT_MAX_REQUESTS
       ? parseInt(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS, 10)
       : 5,
-    emailWindowMs: 15 * 60 * 1000, 
+    emailWindowMs: 15 * 60 * 1000,
     emailMaxRequests: 3,
   },
 
@@ -108,5 +108,3 @@ export const config = {
       1000,
   },
 };
-
-
