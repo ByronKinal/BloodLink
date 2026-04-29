@@ -48,11 +48,11 @@ pnpm start
 Configurar en `potgre/.env`:
 
 ```env
-NODE_ENV=development
-PORT=3007
+NODE_ENV = development
+PORT = 3007
 
-# Base de datos PostgreSQL
 MONGODB_URI=mongodb://localhost:27017/bloodlink
+
 DB_HOST=localhost
 DB_PORT=5435
 DB_NAME=bloodlink
@@ -60,30 +60,31 @@ DB_USERNAME=root
 DB_PASSWORD=admin
 DB_SQL_LOGGING=false
 
-# JWT
 JWT_SECRET=MyVerySecretKeyForJWTTokenAuthenticationWith256Bits!
 JWT_EXPIRES_IN=30m
 JWT_REFRESH_EXPIRES_IN=7d
 JWT_ISSUER=BloodLinkAuthService
 JWT_AUDIENCE=BloodLinkApp
 
-# Email (SMTP)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
 SMTP_ENABLE_SSL=true
-SMTP_USERNAME=tu-email@gmail.com
-SMTP_PASSWORD=tu-contraseña-app
-EMAIL_FROM=noreply@bloodlink.com
-EMAIL_FROM_NAME=BloodLink
+SMTP_USERNAME=kinalsports@gmail.com
+SMTP_PASSWORD=yrsd prvf kwat toee
+EMAIL_FROM=kinalsports@gmail.com
+EMAIL_FROM_NAME=AuthDotnet App
 
-# Cloudinary (almacenamiento de imágenes)
-CLOUDINARY_CLOUD_NAME=tu-cloud-name
-CLOUDINARY_API_KEY=tu-api-key
-CLOUDINARY_API_SECRET=tu-api-secret
+VERIFICATION_EMAIL_EXPIRY_HOURS=24
+PASSWORD_RESET_EXPIRY_HOURS=1
+
+CLOUDINARY_CLOUD_NAME=dhdpzo5sq
+CLOUDINARY_API_KEY=275242198188765
+CLOUDINARY_API_SECRET=CQq9UtvqXFesUmr3Ukp0sTuNIqk
+CLOUDINARY_BASE_URL=https://res.cloudinary.com/dhdpzo5sq/image/upload/
 CLOUDINARY_FOLDER=bloodlink/profiles
+CLOUDINARY_DEFAULT_AVATAR_FILENAME=default-avatar_ewzxwx.png
 
-# OpenAI (para asistente de IA)
-OPENAI_API_KEY=sk-proj-...
+OPENAI_API_KEY=
 
 # Admin Seed (creación automática de admin)
 SEED_ADMIN_ON_STARTUP=true
