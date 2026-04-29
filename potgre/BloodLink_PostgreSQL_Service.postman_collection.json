@@ -1,0 +1,383 @@
+{
+  "info": {
+    "_postman_id": "postgres-service-collection",
+    "name": "BloodLink - PostgreSQL Service",
+    "description": "Colección de endpoints del servicio PostgreSQL (Puerto 3007)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@bloodlink.com\",\n  \"password\": \"Password123!\",\n  \"username\": \"donor_user\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+34612345678\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@bloodlink.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/auth/refresh",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get current user",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get user by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/users/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"phone\": \"+34687654321\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "users"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incentives",
+      "item": [
+        {
+          "name": "Get incentives",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/incentives",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "incentives"]
+            }
+          }
+        },
+        {
+          "name": "Create incentive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"First donation\",\n  \"pointsValue\": 100,\n  \"description\": \"Points for first blood donation\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/incentives",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "incentives"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rewards",
+      "item": [
+        {
+          "name": "Get rewards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/rewards",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "rewards"]
+            }
+          }
+        },
+        {
+          "name": "Redeem reward",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rewardId\": \"reward_id\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/rewards/redeem",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "rewards", "redeem"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "item": [
+        {
+          "name": "Get wallet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/wallet",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "wallet"]
+            }
+          }
+        },
+        {
+          "name": "Get wallet history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/wallet/history",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "wallet", "history"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Internal API (MongoDB Service)",
+      "item": [
+        {
+          "name": "Get user for MongoDB",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3007/internal/users/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get wallet for MongoDB",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3007/internal/wallets/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "wallets", "1"]
+            }
+          }
+        },
+        {
+          "name": "Award donation points",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"1\",\n  \"points\": 100,\n  \"reason\": \"Blood donation\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/internal/incentives/award-donation",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "incentives", "award-donation"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
