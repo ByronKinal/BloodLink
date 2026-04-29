@@ -80,6 +80,17 @@ CLOUDINARY_FOLDER=bloodlink/profiles
 CLOUDINARY_DEFAULT_AVATAR_FILENAME=default-avatar_ewzxwx.png
 
 OPENAI_API_KEY=
+
+SEED_ADMIN_ON_STARTUP=true
+SEED_ADMIN_EMAIL=admin@bloodlink.local
+SEED_ADMIN_USERNAME=admin
+SEED_ADMIN_PASSWORD=Admin1234
+SEED_ADMIN_NAME=Admin
+SEED_ADMIN_SURNAME=Root
+SEED_ADMIN_PHONE=12345678
+
+# Comunicación entre microservicios
+POSTGRES_SERVICE_URL=http://localhost:3007
 ```
 
 ## Comunicación con PostgreSQL Service
