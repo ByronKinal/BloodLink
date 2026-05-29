@@ -65,23 +65,23 @@ JWT_EXPIRES_IN=30m
 JWT_REFRESH_EXPIRES_IN=7d
 JWT_ISSUER=BloodLinkAuthService
 JWT_AUDIENCE=BloodLinkApp
-
+ 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
 SMTP_ENABLE_SSL=true
-SMTP_USERNAME=kinalsports@gmail.com
-SMTP_PASSWORD=yrsd prvf kwat toee
-EMAIL_FROM=kinalsports@gmail.com
+SMTP_USERNAME=narutoshippude745@gmail.com
+SMTP_PASSWORD=rhcs dgno ywts egrt
+EMAIL_FROM=narutoshippude745@gmail.com
 EMAIL_FROM_NAME=AuthDotnet App
 
 VERIFICATION_EMAIL_EXPIRY_HOURS=24
 PASSWORD_RESET_EXPIRY_HOURS=1
 
-CLOUDINARY_CLOUD_NAME=dhdpzo5sq
-CLOUDINARY_API_KEY=275242198188765
-CLOUDINARY_API_SECRET=CQq9UtvqXFesUmr3Ukp0sTuNIqk
-CLOUDINARY_BASE_URL=https://res.cloudinary.com/dhdpzo5sq/image/upload/
-CLOUDINARY_FOLDER=bloodlink/profiles
+CLOUDINARY_CLOUD_NAME=dut08rmaz
+CLOUDINARY_API_KEY=279612751725163
+CLOUDINARY_API_SECRET=UxGMRqU1iB580Kxb2AlDR4n4hu0
+CLOUDINARY_BASE_URL=https://res.cloudinary.com/dut08rmaz/image/upload/
+CLOUDINARY_FOLDER=gastroflow/profiles
 CLOUDINARY_DEFAULT_AVATAR_FILENAME=default-avatar_ewzxwx.png
 
 OPENAI_API_KEY=
