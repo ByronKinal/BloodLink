@@ -5,6 +5,6 @@ import { aiRateLimit } from '../../middlewares/request-limit.js';
 
 const router = Router();
 
-router.post('/ask', aiRateLimit, validateAiAsk, askAi);
+router.post('/donation-assistant', aiRateLimit, validateAiAsk, askAi);
 
 export default router;

@@ -43,12 +43,6 @@ const middlewares = (app) => {
 const routes = (app) => {
   setupSwagger(app);
 
-  app.use('/ai', aiRoutes);
-  app.use('/appointments', appointmentRoutes);
-  app.use('/triage', triageRoutes);
-  app.use('/blood-bags', bloodBagRoutes);
-  app.use('/audit', auditRoutes);
-  app.use('/reports', reportRoutes);
   app.use(`${BASE_PATH}/profiles`, profileRoutes);
   app.use(`${BASE_PATH}/ai`, aiRoutes);
   app.use(`${BASE_PATH}/appointments`, appointmentRoutes);

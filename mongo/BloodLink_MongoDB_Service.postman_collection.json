@@ -7,6 +7,114 @@
   },
   "item": [
     {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "Create profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user_001\",\n  \"email\": \"donor@example.com\",\n  \"password\": \"Password123!\",\n  \"roleName\": \"DONOR_ROLE\",\n  \"donorData\": {\n    \"bloodType\": \"O+\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3006/api/v1/profiles",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "profiles"]
+            }
+          }
+        },
+        {
+          "name": "Get my profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/profiles/me",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "profiles", "me"]
+            }
+          }
+        },
+        {
+          "name": "Get profile by user ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/profiles/user/user_001",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "profiles", "user", "user_001"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Assistant",
+      "item": [
+        {
+          "name": "Donation assistant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user_001\",\n  \"question\": \"¿Puedo donar sangre si tengo resfriado?\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3006/api/v1/ai/donation-assistant",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "ai", "donation-assistant"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Appointments",
       "item": [
         {
@@ -21,11 +129,11 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:3006/api/appointments",
+              "raw": "http://localhost:3006/api/v1/appointments",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "appointments"]
+              "path": ["api", "v1", "appointments"]
             }
           }
         },
@@ -47,14 +155,69 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"user_id\",\n  \"appointmentDate\": \"2026-05-15T10:00:00Z\",\n  \"status\": \"scheduled\"\n}"
+              "raw": "{\n  \"date\": \"2026-06-15\",\n  \"time\": \"10:00\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3006/api/appointments",
+              "raw": "http://localhost:3006/api/v1/appointments",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "appointments"]
+              "path": ["api", "v1", "appointments"]
+            }
+          }
+        },
+        {
+          "name": "Get staff agenda",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/appointments/staff?date=2026-06-15",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "appointments", "staff"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-06-15"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirm appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"staffUserId\": \"staff_001234\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3006/api/v1/appointments/507f1f77bcf86cd799439011/confirm",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "appointments", "507f1f77bcf86cd799439011", "confirm"]
             }
           }
         }
@@ -75,11 +238,11 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:3006/api/triage",
+              "raw": "http://localhost:3006/api/v1/triage",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "triage"]
+              "path": ["api", "v1", "triage"]
             }
           }
         },
@@ -101,14 +264,48 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"user_id\",\n  \"bloodPressure\": \"120/80\",\n  \"pulse\": 72,\n  \"temperature\": 36.8,\n  \"weight\": 70,\n  \"height\": 175\n}"
+              "raw": "{\n  \"edadAnios\": 30,\n  \"pesoKg\": 70,\n  \"pulsoBpm\": 72,\n  \"presionSistolicaMmHg\": 120,\n  \"presionDiastolicaMmHg\": 80,\n  \"temperaturaC\": 36.8,\n  \"hemoglobinaGdl\": 14.2,\n  \"tieneFiebre\": false,\n  \"tieneSintomasInfeccion\": false,\n  \"tieneEnfermedadCronica\": false,\n  \"enfermedadCronicaControlada\": true,\n  \"consumioAlcoholUltimas24h\": false,\n  \"tomoAntibioticosUltimos7d\": false,\n  \"embarazadaOLactando\": false,\n  \"tuvoTatuajeOPiercing\": false,\n  \"tuvoCirugiaReciente\": false\n}"
             },
             "url": {
-              "raw": "http://localhost:3006/api/triage",
+              "raw": "http://localhost:3006/api/v1/triage",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "triage"]
+              "path": ["api", "v1", "triage"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "IoT",
+      "item": [
+        {
+          "name": "Register donation weight",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"507f1f77bcf86cd799439011\",\n  \"weightGrams\": 450,\n  \"notes\": \"Registro desde dispositivo\",\n  \"deviceId\": \"scale-01\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3006/api/v1/iot/weight",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "iot", "weight"]
             }
           }
         }
@@ -129,11 +326,120 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:3006/api/blood-bags",
+              "raw": "http://localhost:3006/api/v1/blood-bags",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "blood-bags"]
+              "path": ["api", "v1", "blood-bags"]
+            }
+          }
+        },
+        {
+          "name": "Get blood bag stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/blood-bags/stats",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "blood-bags", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get compatible blood bags",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/blood-bags/match/O-",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "blood-bags", "match", "O-"]
+            }
+          }
+        },
+        {
+          "name": "Get blood bags by type",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/blood-bags/type/O+",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "blood-bags", "type", "O+"]
+            }
+          }
+        },
+        {
+          "name": "Get blood bag by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3006/api/v1/blood-bags/507f1f77bcf86cd799439011",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "blood-bags", "507f1f77bcf86cd799439011"]
+            }
+          }
+        },
+        {
+          "name": "Update blood bag status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"reserved\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3006/api/v1/blood-bags/507f1f77bcf86cd799439011/status",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3006",
+              "path": ["api", "v1", "blood-bags", "507f1f77bcf86cd799439011", "status"]
             }
           }
         },
@@ -158,11 +464,11 @@
               "raw": "{\n  \"bloodType\": \"O+\",\n  \"quantity\": 450,\n  \"donorId\": \"donor_id\",\n  \"collectionDate\": \"2026-04-28T14:00:00Z\",\n  \"expiryDate\": \"2026-06-28T14:00:00Z\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3006/api/blood-bags",
+              "raw": "http://localhost:3006/api/v1/blood-bags",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "blood-bags"]
+              "path": ["api", "v1", "blood-bags"]
             }
           }
         }
@@ -183,11 +489,11 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:3006/api/audit",
+              "raw": "http://localhost:3006/api/v1/audit",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "audit"]
+              "path": ["api", "v1", "audit"]
             }
           }
         }
@@ -197,7 +503,7 @@
       "name": "Reports",
       "item": [
         {
-          "name": "Get reports",
+          "name": "Get stock summary",
           "request": {
             "method": "GET",
             "header": [
@@ -208,45 +514,31 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:3006/api/reports",
+              "raw": "http://localhost:3006/api/v1/reports/stock-summary",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "reports"]
+              "path": ["api", "v1", "reports", "stock-summary"]
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "AI Assistant",
-      "item": [
+        },
         {
-          "name": "Get donation recommendation",
+          "name": "Get my stats",
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{jwt_token}}",
                 "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"userId\": \"user_id\",\n  \"question\": \"¿Puedo donar sangre si tengo resfriado?\"\n}"
-            },
             "url": {
-              "raw": "http://localhost:3006/api/ai/donation-assistant",
+              "raw": "http://localhost:3006/api/v1/reports/my-stats",
               "protocol": "http",
               "host": ["localhost"],
               "port": "3006",
-              "path": ["api", "ai", "donation-assistant"]
+              "path": ["api", "v1", "reports", "my-stats"]
             }
           }
         }
