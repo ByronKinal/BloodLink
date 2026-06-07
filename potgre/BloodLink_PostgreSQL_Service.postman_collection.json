@@ -1,0 +1,664 @@
+{
+  "info": {
+    "_postman_id": "postgres-service-collection",
+    "name": "BloodLink - PostgreSQL Service",
+    "description": "Colección de endpoints del servicio PostgreSQL (Puerto 3007)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "John",
+                  "type": "text"
+                },
+                {
+                  "key": "surname",
+                  "value": "Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "donor_user",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "user@bloodlink.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "Password123!",
+                  "type": "text"
+                },
+                {
+                  "key": "phone",
+                  "value": "12345678",
+                  "type": "text"
+                },
+                {
+                  "key": "bloodType",
+                  "value": "O+",
+                  "type": "text"
+                },
+                {
+                  "key": "zone",
+                  "value": "Zona 1",
+                  "type": "text"
+                },
+                {
+                  "key": "profilePicture",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailOrUsername\": \"user@bloodlink.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/refresh-token",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "refresh-token"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/logout",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Verify email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@bloodlink.com\",\n  \"token\": \"verification-token\",\n  \"activationCode\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/verify-email",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "verify-email"]
+            }
+          }
+        },
+        {
+          "name": "Resend verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@bloodlink.com\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/resend-verification",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "resend-verification"]
+            }
+          }
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@bloodlink.com\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/forgot-password",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset-token\",\n  \"newPassword\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/auth/reset-password",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "auth", "reset-password"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Allowed roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/v1/users/allowed-roles",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "users", "allowed-roles"]
+            }
+          }
+        },
+        {
+          "name": "Get users by role",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/v1/users/by-role/DONOR_ROLE",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "users", "by-role", "DONOR_ROLE"]
+            }
+          }
+        },
+        {
+          "name": "Update user role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleName\": \"DONOR_ROLE\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/users/123456789012/role",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "users", "123456789012", "role"]
+            }
+          }
+        },
+        {
+          "name": "Update user by admin",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane\",\n  \"surname\": \"Smith\",\n  \"phone\": \"12345678\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/users/123456789012",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "users", "123456789012"]
+            }
+          }
+        },
+        {
+          "name": "Get user roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/v1/users/123456789012/roles",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "users", "123456789012", "roles"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "item": [
+        {
+          "name": "Get wallet by user ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/v1/wallet/123456789012",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "wallet", "123456789012"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rewards",
+      "item": [
+        {
+          "name": "Get rewards",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/v1/rewards",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "rewards"]
+            }
+          }
+        },
+        {
+          "name": "Get reward by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/v1/rewards/reward001234",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "rewards", "reward001234"]
+            }
+          }
+        },
+        {
+          "name": "Create reward",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"First donation\",\n  \"requiredPoints\": 100,\n  \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/rewards",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "rewards"]
+            }
+          }
+        },
+        {
+          "name": "Update reward",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated reward\",\n  \"stock\": 5\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/rewards/reward001234",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "rewards", "reward001234"]
+            }
+          }
+        },
+        {
+          "name": "Delete reward",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3007/api/v1/rewards/reward001234",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "rewards", "reward001234"]
+            }
+          }
+        },
+        {
+          "name": "Redeem reward",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rewardId\": \"reward001234\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/api/v1/rewards/redeem",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["api", "v1", "rewards", "redeem"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Internal API (MongoDB Service)",
+      "item": [
+        {
+          "name": "Get user for MongoDB",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3007/internal/users/123456789012",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "users", "123456789012"]
+            }
+          }
+        },
+        {
+          "name": "Get users by IDs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3007/internal/users/batch?ids=123456789012,987654321098",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "users", "batch"],
+              "query": [
+                {
+                  "key": "ids",
+                  "value": "123456789012,987654321098"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get users by role",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3007/internal/users/role/DONOR_ROLE",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "users", "role", "DONOR_ROLE"]
+            }
+          }
+        },
+        {
+          "name": "Get user roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3007/internal/users/123456789012/roles",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "users", "123456789012", "roles"]
+            }
+          }
+        },
+        {
+          "name": "Get wallet for MongoDB",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3007/internal/wallets/123456789012",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "wallets", "123456789012"]
+            }
+          }
+        },
+        {
+          "name": "Award donation points",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"123456789012\",\n  \"points\": 100,\n  \"reason\": \"Blood donation\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3007/internal/incentives/award-donation",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3007",
+              "path": ["internal", "incentives", "award-donation"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
