@@ -1,3 +1,5 @@
+import { BrandLogo } from './BrandLogo.jsx'
+
 const BLOOD_CARDS = [
   { type: 'O⁻', label: 'Universal',  pct: 22, color: '#D42040', badgeColor: '#FF6080', badgeBg: 'rgba(212,32,64,0.20)',  badge: 'CRÍTICO' },
   { type: 'O+', label: 'Más común',  pct: 65, color: '#E8B040', badgeColor: '#E8B040', badgeBg: 'rgba(200,148,42,0.20)', badge: 'NORMAL'  },
@@ -34,7 +36,7 @@ const STATS = [
 
 const ECG_POINTS = '0,20 80,20 120,20 145,3 165,37 185,20 240,20 340,20 380,20 405,3 425,37 445,20 500,20 600,20 640,20 665,3 685,37 705,20 760,20 860,20 900,20 925,3 945,37 965,20 1020,20 1120,20 1160,20 1185,3 1205,37 1225,20 1280,20 1380,20 1420,20 1445,3 1465,37 1485,20 1540,20 1640,20 1680,20 1705,3 1725,37 1745,20 1800,20 1900,20 1940,20 1965,3 1985,37 2000,20'
 
-export function LoginLeftPanel() {
+export function AuthLeftPanel() {
   return (
     <div
       className="flex-1 relative overflow-hidden hidden lg:flex flex-col justify-between py-11 px-[52px]"
@@ -81,14 +83,8 @@ export function LoginLeftPanel() {
       </div>
 
       {/* Brand */}
-      <div className="relative z-[5] flex items-center gap-[13px]">
-        <div className="w-[42px] h-[42px] bg-rojo rounded-[11px] flex items-center justify-center text-xl shadow-[0_0_24px_rgba(184,28,50,0.65)]">
-          🩸
-        </div>
-        <div>
-          <div className="font-cormorant text-[22px] text-blanco leading-none">HemoVida</div>
-          <div className="text-[9px] text-oro tracking-[0.12em] uppercase mt-0.5">Banco de Sangre</div>
-        </div>
+      <div className="relative z-[5]">
+        <BrandLogo iconClass="w-[42px] h-[42px] rounded-[11px] shadow-[0_0_24px_rgba(184,28,50,0.65)]" />
       </div>
 
       {/* Hero content */}

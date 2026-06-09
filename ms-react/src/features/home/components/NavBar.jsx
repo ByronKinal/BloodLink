@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { BrandLogo } from '../../../shared/ui/BrandLogo.jsx'
 
 const NAV_LINKS = [
   { href: '#inicio',     label: 'Inicio' },
@@ -57,14 +58,8 @@ export function NavBar() {
         ? 'bg-carbon/95 backdrop-blur-[12px] border-b border-rojo/30 shadow-[0_4px_24px_rgba(0,0,0,0.4)]'
         : 'bg-carbon border-b border-rojo/30'
     }`}>
-      <a href="#" className="flex items-center gap-[11px] no-underline mr-11">
-        <div className="w-10 h-10 bg-rojo rounded-[10px] flex items-center justify-center text-xl shadow-[0_0_16px_rgba(184,28,50,0.5)]">
-          🩸
-        </div>
-        <div>
-          <div className="font-cormorant text-[22px] text-blanco tracking-[0.03em]">HemoVida</div>
-          <div className="text-[10px] text-oro tracking-[0.1em] uppercase mt-px">Banco de Sangre</div>
-        </div>
+      <a href="#" className="no-underline mr-11">
+        <BrandLogo />
       </a>
 
       <div className="flex gap-8 flex-1">
@@ -89,7 +84,7 @@ export function NavBar() {
         >
           Iniciar sesión
         </button>
-        <button className="btn-shine-alt relative text-[13px] font-medium text-white bg-gradient-to-br from-rojo-v to-rojo border-none rounded-lg px-[22px] py-[9px] cursor-pointer font-outfit transition-all duration-200 shadow-[0_4px_16px_rgba(184,28,50,0.4)] hover:shadow-[0_6px_22px_rgba(212,32,64,0.55)] hover:-translate-y-px">
+        <button onClick={() => navigate('/register')} className="btn-shine-alt relative text-[13px] font-medium text-white bg-gradient-to-br from-rojo-v to-rojo border-none rounded-lg px-[22px] py-[9px] cursor-pointer font-outfit transition-all duration-200 shadow-[0_4px_16px_rgba(184,28,50,0.4)] hover:shadow-[0_6px_22px_rgba(212,32,64,0.55)] hover:-translate-y-px">
           Registrarme →
         </button>
       </div>

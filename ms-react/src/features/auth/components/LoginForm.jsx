@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { InputField }    from '../../../shared/ui/InputField.jsx'
+import { PasswordField } from '../../../shared/ui/PasswordField.jsx'
 
 const INITIAL_FORM = { email: '', password: '', remember: false }
 
 export function LoginForm() {
-  const navigate            = useNavigate()
-  const [form, setForm]     = useState(INITIAL_FORM)
-  const [showPass, setShow] = useState(false)
-  const [loading, setLoad]  = useState(false)
-  const [done, setDone]     = useState(false)
+  const navigate          = useNavigate()
+  const [form, setForm]   = useState(INITIAL_FORM)
+  const [loading, setLoad] = useState(false)
+  const [done, setDone]   = useState(false)
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -43,48 +44,27 @@ export function LoginForm() {
       </p>
 
       <form onSubmit={handleSubmit}>
-        {/* Email */}
-        <div className="flex flex-col gap-[5px] mb-[14px]">
-          <label className="text-[10px] font-bold text-txt2 tracking-[0.07em] uppercase">
-            Correo electrónico
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="maria@correo.com"
-            autoComplete="email"
-            required
-            className="border border-gris2 rounded-[10px] px-[15px] py-3 text-[14px] text-txt bg-gris1 outline-none transition-all duration-200 placeholder-gris3 focus:border-rojo focus:bg-white focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] font-outfit"
-          />
-        </div>
+        <InputField
+          label="Correo electrónico"
+          name="email"
+          type="email"
+          value={form.email}
+          onChange={handleChange}
+          placeholder="maria@correo.com"
+          autoComplete="email"
+          required
+          className="mb-[14px]"
+        />
 
-        {/* Password */}
-        <div className="flex flex-col gap-[5px] mb-[14px]">
-          <label className="text-[10px] font-bold text-txt2 tracking-[0.07em] uppercase">
-            Contraseña
-          </label>
-          <div className="relative">
-            <input
-              type={showPass ? 'text' : 'password'}
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              required
-              className="w-full border border-gris2 rounded-[10px] pl-[15px] pr-11 py-3 text-[14px] text-txt bg-gris1 outline-none transition-all duration-200 placeholder-gris3 focus:border-rojo focus:bg-white focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] font-outfit"
-            />
-            <button
-              type="button"
-              onClick={() => setShow((v) => !v)}
-              className="absolute right-[13px] top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[15px] text-gris3 hover:text-rojo transition-colors p-1"
-            >
-              {showPass ? '🙈' : '👁'}
-            </button>
-          </div>
-        </div>
+        <PasswordField
+          label="Contraseña"
+          name="password"
+          value={form.password}
+          onChange={handleChange}
+          placeholder="••••••••"
+          autoComplete="current-password"
+          className="mb-[14px]"
+        />
 
         {/* Options */}
         <div className="flex justify-between items-center mb-5">
@@ -143,7 +123,7 @@ export function LoginForm() {
         ¿No tenés una cuenta?{' '}
         <button
           type="button"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/register')}
           className="text-rojo font-semibold bg-transparent border-none cursor-pointer hover:text-rojo-v transition-colors font-outfit text-[13px]"
         >
           Regístrate gratis
