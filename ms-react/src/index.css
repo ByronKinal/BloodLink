@@ -123,6 +123,25 @@ body {
 .step-card-3::after { background: linear-gradient(90deg, #2A2530, #1C1820); }
 .step-card-4::after { background: linear-gradient(90deg, #B81C32, #ff4060); }
 
+/* Login: floating blood drop */
+@keyframes floatdrop {
+  0%   { opacity: 0; transform: translateY(30px) rotate(-8deg); }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-80px) rotate(8deg); }
+}
+.animate-float-drop {
+  animation: floatdrop var(--dur, 9s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Login: ECG horizontal scroll */
+@keyframes ecgmove {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-ecg { animation: ecgmove 3s linear infinite; }
+
 /* Intersection Observer fade-up reveal */
 .fade-up {
   opacity: 0;

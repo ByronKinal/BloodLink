@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const NAV_LINKS = [
   { href: '#inicio',     label: 'Inicio' },
@@ -8,6 +9,7 @@ const NAV_LINKS = [
 ]
 
 export function NavBar() {
+  const navigate                    = useNavigate()
   const [scrolled, setScrolled]     = useState(false)
   const [activeSection, setActive]  = useState('#inicio')
 
@@ -81,7 +83,10 @@ export function NavBar() {
       </div>
 
       <div className="flex gap-[10px] items-center">
-        <button className="text-[13px] text-gris2 bg-transparent border border-gris2/20 rounded-lg px-[18px] py-2 cursor-pointer transition-all duration-200 hover:border-rojo hover:text-rojo-v font-outfit">
+        <button
+          onClick={() => navigate('/login')}
+          className="text-[13px] text-gris2 bg-transparent border border-gris2/20 rounded-lg px-[18px] py-2 cursor-pointer transition-all duration-200 hover:border-rojo hover:text-rojo-v font-outfit"
+        >
           Iniciar sesión
         </button>
         <button className="btn-shine-alt relative text-[13px] font-medium text-white bg-gradient-to-br from-rojo-v to-rojo border-none rounded-lg px-[22px] py-[9px] cursor-pointer font-outfit transition-all duration-200 shadow-[0_4px_16px_rgba(184,28,50,0.4)] hover:shadow-[0_6px_22px_rgba(212,32,64,0.55)] hover:-translate-y-px">
