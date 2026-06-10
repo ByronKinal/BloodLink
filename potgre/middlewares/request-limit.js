@@ -43,6 +43,22 @@ export const authRateLimit = rateLimit({
   },
 });
 
+// Solo cuenta intentos FALLIDOS de login. 3 intentos por 60 segundos.
+export const loginRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'Demasiados intentos fallidos. Esperá 1 minuto e intentá de nuevo.',
+      retryAfter: 60,
+    });
+  },
+});
+
 export const aiRateLimit = rateLimit({
   windowMs: 60 * 1000,
   max: 10,

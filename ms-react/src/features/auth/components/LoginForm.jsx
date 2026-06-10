@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { InputField }    from '../../../shared/components/InputField.jsx'
 import { PasswordField } from '../../../shared/components/PasswordField.jsx'
@@ -19,6 +19,19 @@ export function LoginForm() {
   const [error, setError]       = useState('')
   const [needsVerify, setNeeds] = useState(false)
   const [success, setSuccess]   = useState(false)
+  const [countdown, setCountdown] = useState(0)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (countdown <= 0) return
+    timerRef.current = setInterval(() => {
+      setCountdown(c => {
+        if (c <= 1) { clearInterval(timerRef.current); return 0 }
+        return c - 1
+      })
+    }, 1000)
+    return () => clearInterval(timerRef.current)
+  }, [countdown])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -29,6 +42,7 @@ export function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (countdown > 0) return
     if (!form.emailOrUsername.trim() || !form.password) {
       setError('Completá todos los campos.')
       return
@@ -38,7 +52,7 @@ export function LoginForm() {
     setNeeds(false)
 
     try {
-      const res = await loginUser(form.emailOrUsername.trim(), form.password)
+      const res  = await loginUser(form.emailOrUsername.trim(), form.password)
       const data = res.data?.data ?? res.data
       saveAuth({
         accessToken:  data.accessToken,
@@ -49,10 +63,13 @@ export function LoginForm() {
       const dest = isAdmin({ user: data.user }) ? '/admin' : '/dashboard'
       setTimeout(() => navigate(dest), 1200)
     } catch (err) {
-      const status  = err.response?.status
-      const message = err.response?.data?.message || ''
+      const status     = err.response?.status
+      const message    = err.response?.data?.message || ''
+      const retryAfter = err.response?.data?.retryAfter ?? 0
 
-      if (status === 423 || message.toLowerCase().includes('verificar')) {
+      if (status === 429) {
+        setCountdown(retryAfter || 60)
+      } else if (status === 423 || message.toLowerCase().includes('verificar')) {
         setNeeds(true)
       } else {
         setError(message || 'Credenciales inválidas. Verificá tus datos.')
@@ -61,6 +78,8 @@ export function LoginForm() {
       setLoading(false)
     }
   }
+
+  const isBlocked = countdown > 0
 
   return (
     <div className="relative z-10 w-full">
@@ -79,10 +98,10 @@ export function LoginForm() {
         Iniciá sesión
       </h2>
       <p className="text-[13px] text-txt3 font-light leading-[1.6] mb-[22px]">
-        Ingresá tus datos para acceder a tu cuenta BloodLink.
+        Ingresá tu correo o usuario para acceder a tu cuenta BloodLink.
       </p>
 
-      {/* "Password reset" success banner */}
+      {/* Password reset banner */}
       {passwordReset && (
         <div className="flex items-start gap-3 bg-[rgba(40,160,96,0.07)] border border-[rgba(40,160,96,0.25)] rounded-[11px] px-4 py-3 mb-5">
           <span className="text-[16px] flex-shrink-0 mt-[1px]">🔒</span>
@@ -95,7 +114,7 @@ export function LoginForm() {
         </div>
       )}
 
-      {/* "Just registered" info banner */}
+      {/* Just registered banner */}
       {justRegistered && !justActivated && (
         <div className="flex items-start gap-3 bg-[rgba(200,148,42,0.07)] border border-[rgba(200,148,42,0.25)] rounded-[11px] px-4 py-3 mb-5">
           <span className="text-[16px] flex-shrink-0 mt-[1px]">📬</span>
@@ -112,7 +131,7 @@ export function LoginForm() {
         </div>
       )}
 
-      {/* "Just activated" success banner */}
+      {/* Just activated banner */}
       {justActivated && (
         <div className="flex items-start gap-3 bg-[rgba(40,160,96,0.07)] border border-[rgba(40,160,96,0.25)] rounded-[11px] px-4 py-3 mb-5">
           <span className="text-[16px] flex-shrink-0 mt-[1px]">✅</span>
@@ -125,7 +144,7 @@ export function LoginForm() {
         </div>
       )}
 
-      {/* "Needs verify" error banner */}
+      {/* Needs verify banner */}
       {needsVerify && (
         <div className="flex items-start gap-3 bg-[rgba(200,148,42,0.07)] border border-[rgba(200,148,42,0.25)] rounded-[11px] px-4 py-3 mb-5">
           <span className="text-[16px] flex-shrink-0 mt-[1px]">⚠️</span>
@@ -142,16 +161,37 @@ export function LoginForm() {
         </div>
       )}
 
+      {/* Rate limit countdown banner */}
+      {isBlocked && (
+        <div className="flex items-start gap-3 bg-rojo/[0.06] border border-rojo/20 rounded-[11px] px-4 py-3 mb-5">
+          <span className="text-[16px] flex-shrink-0 mt-[1px]">🔐</span>
+          <div>
+            <p className="text-[12px] font-semibold text-rojo leading-[1.4] mb-[2px]">
+              Demasiados intentos fallidos
+            </p>
+            <p className="text-[12px] text-rojo/70 font-light leading-[1.5]">
+              Podés intentar de nuevo en{' '}
+              <span className="font-bold text-rojo tabular-nums">
+                {Math.floor(countdown / 60) > 0
+                  ? `${Math.floor(countdown / 60)}:${String(countdown % 60).padStart(2, '0')}`
+                  : `${countdown}s`}
+              </span>
+            </p>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <InputField
           label="Correo o usuario"
           name="emailOrUsername"
           value={form.emailOrUsername}
           onChange={handleChange}
-          placeholder="maria@correo.com"
+          placeholder="maria@correo.com o maria123"
           autoComplete="username"
           required
           className="mb-[14px]"
+          disabled={isBlocked}
         />
 
         <PasswordField
@@ -162,6 +202,7 @@ export function LoginForm() {
           placeholder="••••••••"
           autoComplete="current-password"
           className="mb-[14px]"
+          disabled={isBlocked}
         />
 
         {/* Options row */}
@@ -184,15 +225,23 @@ export function LoginForm() {
           </div>
         )}
 
-        <button type="submit" disabled={loading}
-          className="btn-shine relative overflow-hidden w-full border-none rounded-[11px] py-[14px] text-[15px] font-semibold cursor-pointer font-outfit transition-all duration-300 mb-[18px] hover:-translate-y-px disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+        <button type="submit" disabled={loading || isBlocked}
+          className="btn-shine relative overflow-hidden w-full border-none rounded-[11px] py-[14px] text-[15px] font-semibold cursor-pointer font-outfit transition-all duration-300 mb-[18px] hover:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           style={
             success
               ? { background: 'linear-gradient(135deg,#1A6B40,#28A060)', color: '#fff', boxShadow: '0 6px 22px rgba(40,160,96,0.38)' }
+              : isBlocked
+              ? { background: '#C0B8BC', color: '#fff', boxShadow: 'none' }
               : { background: 'linear-gradient(135deg,#D42040,#B81C32)', color: '#fff', boxShadow: '0 6px 22px rgba(184,28,50,0.38)' }
           }
         >
-          {loading ? 'Verificando…' : success ? '✓ Sesión iniciada' : 'Iniciar sesión'}
+          {loading
+            ? 'Verificando…'
+            : success
+            ? '✓ Sesión iniciada'
+            : isBlocked
+            ? `Bloqueado — ${countdown}s`
+            : 'Iniciar sesión'}
         </button>
       </form>
 

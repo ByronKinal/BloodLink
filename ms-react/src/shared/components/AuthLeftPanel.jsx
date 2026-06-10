@@ -1,12 +1,21 @@
+import { useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BrandLogo } from './BrandLogo.jsx'
 
 const BLOOD_CARDS = [
-  { type: 'O⁻', label: 'Universal',  pct: 22, color: '#D42040', badgeColor: '#FF6080', badgeBg: 'rgba(212,32,64,0.20)',  badge: 'CRÍTICO' },
-  { type: 'O+', label: 'Más común',  pct: 65, color: '#E8B040', badgeColor: '#E8B040', badgeBg: 'rgba(200,148,42,0.20)', badge: 'NORMAL'  },
-  { type: 'A+', label: 'Normal',     pct: 80, color: '#28A060', badgeColor: '#28A060', badgeBg: 'rgba(26,107,64,0.20)',  badge: 'ÓPTIMO'  },
-  { type: 'AB+',label: 'Receptor',   pct: 58, color: '#4A8ACC', badgeColor: '#4A8ACC', badgeBg: 'rgba(32,96,160,0.20)', badge: 'BUENO'   },
+  { type: 'O⁻',  label: 'Universal',     pct: 22, color: '#D42040', badgeColor: '#FF6080', badgeBg: 'rgba(212,32,64,0.20)',  badge: 'CRÍTICO' },
+  { type: 'O+',  label: 'Más común',     pct: 65, color: '#E8B040', badgeColor: '#E8B040', badgeBg: 'rgba(200,148,42,0.20)', badge: 'NORMAL'  },
+  { type: 'A+',  label: 'Normal',        pct: 80, color: '#28A060', badgeColor: '#28A060', badgeBg: 'rgba(26,107,64,0.20)',  badge: 'ÓPTIMO'  },
+  { type: 'A⁻',  label: 'Escaso',        pct: 35, color: '#FF6040', badgeColor: '#FF9080', badgeBg: 'rgba(212,32,64,0.15)',  badge: 'BAJO'    },
+  { type: 'B+',  label: 'Receptor',      pct: 58, color: '#4A8ACC', badgeColor: '#4A8ACC', badgeBg: 'rgba(32,96,160,0.20)',  badge: 'BUENO'   },
+  { type: 'B⁻',  label: 'Raro',          pct: 18, color: '#D42040', badgeColor: '#FF6080', badgeBg: 'rgba(212,32,64,0.20)',  badge: 'CRÍTICO' },
+  { type: 'AB+', label: 'Receptor univ.',pct: 72, color: '#4A8ACC', badgeColor: '#4A8ACC', badgeBg: 'rgba(32,96,160,0.20)',  badge: 'BUENO'   },
+  { type: 'AB⁻', label: 'Muy raro',      pct: 12, color: '#FF6040', badgeColor: '#FF9080', badgeBg: 'rgba(212,32,64,0.15)',  badge: 'BAJO'    },
 ]
+
+const DOUBLED_CARDS = [...BLOOD_CARDS, ...BLOOD_CARDS]
+// each card: 150px width + 8px gap = 158px
+const ONE_SET_WIDTH = BLOOD_CARDS.length * 158
 
 const TYPE_BAR = [
   { flex: 22, color: '#D42040' },
@@ -38,7 +47,30 @@ const STATS = [
 const ECG_POINTS = '0,20 80,20 120,20 145,3 165,37 185,20 240,20 340,20 380,20 405,3 425,37 445,20 500,20 600,20 640,20 665,3 685,37 705,20 760,20 860,20 900,20 925,3 945,37 965,20 1020,20 1120,20 1160,20 1185,3 1205,37 1225,20 1280,20 1380,20 1420,20 1445,3 1465,37 1485,20 1540,20 1640,20 1680,20 1705,3 1725,37 1745,20 1800,20 1900,20 1940,20 1965,3 1985,37 2000,20'
 
 export function AuthLeftPanel() {
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
+  const trackRef  = useRef(null)
+  const rafRef    = useRef(null)
+  const posRef    = useRef(0)
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+
+    const speed = 0.45
+
+    function step() {
+      posRef.current -= speed
+      if (posRef.current <= -ONE_SET_WIDTH) {
+        posRef.current = 0
+      }
+      track.style.transform = `translateX(${posRef.current}px)`
+      rafRef.current = requestAnimationFrame(step)
+    }
+
+    rafRef.current = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [])
+
   return (
     <div
       className="flex-1 relative overflow-hidden hidden lg:flex flex-col justify-between py-11 px-[52px]"
@@ -109,25 +141,39 @@ export function AuthLeftPanel() {
           </span>
         </div>
 
-        {/* Blood cards */}
-        <div className="flex gap-[10px]">
-          {BLOOD_CARDS.map(({ type, label, pct, color, badge, badgeColor, badgeBg }) => (
-            <div
-              key={type}
-              className="flex-1 relative bg-white/[0.05] border border-white/[0.08] rounded-[14px] p-[14px_16px] overflow-hidden transition-all duration-[250ms] hover:-translate-y-[2px] hover:bg-white/[0.08] cursor-default"
-            >
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-[3px]" style={{ background: color }} />
-              <div className="font-cormorant text-[26px] font-semibold text-blanco leading-none mb-[6px]">{type}</div>
-              <div className="text-[10px] text-blanco/35 uppercase tracking-[0.06em] mb-2">{label}</div>
-              <div className="h-[3px] bg-white/[0.08] rounded-[20px] overflow-hidden">
-                <div className="h-[3px] rounded-[20px]" style={{ width: `${pct}%`, background: color }} />
+        {/* Blood cards ticker */}
+        <div style={{ overflow: 'hidden', marginLeft: '-52px', marginRight: '-52px', paddingLeft: '0', paddingRight: '0' }}>
+          <div
+            ref={trackRef}
+            style={{ display: 'flex', gap: '8px', width: 'max-content', paddingLeft: '8px' }}
+          >
+            {DOUBLED_CARDS.map(({ type, label, pct, color, badge, badgeColor, badgeBg }, i) => (
+              <div
+                key={i}
+                style={{
+                  flexShrink: 0,
+                  width: '150px',
+                  position: 'relative',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '14px',
+                  padding: '14px 16px',
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '3px', borderRadius: '3px 0 0 3px', background: color }} />
+                <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '26px', fontWeight: 600, color: '#FAFAF8', lineHeight: 1, marginBottom: '6px' }}>{type}</div>
+                <div style={{ fontSize: '10px', color: 'rgba(250,250,248,0.35)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>{label}</div>
+                <div style={{ height: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '20px', overflow: 'hidden' }}>
+                  <div style={{ height: '3px', borderRadius: '20px', width: `${pct}%`, background: color }} />
+                </div>
+                <div style={{ fontSize: '11px', fontWeight: 700, marginTop: '5px', color }}>{pct}%</div>
+                <div style={{ display: 'inline-block', fontSize: '8px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '2px 7px', borderRadius: '4px', marginTop: '4px', color: badgeColor, background: badgeBg }}>
+                  {badge}
+                </div>
               </div>
-              <div className="text-[11px] font-bold mt-[5px]" style={{ color }}>{pct}%</div>
-              <div className="inline-block text-[8px] font-bold tracking-[0.08em] uppercase px-[7px] py-[2px] rounded-[4px] mt-1" style={{ color: badgeColor, background: badgeBg }}>
-                {badge}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 

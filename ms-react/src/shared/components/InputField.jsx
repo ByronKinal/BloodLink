@@ -11,6 +11,7 @@ export function InputField({
   inputMode,
   autoComplete = 'off',
   required,
+  disabled = false,
 }) {
   return (
     <div className={`flex flex-col gap-[5px] ${className}`}>
@@ -25,7 +26,8 @@ export function InputField({
         inputMode={inputMode}
         autoComplete={autoComplete}
         required={required}
-        className={`border rounded-[10px] px-[15px] py-3 text-[14px] text-txt bg-gris1 outline-none transition-all duration-200 placeholder-gris3 focus:bg-white focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] font-outfit ${
+        disabled={disabled}
+        className={`border rounded-[10px] px-[15px] py-3 text-[14px] text-txt bg-gris1 outline-none transition-all duration-200 placeholder-gris3 focus:bg-white focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] font-outfit disabled:opacity-50 disabled:cursor-not-allowed ${
           error ? 'border-rojo' : 'border-gris2 focus:border-rojo'
         }`}
       />

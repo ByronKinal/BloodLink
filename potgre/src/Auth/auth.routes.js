@@ -9,7 +9,7 @@ import {
   forgotPassword,
   resetPassword,
 } from './auth.controller.js';
-import { authRateLimit, emailRateLimit } from '../../middlewares/request-limit.js';
+import { authRateLimit, loginRateLimit, emailRateLimit } from '../../middlewares/request-limit.js';
 import { upload, handleUploadError } from '../../helpers/file-upload.js';
 import {
   validateRegister,
@@ -31,7 +31,7 @@ router.post(
   validateRegister,
   register
 );
-router.post('/login', authRateLimit, validateLogin, login);
+router.post('/login', loginRateLimit, validateLogin, login);
 router.post('/refresh-token', authRateLimit, validateRefreshToken, refreshToken);
 router.post('/logout', authRateLimit, validateRefreshToken, logout);
 

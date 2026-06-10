@@ -9,6 +9,7 @@ export function PasswordField({
   placeholder,
   className = '',
   autoComplete = 'off',
+  disabled = false,
 }) {
   const [show, setShow] = useState(false)
 
@@ -23,7 +24,8 @@ export function PasswordField({
           onChange={onChange}
           placeholder={placeholder}
           autoComplete={autoComplete}
-          className={`w-full border rounded-[10px] pl-[15px] pr-11 py-3 text-[14px] text-txt bg-gris1 outline-none transition-all duration-200 placeholder-gris3 focus:bg-white focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] font-outfit ${
+          disabled={disabled}
+          className={`w-full border rounded-[10px] pl-[15px] pr-11 py-3 text-[14px] text-txt bg-gris1 outline-none transition-all duration-200 placeholder-gris3 focus:bg-white focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] font-outfit disabled:opacity-50 disabled:cursor-not-allowed ${
             error ? 'border-rojo' : 'border-gris2 focus:border-rojo'
           }`}
         />
