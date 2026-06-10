@@ -1,4 +1,4 @@
-import { AuthLeftPanel } from '../../../shared/ui/AuthLeftPanel.jsx'
+import { AuthLeftPanel } from '../../../shared/components/AuthLeftPanel.jsx'
 import { LoginForm }     from '../components/LoginForm.jsx'
 
 export function LoginPage() {

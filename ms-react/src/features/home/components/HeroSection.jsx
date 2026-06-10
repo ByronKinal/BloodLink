@@ -58,7 +58,7 @@ export function HeroSection() {
         </h1>
 
         <p className="text-base text-blanco/60 leading-[1.75] mb-9 max-w-[500px] font-light">
-          Donar sangre es un acto seguro, voluntario y completamente gratuito. En HemoVida
+          Donar sangre es un acto seguro, voluntario y completamente gratuito. En BloodLink
           conectamos donantes con quienes más lo necesitan en todo el país.
         </p>
 

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { BrandLogo } from './BrandLogo.jsx'
 
 const BLOOD_CARDS = [
@@ -37,6 +38,7 @@ const STATS = [
 const ECG_POINTS = '0,20 80,20 120,20 145,3 165,37 185,20 240,20 340,20 380,20 405,3 425,37 445,20 500,20 600,20 640,20 665,3 685,37 705,20 760,20 860,20 900,20 925,3 945,37 965,20 1020,20 1120,20 1160,20 1185,3 1205,37 1225,20 1280,20 1380,20 1420,20 1445,3 1465,37 1485,20 1540,20 1640,20 1680,20 1705,3 1725,37 1745,20 1800,20 1900,20 1940,20 1965,3 1985,37 2000,20'
 
 export function AuthLeftPanel() {
+  const navigate = useNavigate()
   return (
     <div
       className="flex-1 relative overflow-hidden hidden lg:flex flex-col justify-between py-11 px-[52px]"
@@ -83,9 +85,12 @@ export function AuthLeftPanel() {
       </div>
 
       {/* Brand */}
-      <div className="relative z-[5]">
+      <button
+        onClick={() => navigate('/')}
+        className="relative z-[5] bg-transparent border-none cursor-pointer p-0 text-left"
+      >
         <BrandLogo iconClass="w-[42px] h-[42px] rounded-[11px] shadow-[0_0_24px_rgba(184,28,50,0.65)]" />
-      </div>
+      </button>
 
       {/* Hero content */}
       <div className="relative z-[5] flex flex-col gap-8">

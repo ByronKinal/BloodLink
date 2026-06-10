@@ -22,7 +22,7 @@ export function AppFooter() {
 
         {/* Brand column */}
         <div>
-          <div className="font-cormorant text-2xl text-blanco mb-1">HemoVida</div>
+          <div className="font-cormorant text-2xl text-blanco mb-1">BloodLink</div>
           <div className="text-[10px] text-oro tracking-[0.07em] uppercase mb-[14px]">
             Banco de Sangre Nacional de Guatemala
           </div>
@@ -62,7 +62,7 @@ export function AppFooter() {
 
       <div className="border-t border-white/[0.06] pt-[22px] flex justify-between items-center">
         <div className="text-xs text-blanco/20">
-          © 2026 HemoVida — Ministerio de Salud Pública de Guatemala
+          © 2026 BloodLink — Ministerio de Salud Pública de Guatemala
         </div>
         <div className="flex items-center gap-[7px] bg-rojo/[0.12] border border-rojo/25 rounded-[20px] px-[14px] py-[5px] text-[11px] text-rojo-v">
           🛡️ Sitio oficial del gobierno

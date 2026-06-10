@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { InputField }    from '../../../shared/ui/InputField.jsx'
-import { PasswordField } from '../../../shared/ui/PasswordField.jsx'
+import { InputField }    from '../../../shared/components/InputField.jsx'
+import { PasswordField } from '../../../shared/components/PasswordField.jsx'
+import { registerUser }  from '../../../shared/api/auth.api.js'
 
 const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
@@ -13,12 +14,15 @@ const INITIAL = {
 }
 
 export function RegisterForm() {
-  const navigate              = useNavigate()
-  const [step, setStep]       = useState(1)
-  const [form, setForm]       = useState(INITIAL)
-  const [errors, setErrors]   = useState({})
-  const [preview, setPreview] = useState(null)
-  const fileRef               = useRef(null)
+  const navigate                = useNavigate()
+  const [step, setStep]         = useState(1)
+  const [form, setForm]         = useState(INITIAL)
+  const [errors, setErrors]     = useState({})
+  const [preview, setPreview]   = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [success, setSuccess]   = useState(false)
+  const fileRef                 = useRef(null)
 
   const handle = (e) => {
     const { name, value } = e.target
@@ -31,6 +35,7 @@ export function RegisterForm() {
     if (!file) return
     setForm(p => ({ ...p, profilePicture: file }))
     setPreview(URL.createObjectURL(file))
+    if (errors.profilePicture) setErrors(p => ({ ...p, profilePicture: '' }))
   }
 
   const handleDrop = (e) => {
@@ -39,6 +44,7 @@ export function RegisterForm() {
     if (!file || !file.type.startsWith('image/')) return
     setForm(p => ({ ...p, profilePicture: file }))
     setPreview(URL.createObjectURL(file))
+    if (errors.profilePicture) setErrors(p => ({ ...p, profilePicture: '' }))
   }
 
   const validateStep1 = () => {
@@ -58,17 +64,65 @@ export function RegisterForm() {
     if (!/^\d{8}$/.test(form.phone))     e.phone = 'Exactamente 8 dígitos numéricos'
     if (!form.bloodType)                  e.bloodType = 'Seleccioná tu tipo de sangre'
     if (!form.zone && !form.municipality) e.zone = 'Ingresá al menos zona o municipio'
+    if (!form.profilePicture)             e.profilePicture = 'La foto de perfil es obligatoria'
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
   const goNext = () => { if (validateStep1()) setStep(2) }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!validateStep2()) return
-    // TODO: POST /api/v1/auth/register
-    navigate('/login')
+
+    setLoading(true)
+    setApiError('')
+
+    const fd = new FormData()
+    fd.append('name',         form.name.trim())
+    fd.append('surname',      form.surname.trim())
+    fd.append('username',     form.username.trim())
+    fd.append('email',        form.email.trim())
+    fd.append('password',     form.password)
+    fd.append('phone',        form.phone)
+    fd.append('bloodType',    form.bloodType)
+    if (form.zone.trim())         fd.append('zone',         form.zone.trim())
+    if (form.municipality.trim()) fd.append('municipality', form.municipality.trim())
+    fd.append('profilePicture', form.profilePicture)
+
+    try {
+      await registerUser(fd)
+      setSuccess(true)
+      setTimeout(() => navigate('/login', { state: { justRegistered: true, email: form.email.trim() } }), 3000)
+    } catch (err) {
+      const data = err.response?.data
+      if (data?.errors?.length) {
+        setApiError(data.errors.map(v => v.message).join('. '))
+      } else {
+        setApiError(data?.message || 'Error al registrar. Intentá de nuevo.')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /* ── Success screen ───────────────────────────────────────────── */
+  if (success) {
+    return (
+      <div className="relative z-10 w-full flex flex-col items-center justify-center text-center py-8">
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center text-2xl text-white mb-5"
+          style={{ background: 'linear-gradient(135deg,#28A060,#166534)', boxShadow: '0 0 24px rgba(40,160,96,0.4)' }}
+        >
+          ✓
+        </div>
+        <h2 className="font-cormorant text-[30px] font-medium text-txt mb-2">¡Cuenta creada!</h2>
+        <p className="text-[13px] text-txt3 font-light leading-[1.6] mb-1">
+          Revisá tu correo para activar tu cuenta.
+        </p>
+        <p className="text-[12px] text-gris3">Redirigiendo al inicio de sesión...</p>
+      </div>
+    )
   }
 
   return (
@@ -108,7 +162,7 @@ export function RegisterForm() {
         {step === 1 ? 'Registrate' : 'Casi listo'}
       </h2>
       <p className="text-[13px] text-txt3 font-light leading-[1.6] mb-[22px]">
-        {step === 1 ? 'Creá tu cuenta HemoVida. Es gratis.' : 'Completá tu perfil médico para finalizar.'}
+        {step === 1 ? 'Creá tu cuenta BloodLink. Es gratis.' : 'Completá tu perfil médico para finalizar.'}
       </p>
 
       {/* ─── STEP 1 ─── */}
@@ -184,13 +238,15 @@ export function RegisterForm() {
           </div>
 
           {/* Profile picture */}
-          <div className="flex flex-col gap-[5px] mb-5">
+          <div className="flex flex-col gap-[5px] mb-4">
             <label className="text-[10px] font-bold text-txt2 tracking-[0.07em] uppercase">Foto de perfil</label>
             <div
               onClick={() => fileRef.current?.click()}
               onDragOver={e => e.preventDefault()}
               onDrop={handleDrop}
-              className="border-2 border-dashed border-gris2 rounded-[12px] cursor-pointer transition-all duration-200 hover:border-rojo hover:bg-rojo/[0.02] flex items-center gap-4 px-4 py-4"
+              className={`border-2 border-dashed rounded-[12px] cursor-pointer transition-all duration-200 hover:border-rojo hover:bg-rojo/[0.02] flex items-center gap-4 px-4 py-4 ${
+                errors.profilePicture ? 'border-rojo bg-rojo/[0.02]' : 'border-gris2'
+              }`}
             >
               {preview ? (
                 <>
@@ -210,17 +266,26 @@ export function RegisterForm() {
               )}
             </div>
             <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+            {errors.profilePicture && <span className="text-[11px] text-rojo">{errors.profilePicture}</span>}
           </div>
 
+          {/* API error */}
+          {apiError && (
+            <div className="bg-rojo/[0.06] border border-rojo/25 rounded-[10px] px-4 py-3 mb-4">
+              <p className="text-[12px] text-rojo leading-[1.5]">{apiError}</p>
+            </div>
+          )}
+
           <div className="flex gap-3">
-            <button type="button" onClick={() => setStep(1)}
-              className="flex-1 border border-gris2 rounded-[11px] py-[13px] text-[14px] text-txt2 bg-white cursor-pointer transition-all duration-200 hover:border-rojo hover:text-rojo font-outfit font-medium">
+            <button type="button" onClick={() => { setStep(1); setApiError('') }}
+              className="flex-1 border border-gris2 rounded-[11px] py-[13px] text-[14px] text-txt2 bg-white cursor-pointer transition-all duration-200 hover:border-rojo hover:text-rojo font-outfit font-medium"
+              disabled={loading}>
               ← Volver
             </button>
-            <button type="submit"
-              className="btn-shine flex-[2] border-none rounded-[11px] py-[13px] text-[15px] font-semibold cursor-pointer font-outfit transition-all duration-300 hover:-translate-y-px"
+            <button type="submit" disabled={loading}
+              className="btn-shine flex-[2] border-none rounded-[11px] py-[13px] text-[15px] font-semibold cursor-pointer font-outfit transition-all duration-300 hover:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
               style={{ background: 'linear-gradient(135deg,#D42040,#B81C32)', color: '#fff', boxShadow: '0 6px 22px rgba(184,28,50,0.35)' }}>
-              Crear cuenta
+              {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>
           </div>
         </form>

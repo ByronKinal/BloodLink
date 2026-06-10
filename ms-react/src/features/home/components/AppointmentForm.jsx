@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const BLOOD_TYPES = [
   'O+ (Positivo)', 'O⁻ (Negativo)',
@@ -44,6 +45,7 @@ const INITIAL_FORM = {
 const inputClass = 'border border-gris2 rounded-[10px] px-[14px] py-3 text-sm text-txt bg-gris1 outline-none font-outfit transition-all duration-200 focus:border-rojo focus:bg-white focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] placeholder:text-gris3'
 
 export function AppointmentForm() {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState(INITIAL_FORM)
 
   const handleFieldChange = (field) => (e) => {
@@ -52,9 +54,7 @@ export function AppointmentForm() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault()
-    // TODO: connect to API
-    alert('¡Cita registrada! Te confirmaremos por correo en menos de 24 horas.')
-    setFormData(INITIAL_FORM)
+    navigate('/login')
   }
 
   return (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BrandLogo } from '../../../shared/ui/BrandLogo.jsx'
+import { BrandLogo } from '../../../shared/components/BrandLogo.jsx'
 
 const NAV_LINKS = [
   { href: '#inicio',     label: 'Inicio' },
