@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { InputField }    from '../../../shared/components/InputField.jsx'
 import { PasswordField } from '../../../shared/components/PasswordField.jsx'
 import { loginUser }     from '../../../shared/api/auth.api.js'
+import { saveAuth, isAdmin } from '../../../shared/utils/auth.store.js'
 
 const INITIAL_FORM = { emailOrUsername: '', password: '', remember: false }
 
@@ -37,9 +38,16 @@ export function LoginForm() {
     setNeeds(false)
 
     try {
-      await loginUser(form.emailOrUsername.trim(), form.password)
+      const res = await loginUser(form.emailOrUsername.trim(), form.password)
+      const data = res.data?.data ?? res.data
+      saveAuth({
+        accessToken:  data.accessToken,
+        refreshToken: data.refreshToken,
+        user:         data.user,
+      })
       setSuccess(true)
-      setTimeout(() => navigate('/'), 1200)
+      const dest = isAdmin({ user: data.user }) ? '/admin' : '/dashboard'
+      setTimeout(() => navigate(dest), 1200)
     } catch (err) {
       const status  = err.response?.status
       const message = err.response?.data?.message || ''

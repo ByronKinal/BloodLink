@@ -1,10 +1,13 @@
 import { Route, Routes } from 'react-router-dom'
-import { HomePage }           from '../../features/home/pages/HomePage.jsx'
-import { LoginPage }          from '../../features/auth/pages/LoginPage.jsx'
-import { RegisterPage }       from '../../features/auth/pages/RegisterPage.jsx'
-import { VerifyEmailPage }    from '../../features/auth/pages/VerifyEmailPage.jsx'
-import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage.jsx'
-import { ResetPasswordPage }  from '../../features/auth/pages/ResetPasswordPage.jsx'
+import { HomePage }              from '../../features/home/pages/HomePage.jsx'
+import { LoginPage }             from '../../features/auth/pages/LoginPage.jsx'
+import { RegisterPage }          from '../../features/auth/pages/RegisterPage.jsx'
+import { VerifyEmailPage }       from '../../features/auth/pages/VerifyEmailPage.jsx'
+import { ForgotPasswordPage }    from '../../features/auth/pages/ForgotPasswordPage.jsx'
+import { ResetPasswordPage }     from '../../features/auth/pages/ResetPasswordPage.jsx'
+import { ClientDashboardPage }   from '../../features/client/pages/ClientDashboardPage.jsx'
+import { AdminDashboardPage }    from '../../features/admin/pages/AdminDashboardPage.jsx'
+import { ProtectedRoute }        from '../../shared/components/ProtectedRoute.jsx'
 
 export function AppRoutes() {
   return (
@@ -15,6 +18,18 @@ export function AppRoutes() {
       <Route path="/verify-email"    element={<VerifyEmailPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password"  element={<ResetPasswordPage />} />
+
+      <Route path="/dashboard" element={
+        <ProtectedRoute clientOnly>
+          <ClientDashboardPage />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/admin" element={
+        <ProtectedRoute adminOnly>
+          <AdminDashboardPage />
+        </ProtectedRoute>
+      } />
     </Routes>
   )
 }

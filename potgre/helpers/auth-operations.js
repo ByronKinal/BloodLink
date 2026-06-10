@@ -163,12 +163,7 @@ export const loginUserHelper = async (emailOrUsername, password) => {
     success: true,
     message: 'Login exitoso',
     ...tokens,
-    userDetails: {
-      id: profile.id,
-      username: profile.username,
-      profilePicture: profile.profilePicture,
-      role: profile.role,
-    },
+    user: profile,
   };
 };
 
