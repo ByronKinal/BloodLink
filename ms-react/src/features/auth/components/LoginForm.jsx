@@ -11,6 +11,7 @@ export function LoginForm() {
   const location          = useLocation()
   const justRegistered    = location.state?.justRegistered ?? false
   const justActivated     = location.state?.activated ?? false
+  const passwordReset     = location.state?.passwordReset ?? false
 
   const [form, setForm]         = useState(INITIAL_FORM)
   const [loading, setLoading]   = useState(false)
@@ -72,6 +73,19 @@ export function LoginForm() {
       <p className="text-[13px] text-txt3 font-light leading-[1.6] mb-[22px]">
         Ingresá tus datos para acceder a tu cuenta BloodLink.
       </p>
+
+      {/* "Password reset" success banner */}
+      {passwordReset && (
+        <div className="flex items-start gap-3 bg-[rgba(40,160,96,0.07)] border border-[rgba(40,160,96,0.25)] rounded-[11px] px-4 py-3 mb-5">
+          <span className="text-[16px] flex-shrink-0 mt-[1px]">🔒</span>
+          <div>
+            <p className="text-[12px] font-semibold text-verde-v leading-[1.4] mb-[2px]">Contraseña actualizada</p>
+            <p className="text-[12px] text-verde-v/70 font-light leading-[1.5]">
+              Tu contraseña fue cambiada correctamente. Ya podés iniciar sesión.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* "Just registered" info banner */}
       {justRegistered && !justActivated && (
@@ -149,9 +163,10 @@ export function LoginForm() {
               className="w-[15px] h-[15px] accent-rojo cursor-pointer" />
             <span className="text-[13px] text-txt2">Recordarme</span>
           </label>
-          <a href="#" className="text-[13px] text-rojo font-medium no-underline hover:text-rojo-v transition-colors">
+          <button type="button" onClick={() => navigate('/forgot-password')}
+            className="text-[13px] text-rojo font-medium bg-transparent border-none cursor-pointer hover:text-rojo-v transition-colors font-outfit">
             ¿Olvidaste tu contraseña?
-          </a>
+          </button>
         </div>
 
         {/* Generic error */}

@@ -16,3 +16,9 @@ export const verifyEmailByCode = (email, activationCode) =>
 
 export const resendVerification = (email) =>
   postgresApi.post('/api/v1/auth/resend-verification', { email })
+
+export const forgotPassword = (email) =>
+  postgresApi.post('/api/v1/auth/forgot-password', { email })
+
+export const resetPassword = (token, newPassword) =>
+  postgresApi.post('/api/v1/auth/reset-password', { token, newPassword })
