@@ -61,7 +61,6 @@ export function HowToDonateSection() {
             </div>
             <div className="text-base font-medium text-txt mb-2">{title}</div>
             <div className="text-[13px] text-txt3 leading-[1.65] font-light">{text}</div>
-            <div className="text-2xl mt-4">{icon}</div>
           </div>
         ))}
       </div>

@@ -1,10 +1,17 @@
+import edadImg          from '../../../assets/img/edad-banco-de-sangre.png'
+import pesoImg          from '../../../assets/img/peso-minimo-banco-de-sangre.png'
+import saludImg         from '../../../assets/img/buena-salud-banco-de-sangre.png'
+import hemoglobinaImg   from '../../../assets/img/hemoglobina-banco-de-sangre.png'
+import intervaloImg     from '../../../assets/img/intervalo-minimo-banco-de-sangre.png'
+import identificacionImg from '../../../assets/img/identificacion-banco-de-sangre.png'
+
 const REQUIREMENTS = [
-  { icon: '🤝', title: 'Edad',         text: 'Entre 18 y 65 años. Mayores de 65 con autorización médica previa.' },
-  { icon: '⚖️', title: 'Peso mínimo',  text: 'Al menos 50 kg para garantizar tu bienestar durante la donación.' },
-  { icon: '💪', title: 'Buena salud',  text: 'Sin enfermedades activas ni medicamentos anticoagulantes en las últimas 24h.' },
-  { icon: '🩸', title: 'Hemoglobina',  text: 'Mínimo 12.5 g/dL en mujeres y 13.5 g/dL en hombres. Se mide gratis al llegar.' },
-  { icon: '📅', title: 'Intervalo mínimo', text: 'Esperar al menos 56 días entre cada donación de sangre entera.' },
-  { icon: '🪪', title: 'Identificación',   text: 'Presentar DPI o pasaporte vigente el día de la donación.' },
+  { img: edadImg,           alt: 'Edad requerida para donar sangre' },
+  { img: pesoImg,           alt: 'Peso mínimo para donar sangre' },
+  { img: saludImg,          alt: 'Buena salud para donar sangre' },
+  { img: hemoglobinaImg,    alt: 'Nivel de hemoglobina requerido' },
+  { img: intervaloImg,      alt: 'Intervalo mínimo entre donaciones' },
+  { img: identificacionImg, alt: 'Identificación requerida para donar' },
 ]
 
 export function RequirementsSection() {
@@ -23,18 +30,16 @@ export function RequirementsSection() {
       </p>
 
       <div className="grid grid-cols-3 gap-4">
-        {REQUIREMENTS.map(({ icon, title, text }) => (
+        {REQUIREMENTS.map(({ img, alt }) => (
           <div
-            key={title}
-            className="bg-gris1 rounded-2xl p-6 border border-gris2 flex gap-4 items-start transition-all duration-200 hover:border-rojo hover:bg-blanco hover:-translate-y-[2px] hover:shadow-[0_8px_24px_rgba(184,28,50,0.08)]"
+            key={alt}
+            className="overflow-hidden rounded-2xl border border-gris2 transition-all duration-300 hover:-translate-y-[3px] hover:shadow-[0_12px_32px_rgba(184,28,50,0.12)] hover:border-rojo"
           >
-            <div className="w-[46px] h-[46px] rounded-xl bg-carbon flex items-center justify-center text-xl flex-shrink-0">
-              {icon}
-            </div>
-            <div>
-              <div className="text-sm font-medium text-txt mb-[5px]">{title}</div>
-              <div className="text-[13px] text-txt3 leading-[1.55] font-light">{text}</div>
-            </div>
+            <img
+              src={img}
+              alt={alt}
+              className="w-full h-auto block"
+            />
           </div>
         ))}
       </div>

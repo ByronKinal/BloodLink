@@ -20,31 +20,22 @@ export function NavBar() {
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
-      if (isAtBottom()) setActive('#contacto')
+
+      if (isAtBottom()) {
+        setActive('#contacto')
+        return
+      }
+
+      let current = NAV_LINKS[0].href
+      for (const { href } of NAV_LINKS) {
+        const el = document.getElementById(href.slice(1))
+        if (el && el.getBoundingClientRect().top <= 80) current = href
+      }
+      setActive(current)
     }
+
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  useEffect(() => {
-    const isAtBottom = () =>
-      Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight - 5
-
-    const ids = NAV_LINKS.map(({ href }) => href.slice(1))
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (isAtBottom()) return
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActive(`#${entry.target.id}`)
-        })
-      },
-      { rootMargin: '-60px 0px -40% 0px', threshold: 0 },
-    )
-    ids.forEach((id) => {
-      const el = document.getElementById(id)
-      if (el) observer.observe(el)
-    })
-    return () => observer.disconnect()
   }, [])
 
   const handleScrollTo = (href) => {
