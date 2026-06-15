@@ -5,6 +5,7 @@ import { DashboardShell } from '../../../shared/components/dashboard/DashboardSh
 import { DashboardSidebar } from '../../../shared/components/dashboard/DashboardSidebar.jsx'
 import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardTopbar.jsx'
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
+import { AdminUsersSection } from '../components/AdminUsersSection.jsx'
 import { AdminDashboardHome } from '../components/AdminDashboardHome.jsx'
 import {
   AdminIconBox,
@@ -76,6 +77,8 @@ export function AdminDashboardPage() {
     >
       {active === 'inicio' ? (
         <AdminDashboardHome user={user} />
+      ) : active === 'usuarios' ? (
+        <AdminUsersSection currentUserId={user.id} />
       ) : (
         <DashboardPlaceholderSection
           title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

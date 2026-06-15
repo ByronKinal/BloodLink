@@ -124,6 +124,82 @@ export const validateLogin = [
   handleValidationErrors,
 ];
 
+export const validateAdminCreateUser = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('El nombre es obligatorio')
+    .isLength({ max: 25 })
+    .withMessage('El nombre no puede tener más de 25 caracteres')
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+    .withMessage('El nombre solo puede contener letras y espacios'),
+
+  body('surname')
+    .trim()
+    .notEmpty()
+    .withMessage('El apellido es obligatorio')
+    .isLength({ max: 25 })
+    .withMessage('El apellido no puede tener más de 25 caracteres')
+    .matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
+    .withMessage('El apellido solo puede contener letras y espacios'),
+
+  body('username')
+    .trim()
+    .notEmpty()
+    .withMessage('El nombre de usuario es obligatorio')
+    .isLength({ max: 50 })
+    .withMessage('El nombre de usuario no puede tener más de 50 caracteres'),
+
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('El correo electrónico es obligatorio')
+    .isEmail()
+    .withMessage('El correo electrónico no tiene un formato válido')
+    .isLength({ max: 150 })
+    .withMessage('El correo electrónico no puede tener más de 150 caracteres'),
+
+  body('password')
+    .notEmpty()
+    .withMessage('La contraseña es obligatoria')
+    .isLength({ min: 8, max: 255 })
+    .withMessage('La contraseña debe tener entre 8 y 255 caracteres'),
+
+  body('phone')
+    .notEmpty()
+    .withMessage('El número de teléfono es obligatorio')
+    .matches(/^\d{8}$/)
+    .withMessage('El número de teléfono debe tener exactamente 8 dígitos'),
+
+  body('bloodType')
+    .trim()
+    .notEmpty()
+    .withMessage('El tipo de sangre es obligatorio')
+    .isIn(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+    .withMessage('bloodType debe ser uno de: A+, A-, B+, B-, AB+, AB-, O+, O-'),
+
+  body('roleName')
+    .optional({ checkFalsy: true })
+    .trim()
+    .toUpperCase()
+    .isIn(ALLOWED_ROLES)
+    .withMessage(`roleName debe ser uno de: ${ALLOWED_ROLES.join(', ')}`),
+
+  body('zone')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('zone debe tener entre 2 y 100 caracteres'),
+
+  body('municipality')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('municipality debe tener entre 2 y 100 caracteres'),
+
+  handleValidationErrors,
+];
+
 export const validateAiAsk = [
   body('question')
     .trim()
