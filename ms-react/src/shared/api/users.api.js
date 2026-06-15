@@ -30,5 +30,8 @@ export const updateUserRole = (userId, roleName) =>
 export const updateUserByAdmin = (userId, payload) =>
   postgresApi.patch(`/api/v1/users/${userId}`, payload, getAuthConfig())
 
+export const updateUserStatusByAdmin = (userId, status) =>
+  postgresApi.patch(`/api/v1/users/${userId}`, { status }, getAuthConfig())
+
 export const createUserByAdmin = (payload) =>
   postgresApi.post('/api/v1/users', payload, getAuthConfig())

@@ -123,7 +123,7 @@ export function AdminUserEditModal({
             value={form.roleName}
             onChange={handleChange}
             disabled={saving || (isAdminTarget && !isEditingSelf)}
-            className="border border-gris2 rounded-[10px] px-[15px] py-3 text-[14px] text-txt bg-gris1 outline-none transition-all duration-200 focus:bg-white focus:border-rojo focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] font-outfit disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border border-gris2 rounded-[10px] px-[15px] py-3 text-[14px] text-txt bg-gris1 outline-none transition-all duration-200 focus:bg-white focus:border-rojo focus:shadow-[0_0_0_3px_rgba(184,28,50,0.08)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {roleOptions.map((role) => (
               <option key={role} value={role}>

@@ -1,5 +1,5 @@
 function formatUserStatus(status) {
-  return status ? 'Activo' : 'Inactivo'
+  return status ? 'Activo' : 'Suspendido'
 }
 
 function getInitials(user) {
@@ -24,13 +24,12 @@ function formatDate(value) {
   }
 }
 
-export function AdminUsersTable({ users, onViewRoles, onEditUser, onChangeSelectedRole }) {
+export function AdminUsersTable({ users, onViewRoles, onEditUser, onToggleStatus, currentUserId }) {
   return (
     <div className="overflow-hidden rounded-[16px] border border-gris2 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-between border-b border-gris2 px-4 py-4 sm:px-5">
         <div>
           <p className="text-[13px] font-semibold text-txt">Usuarios del sistema</p>
-          <p className="text-[11px] text-txt3">Vista responsive para administración</p>
         </div>
         <div className="hidden rounded-full bg-[rgba(184,28,50,0.08)] px-3 py-1 text-[11px] font-medium text-rojo sm:inline-flex">
           {users.length} usuarios
@@ -96,13 +95,15 @@ export function AdminUsersTable({ users, onViewRoles, onEditUser, onChangeSelect
                     >
                       Editar
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => onChangeSelectedRole(user.role)}
-                      className="rounded-[10px] border border-[rgba(32,96,160,0.2)] bg-[rgba(32,96,160,0.06)] px-3 py-2 text-[12px] font-medium text-azul-v transition-colors hover:border-[rgba(32,96,160,0.35)]"
-                    >
-                      Filtrar rol
-                    </button>
+                    {user.role !== 'ADMIN_ROLE' && user.id !== currentUserId ? (
+                      <button
+                        type="button"
+                        onClick={() => onToggleStatus(user)}
+                        className={`rounded-[10px] border px-3 py-2 text-[12px] font-medium transition-colors ${user.status ? 'border-[rgba(212,32,64,0.2)] bg-[rgba(212,32,64,0.06)] text-rojo hover:border-rojo hover:bg-[rgba(212,32,64,0.1)]' : 'border-[rgba(40,160,96,0.2)] bg-[rgba(40,160,96,0.08)] text-verde-v hover:border-verde-v hover:bg-[rgba(40,160,96,0.14)]'}`}
+                      >
+                        {user.status ? 'Suspender' : 'Reactivar'}
+                      </button>
+                    ) : null}
                   </div>
                 </td>
               </tr>
@@ -155,6 +156,15 @@ export function AdminUsersTable({ users, onViewRoles, onEditUser, onChangeSelect
               >
                 Editar
               </button>
+              {user.role !== 'ADMIN_ROLE' && user.id !== currentUserId ? (
+                <button
+                  type="button"
+                  onClick={() => onToggleStatus(user)}
+                  className={`flex-1 rounded-[10px] border px-3 py-2 text-[12px] font-medium transition-colors ${user.status ? 'border-[rgba(212,32,64,0.2)] bg-[rgba(212,32,64,0.06)] text-rojo hover:border-rojo hover:bg-[rgba(212,32,64,0.1)]' : 'border-[rgba(40,160,96,0.2)] bg-[rgba(40,160,96,0.08)] text-verde-v hover:border-verde-v hover:bg-[rgba(40,160,96,0.14)]'}`}
+                >
+                  {user.status ? 'Suspender' : 'Reactivar'}
+                </button>
+              ) : null}
             </div>
           </article>
         ))}
