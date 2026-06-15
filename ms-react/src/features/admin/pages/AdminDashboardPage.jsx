@@ -35,6 +35,7 @@ export function AdminDashboardPage() {
   const auth = getStoredAuth()
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
@@ -58,6 +59,8 @@ export function AdminDashboardPage() {
           activeId={active}
           onNavigate={setActive}
           onLogout={handleLogout}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed((current) => !current)}
           sidebarStyle={{ background: '#111018', borderRight: '1px solid rgba(212,32,64,0.12)' }}
           userCardStyle={{ background: 'rgba(212,32,64,0.08)', border: '1px solid rgba(212,32,64,0.2)' }}
           logoutTone="rgba(255,120,120,0.6)"

@@ -9,6 +9,8 @@ export function DashboardSidebar({
   activeId,
   onNavigate,
   onLogout,
+  collapsed = false,
+  onToggleCollapse,
   sidebarClassName = '',
   sidebarStyle,
   userCardStyle,
@@ -19,14 +21,22 @@ export function DashboardSidebar({
 
   return (
     <aside
-      className={`w-full lg:w-[240px] flex-shrink-0 h-auto lg:h-screen flex flex-col ${sidebarClassName}`}
+      className={`w-full flex-shrink-0 h-auto lg:h-screen flex flex-col transition-[width] duration-300 ${collapsed ? 'lg:w-[82px]' : 'lg:w-[240px]'} ${sidebarClassName}`}
       style={sidebarStyle}
     >
-      <div className="px-6 py-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <BrandLogo />
+      <div className={`flex items-center border-b ${collapsed ? 'justify-center px-4 py-5' : 'justify-between px-6 py-5'}`} style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+        <button
+          type="button"
+          onClick={onToggleCollapse}
+          className="group flex items-center justify-center border-none bg-transparent p-0 cursor-pointer"
+          aria-label={collapsed ? 'Expandir panel' : 'Contraer panel'}
+          title={collapsed ? 'Expandir panel' : 'Contraer panel'}
+        >
+          <BrandLogo compact={collapsed} />
+        </button>
       </div>
 
-      <div className="px-4 py-4 mx-3 mt-4 rounded-[12px]" style={userCardStyle}>
+      <div className={`mx-3 mt-4 rounded-[12px] ${collapsed ? 'px-3 py-4' : 'px-4 py-4'}`} style={userCardStyle}>
         <div className="flex items-center gap-3">
           {user?.profilePicture ? (
             <img
@@ -43,19 +53,21 @@ export function DashboardSidebar({
             </div>
           )}
 
-          <div className="min-w-0">
-            <p className="text-[13px] font-semibold text-white truncate">{displayName}</p>
-            <div className="flex items-center gap-[5px] mt-[2px]">
-              <span className="w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: accent }} />
-              <p className="text-[10px] font-medium" style={{ color: accent }}>
-                {roleLabel}
-              </p>
+          {collapsed ? null : (
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold text-white truncate">{displayName}</p>
+              <div className="flex items-center gap-[5px] mt-[2px]">
+                <span className="w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: accent }} />
+                <p className="text-[10px] font-medium" style={{ color: accent }}>
+                  {roleLabel}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
-      <nav className="flex-1 px-3 mt-4 space-y-[2px]">
+      <nav className={`flex-1 mt-4 space-y-[2px] ${collapsed ? 'px-2' : 'px-3'}`}>
         {navItems.map(({ id, label, icon: Icon }) => {
           const isActive = activeId === id
 
@@ -64,11 +76,13 @@ export function DashboardSidebar({
               key={id}
               type="button"
               onClick={() => onNavigate(id)}
-              className={`w-full flex items-center gap-3 px-3 py-[10px] rounded-[9px] text-[13px] font-medium transition-all duration-150 border-none cursor-pointer text-left ${
+              className={`w-full flex items-center ${collapsed ? 'justify-center px-0 gap-0' : 'gap-3 px-3'} py-[10px] rounded-[9px] text-[13px] font-medium transition-all duration-150 border-none cursor-pointer text-left ${
                 isActive
                   ? 'text-white'
                   : 'text-[rgba(255,255,255,0.42)] bg-transparent hover:text-[rgba(255,255,255,0.72)] hover:bg-[rgba(255,255,255,0.04)]'
               }`}
+              title={collapsed ? label : undefined}
+              aria-label={label}
               style={
                 isActive
                   ? {
@@ -81,21 +95,23 @@ export function DashboardSidebar({
               <span style={{ color: isActive ? accent : 'inherit' }}>
                 <Icon />
               </span>
-              {label}
+              {collapsed ? null : label}
             </button>
           )
         })}
       </nav>
 
-      <div className="px-3 pb-5 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+      <div className={`pb-5 pt-3 border-t ${collapsed ? 'px-2' : 'px-3'}`} style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
         <button
           type="button"
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-[10px] rounded-[9px] text-[13px] font-medium border-none cursor-pointer transition-all duration-150 hover:bg-[rgba(212,32,64,0.1)]"
+          className={`w-full flex items-center ${collapsed ? 'justify-center px-0 gap-0' : 'gap-3 px-3'} py-[10px] rounded-[9px] text-[13px] font-medium border-none cursor-pointer transition-all duration-150 hover:bg-[rgba(212,32,64,0.1)]`}
           style={{ color: logoutTone, background: 'transparent' }}
+          title={collapsed ? 'Cerrar sesión' : undefined}
+          aria-label="Cerrar sesión"
         >
           <IconLogout />
-          Cerrar sesión
+          {collapsed ? null : 'Cerrar sesión'}
         </button>
       </div>
     </aside>
