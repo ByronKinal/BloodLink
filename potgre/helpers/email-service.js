@@ -164,7 +164,7 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
   await transporter.sendMail({
     from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
     to: email,
-    subject: '🔐 Recuperá tu contraseña de BloodLink',
+    subject: 'Recuperá tu contraseña de BloodLink',
     html: `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Recuperar contraseña</title></head>
@@ -193,7 +193,7 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
 
         <!-- Icon + label -->
         <tr><td style="padding-bottom:18px;">
-          <div style="width:52px;height:52px;background:rgba(212,32,64,0.1);border:1px solid rgba(212,32,64,0.25);border-radius:14px;text-align:center;line-height:52px;font-size:24px;margin-bottom:18px;">🔐</div>
+          <div style="width:52px;height:52px;background:rgba(212,32,64,0.1);border:1px solid rgba(212,32,64,0.25);border-radius:14px;text-align:center;line-height:52px;font-size:24px;margin-bottom:18px;"></div>
           <div style="font-size:9px;font-weight:700;color:#D42040;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;">Recuperación de contraseña</div>
           <div style="font-size:28px;font-weight:400;color:#FFFFFF;line-height:1.2;">Hola, <strong style="font-weight:700;">${name}</strong></div>
         </td></tr>

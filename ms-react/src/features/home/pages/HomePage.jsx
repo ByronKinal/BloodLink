@@ -27,7 +27,7 @@ export function HomePage() {
       <HeroSection />
       <HowToDonateSection />
       <RequirementsSection />
-<InventorySection />
+      <InventorySection />
       <AppointmentForm />
       <AppFooter />
     </div>

@@ -81,7 +81,6 @@ export function ForgotPasswordForm() {
         className="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-[22px] mb-6"
         style={{ background: 'linear-gradient(135deg,rgba(212,32,64,0.12),rgba(184,28,50,0.06))', border: '1px solid rgba(212,32,64,0.2)' }}
       >
-        🔐
       </div>
 
       {/* Eyebrow */}

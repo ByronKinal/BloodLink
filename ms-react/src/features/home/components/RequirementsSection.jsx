@@ -16,20 +16,20 @@ const REQUIREMENTS = [
 
 export function RequirementsSection() {
   return (
-    <section id="requisitos" className="fade-up px-16 py-20">
+    <section id="requisitos" className="fade-up px-4 md:px-16 py-14 md:py-20">
       <div className="flex items-center gap-[7px] text-[10px] text-rojo font-semibold tracking-[0.12em] uppercase mb-[10px]">
         <span className="inline-block w-6 h-[2px] bg-rojo rounded-sm" />
         Antes de venir
       </div>
-      <h2 className="font-cormorant text-[42px] font-medium text-txt leading-[1.15] mb-3">
+      <h2 className="font-cormorant text-[32px] md:text-[42px] font-medium text-txt leading-[1.15] mb-3">
         ¿Podés donar?
       </h2>
-      <p className="text-[15px] text-txt3 leading-[1.75] max-w-[540px] font-light mb-[52px]">
+      <p className="text-[14px] md:text-[15px] text-txt3 leading-[1.75] md:max-w-[540px] font-light mb-9 md:mb-[52px]">
         Verificá que cumplís con estos requisitos básicos. En caso de duda, nuestro personal
         te orienta sin compromiso.
       </p>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {REQUIREMENTS.map(({ img, alt }) => (
           <div
             key={alt}
