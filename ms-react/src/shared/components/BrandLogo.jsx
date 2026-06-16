@@ -1,8 +1,7 @@
-export function BrandLogo({ iconClass = 'w-10 h-10 rounded-[10px]' }) {
+export function BrandLogo({ iconClass = 'w-10 h-10 rounded-[10px]', compact = false }) {
   return (
-    <div className="flex items-center gap-[13px] group">
+    <div className={`flex items-center group ${compact ? '' : 'gap-[13px]'}`}>
 
-      {/* Icon con glow pulsante */}
       <div
         className={`${iconClass} flex items-center justify-center text-xl relative overflow-hidden transition-transform duration-300 group-hover:scale-105`}
         style={{
@@ -15,22 +14,23 @@ export function BrandLogo({ iconClass = 'w-10 h-10 rounded-[10px]' }) {
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none" />
       </div>
 
-      {/* Texto */}
-      <div className="transition-transform duration-300 group-hover:translate-x-[2px]">
-        <div className="font-cormorant text-[22px] leading-none font-medium tracking-[0.01em]">
-          <span className="text-blanco">Blood</span>
-          <span
-            className="text-rojo-v"
-            style={{ textShadow: '0 0 18px rgba(212,32,64,0.5)' }}
-          >
-            Link
-          </span>
+      {compact ? null : (
+        <div className="transition-transform duration-300 group-hover:translate-x-[2px]">
+          <div className="font-cormorant text-[22px] leading-none font-medium tracking-[0.01em]">
+            <span className="text-blanco">Blood</span>
+            <span
+              className="text-rojo-v"
+              style={{ textShadow: '0 0 18px rgba(212,32,64,0.5)' }}
+            >
+              Link
+            </span>
+          </div>
+          <div className="flex items-center gap-[5px] mt-[3px]">
+            <div className="w-[14px] h-px bg-oro/50 rounded-full" />
+            <div className="text-[9px] text-oro tracking-[0.14em] uppercase">Banco de Sangre</div>
+          </div>
         </div>
-        <div className="flex items-center gap-[5px] mt-[3px]">
-          <div className="w-[14px] h-px bg-oro/50 rounded-full" />
-          <div className="text-[9px] text-oro tracking-[0.14em] uppercase">Banco de Sangre</div>
-        </div>
-      </div>
+      )}
 
     </div>
   )

@@ -1,5 +1,6 @@
 import { asyncHandler } from '../../middlewares/errorHandler.js';
 import { findUserById } from '../../helpers/user-db.js';
+import { createNewUser, markEmailAsVerified } from '../../helpers/user-db.js';
 import {
   getUserRoleNames,
   getUsersByRole as repoGetUsersByRole,
@@ -132,6 +133,57 @@ export const getAllowedRoles = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(ApiResponse.success(ALLOWED_ROLES, 'Roles permitidos obtenidos exitosamente'));
+});
+
+export const createUserByAdmin = asyncHandler(async (req, res) => {
+  if (!(await ensureAdmin(req))) {
+    return res
+      .status(403)
+      .json(ApiResponse.error('No autorizado. Solo ADMIN_ROLE puede crear usuarios.'));
+  }
+
+  const {
+    name,
+    surname,
+    username,
+    email,
+    password,
+    phone,
+    bloodType,
+    zone,
+    municipality,
+    roleName,
+  } = req.body || {};
+
+  const normalizedRole = (roleName || DONOR_ROLE).trim().toUpperCase();
+
+  const createdUser = await createNewUser({
+    name,
+    surname,
+    username,
+    email,
+    password,
+    phone,
+    bloodType,
+    zone,
+    municipality,
+    profilePicture: null,
+  });
+
+  await markEmailAsVerified(createdUser.id);
+
+  if (normalizedRole !== DONOR_ROLE) {
+    const { updatedUser } = await setUserSingleRole(createdUser, normalizedRole, sequelize);
+    return res
+      .status(201)
+      .json(ApiResponse.success(buildUserResponse(updatedUser), 'Usuario creado exitosamente'));
+  }
+
+  const refreshedUser = await findUserById(createdUser.id);
+
+  return res
+    .status(201)
+    .json(ApiResponse.success(buildUserResponse(refreshedUser), 'Usuario creado exitosamente'));
 });
 
 export const updateUserByAdmin = asyncHandler(async (req, res) => {
