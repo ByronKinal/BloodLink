@@ -323,10 +323,10 @@ export const validateUpdateReward = [
     .toBoolean(),
 
   body().custom((_, { req }) => {
-    const allowed = ['name', 'requiredPoints', 'stock', 'status'];
+    const allowed = ['name', 'requiredPoints', 'stock', 'status', 'image'];
     const sent = Object.keys(req.body || {});
 
-    if (sent.length === 0) {
+    if (sent.length === 0 && !req.file) {
       throw new Error('Debes enviar al menos un campo para actualizar');
     }
 

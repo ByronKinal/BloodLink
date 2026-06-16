@@ -2,6 +2,9 @@ import { sequelize } from '../configs/db.js';
 import { Wallet } from '../src/incentives/incentive.model.js';
 import { Reward, RewardRedemption } from '../src/rewards/reward.model.js';
 import { findUserById } from './user-db.js';
+import { uploadImage, deleteImage } from './cloudinary-service.js';
+import { FileValidator } from './file-validator.js';
+import { sendRedemptionEmail } from './email-service.js';
 
 const parsePositiveInt = (value, fieldName) => {
   const parsed = Number(value);
@@ -15,7 +18,7 @@ const parsePositiveInt = (value, fieldName) => {
   return parsed;
 };
 
-export const createReward = async ({ name, requiredPoints, stock }) => {
+export const createReward = async ({ name, requiredPoints, stock }, imageFile) => {
   const parsedStock = Number(stock);
   if (!Number.isInteger(parsedStock) || parsedStock < 0) {
     const error = new Error('stock debe ser un entero mayor o igual a 0');
@@ -23,11 +26,24 @@ export const createReward = async ({ name, requiredPoints, stock }) => {
     throw error;
   }
 
+  let imageUrl = null;
+  if (imageFile) {
+    const fileValidation = FileValidator.validateImage(imageFile);
+    if (!fileValidation.isValid) {
+      const error = new Error(fileValidation.errorMessage || 'Archivo de imagen inválido');
+      error.status = 400;
+      throw error;
+    }
+    const secureFileName = FileValidator.generateSecureFileName(imageFile.originalname, 'reward');
+    imageUrl = await uploadImage(imageFile.path, secureFileName);
+  }
+
   const created = await Reward.create({
     name: String(name).trim(),
     required_points: parsePositiveInt(requiredPoints, 'requiredPoints'),
     stock: parsedStock,
     status: true,
+    image_url: imageUrl,
   });
 
   return created;
@@ -51,7 +67,7 @@ export const getRewardById = async (rewardId) => {
   return reward;
 };
 
-export const updateReward = async (rewardId, payload) => {
+export const updateReward = async (rewardId, payload, imageFile) => {
   const reward = await getRewardById(rewardId);
 
   if (payload.name !== undefined) {
@@ -76,6 +92,28 @@ export const updateReward = async (rewardId, payload) => {
     reward.status = Boolean(payload.status);
   }
 
+  if (imageFile) {
+    const fileValidation = FileValidator.validateImage(imageFile);
+    if (!fileValidation.isValid) {
+      const error = new Error(fileValidation.errorMessage || 'Archivo de imagen inválido');
+      error.status = 400;
+      throw error;
+    }
+
+    const secureFileName = FileValidator.generateSecureFileName(imageFile.originalname, 'reward');
+    const newImageUrl = await uploadImage(imageFile.path, secureFileName);
+
+    if (reward.image_url) {
+      try {
+        await deleteImage(reward.image_url);
+      } catch (deleteError) {
+        console.warn('Warning: Could not delete old reward image from Cloudinary:', deleteError);
+      }
+    }
+
+    reward.image_url = newImageUrl;
+  }
+
   await reward.save();
   return reward;
 };
@@ -83,7 +121,16 @@ export const updateReward = async (rewardId, payload) => {
 export const deleteReward = async (rewardId) => {
   const reward = await getRewardById(rewardId);
 
+  const oldImageUrl = reward.image_url;
   await reward.destroy();
+
+  if (oldImageUrl) {
+    try {
+      await deleteImage(oldImageUrl);
+    } catch (deleteError) {
+      console.warn('Warning: Could not delete deleted reward image from Cloudinary:', deleteError);
+    }
+  }
 
   return {
     id: rewardId,
@@ -101,7 +148,7 @@ export const redeemReward = async ({ rewardId, userId, quantity = 1 }) => {
     throw error;
   }
 
-  return sequelize.transaction(async (transaction) => {
+  const result = await sequelize.transaction(async (transaction) => {
     const reward = await Reward.findByPk(rewardId, {
       transaction,
       lock: transaction.LOCK.UPDATE,
@@ -179,4 +226,23 @@ export const redeemReward = async ({ rewardId, userId, quantity = 1 }) => {
       redeemedAt: redemption.created_at,
     };
   });
+
+  // Enviar correo de canjeo exitoso de forma asíncrona
+  Promise.resolve()
+    .then(() =>
+      sendRedemptionEmail(
+        user.email,
+        user.name,
+        result.reward.name,
+        result.quantity,
+        result.pointsSpent,
+        user.userProfile?.zone,
+        user.userProfile?.municipality
+      )
+    )
+    .catch((error) => {
+      console.error('Async email send (redemption) failed:', error);
+    });
+
+  return result;
 };

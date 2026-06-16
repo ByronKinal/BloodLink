@@ -6,12 +6,14 @@ import { DashboardSidebar } from '../../../shared/components/dashboard/Dashboard
 import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardTopbar.jsx'
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { AdminUsersSection } from '../components/AdminUsersSection.jsx'
+import { AdminRewardsSection } from '../components/AdminRewardsSection.jsx'
 import { AdminDashboardHome } from '../components/AdminDashboardHome.jsx'
 import {
   AdminIconBox,
   AdminIconChart,
   AdminIconDrop,
   AdminIconGear,
+  AdminIconGift,
   AdminIconHome,
   AdminIconUsers,
 } from '../components/AdminDashboardIcons.jsx'
@@ -21,6 +23,7 @@ const NAV_ITEMS = [
   { id: 'usuarios', label: 'Usuarios', icon: AdminIconUsers },
   { id: 'donaciones', label: 'Donaciones', icon: AdminIconDrop },
   { id: 'inventario', label: 'Inventario', icon: AdminIconBox },
+  { id: 'premios', label: 'Premios', icon: AdminIconGift },
   { id: 'reportes', label: 'Reportes', icon: AdminIconChart },
   { id: 'config', label: 'Configuración', icon: AdminIconGear },
 ]
@@ -82,6 +85,8 @@ export function AdminDashboardPage() {
         <AdminDashboardHome user={user} />
       ) : active === 'usuarios' ? (
         <AdminUsersSection currentUserId={user.id} />
+      ) : active === 'premios' ? (
+        <AdminRewardsSection />
       ) : (
         <DashboardPlaceholderSection
           title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

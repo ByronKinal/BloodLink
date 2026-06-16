@@ -44,6 +44,10 @@ export const Reward = sequelize.define(
       allowNull: false,
       defaultValue: true,
     },
+    image_url: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
   },
   {
     tableName: 'rewards',

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { validateJWT } from '../../middlewares/validate-JWT.js';
+import { upload, handleUploadError } from '../../helpers/file-upload.js';
 import {
   validateCreateReward,
   validateRedeemReward,
@@ -19,8 +20,23 @@ const router = Router();
 
 router.get('/', validateJWT, listRewardsController);
 router.get('/:rewardId', validateJWT, validateRewardIdParam, getRewardByIdController);
-router.post('/', validateJWT, validateCreateReward, createRewardController);
-router.patch('/:rewardId', validateJWT, validateRewardIdParam, validateUpdateReward, updateRewardController);
+router.post(
+  '/',
+  validateJWT,
+  upload.single('image'),
+  handleUploadError,
+  validateCreateReward,
+  createRewardController
+);
+router.patch(
+  '/:rewardId',
+  validateJWT,
+  validateRewardIdParam,
+  upload.single('image'),
+  handleUploadError,
+  validateUpdateReward,
+  updateRewardController
+);
 router.delete('/:rewardId', validateJWT, validateRewardIdParam, deleteRewardController);
 router.post('/redeem', validateJWT, validateRedeemReward, redeemRewardController);
 
