@@ -1,16 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { createUserByAdmin, fetchAllowedRoles, fetchUserRoles, fetchUsersByRole, updateUserByAdmin, updateUserRole, updateUserStatusByAdmin } from '../../../shared/api/users.api.js'
+import {
+  createUserByAdmin,
+  fetchAllowedRoles,
+  fetchUserRoles,
+  fetchUsersByRole,
+  updateUserByAdmin,
+  updateUserRole,
+  updateUserStatusByAdmin,
+} from '../../../shared/api/users.api.js'
+import { clearAuth } from '../../../shared/utils/auth.store.js'
 
 const DEFAULT_ROLE = 'DONOR_ROLE'
 const ROLE_FILTERS = ['ADMIN_ROLE', 'DONOR_ROLE', 'STAFF_ROLE']
 
 function getErrorMessage(error) {
   const validationErrors = error?.response?.data?.errors
-
   if (Array.isArray(validationErrors) && validationErrors.length > 0) {
     return validationErrors.map((item) => item.message).join(' · ')
   }
-
   return error?.response?.data?.message || error?.message || 'No se pudo completar la operación.'
 }
 
@@ -20,7 +27,6 @@ function normalizeRoles(roles) {
 
 function getVisibleRoles(roles) {
   normalizeRoles(roles)
-
   return ROLE_FILTERS
 }
 
@@ -39,6 +45,9 @@ export function useAdminUsersSection() {
 
   const [editModalUser, setEditModalUser] = useState(null)
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [createError, setCreateError] = useState('')
+  const [editError, setEditError] = useState('')
+  const [createSuccessMessage, setCreateSuccessMessage] = useState('')
   const [saving, setSaving] = useState(false)
   const initialLoadCompleted = useRef(false)
 
@@ -55,9 +64,7 @@ export function useAdminUsersSection() {
           fetchUsersByRole(DEFAULT_ROLE),
         ])
 
-        if (cancelled) {
-          return
-        }
+        if (cancelled) return
 
         const roles = getVisibleRoles(allowedRolesResponse.data?.data ?? allowedRolesResponse.data ?? [])
         setAllowedRoles(roles.length > 0 ? roles : ROLE_FILTERS)
@@ -76,41 +83,30 @@ export function useAdminUsersSection() {
     }
 
     loadInitialData()
-
     return () => {
       cancelled = true
     }
   }, [])
 
   useEffect(() => {
-    if (selectedRole === DEFAULT_ROLE && !initialLoadCompleted.current) {
-      return
-    }
+    if (selectedRole === DEFAULT_ROLE && !initialLoadCompleted.current) return
 
     let cancelled = false
-
     const loadUsers = async () => {
       setRefreshing(true)
       setError('')
 
       try {
         const response = await fetchUsersByRole(selectedRole)
-        if (!cancelled) {
-          setUsers(response.data?.data ?? response.data ?? [])
-        }
+        if (!cancelled) setUsers(response.data?.data ?? response.data ?? [])
       } catch (loadError) {
-        if (!cancelled) {
-          setError(getErrorMessage(loadError))
-        }
+        if (!cancelled) setError(getErrorMessage(loadError))
       } finally {
-        if (!cancelled) {
-          setRefreshing(false)
-        }
+        if (!cancelled) setRefreshing(false)
       }
     }
 
     loadUsers()
-
     return () => {
       cancelled = true
     }
@@ -118,11 +114,7 @@ export function useAdminUsersSection() {
 
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase()
-
-    if (!query) {
-      return users
-    }
-
+    if (!query) return users
     return users.filter((user) => {
       return [user.name, user.surname, user.username, user.email, user.role]
         .filter(Boolean)
@@ -148,16 +140,22 @@ export function useAdminUsersSection() {
 
   const openEditModal = (user) => {
     setEditModalUser(user)
+    setEditError('')
   }
 
   const openCreateModal = () => {
     setCreateModalOpen(true)
+    setCreateError('')
+    setEditError('')
+    setCreateSuccessMessage('')
   }
 
-  const handleSaveUser = async (form) => {
-    if (!editModalUser) {
-      return
-    }
+  const clearCreateError = () => setCreateError('')
+  const clearCreateSuccessMessage = () => setCreateSuccessMessage('')
+  const clearEditError = () => setEditError('')
+
+  const handleSaveUser = async (form, currentUserId) => {
+    if (!editModalUser) return
 
     const payload = {
       name: form.name.trim(),
@@ -168,18 +166,33 @@ export function useAdminUsersSection() {
     try {
       setSaving(true)
       setError('')
+      setEditError('')
 
       await updateUserByAdmin(editModalUser.id, payload)
 
+      let roleChanged = false
       if (form.roleName && form.roleName !== editModalUser.role) {
         await updateUserRole(editModalUser.id, form.roleName)
+        roleChanged = true
+
+        // if the admin changed their own role to a non-admin role, force logout immediately
+        const editedUserId = editModalUser?.id
+        if (roleChanged && currentUserId && String(editedUserId) === String(currentUserId)) {
+          const newRole = form.roleName
+          if (newRole && newRole !== 'ADMIN_ROLE' && newRole !== 'STAFF_ROLE') {
+            clearAuth()
+            window.location.replace('/login')
+            return
+          }
+        }
       }
 
       const response = await fetchUsersByRole(selectedRole)
       setUsers(response.data?.data ?? response.data ?? [])
       setEditModalUser(null)
     } catch (saveError) {
-      setError(getErrorMessage(saveError))
+      setEditError(getErrorMessage(saveError))
+      return
     } finally {
       setSaving(false)
     }
@@ -191,7 +204,6 @@ export function useAdminUsersSection() {
       setError('')
 
       await updateUserStatusByAdmin(user.id, !user.status)
-
       const response = await fetchUsersByRole(selectedRole)
       setUsers(response.data?.data ?? response.data ?? [])
     } catch (toggleError) {
@@ -205,20 +217,22 @@ export function useAdminUsersSection() {
     try {
       setSaving(true)
       setError('')
+      setCreateError('')
+      setCreateSuccessMessage('')
 
       const response = await createUserByAdmin(form)
       const createdUser = response.data?.data ?? response.data ?? null
-      const nextRole = typeof createdUser?.role === 'string'
-        ? createdUser.role
-        : form.roleName || selectedRole
+      const nextRole = typeof createdUser?.role === 'string' ? createdUser.role : form.roleName || selectedRole
 
       setCreateModalOpen(false)
+      setCreateSuccessMessage('Usuario creado con éxito.')
       setSelectedRole(nextRole)
 
       const refreshed = await fetchUsersByRole(nextRole)
       setUsers(refreshed.data?.data ?? refreshed.data ?? [])
     } catch (createError) {
-      setError(getErrorMessage(createError))
+      setCreateError(getErrorMessage(createError))
+      return
     } finally {
       setSaving(false)
     }
@@ -235,6 +249,9 @@ export function useAdminUsersSection() {
     loading,
     refreshing,
     error,
+    createError,
+    editError,
+    createSuccessMessage,
     saving,
     rolesModalUser,
     rolesModalLoading,
@@ -247,6 +264,9 @@ export function useAdminUsersSection() {
     handleSaveUser,
     handleToggleStatus,
     handleCreateUser,
+    clearCreateError,
+    clearCreateSuccessMessage,
+    clearEditError,
     setRolesModalUser,
     setEditModalUser,
     setCreateModalOpen,

@@ -17,6 +17,7 @@ export function AdminUserEditModal({
   onClose,
   onSave,
   currentUserId,
+  editError,
 }) {
   const [form, setForm] = useState(INITIAL_FORM)
 
@@ -77,6 +78,11 @@ export function AdminUserEditModal({
       }
     >
       <form id="admin-user-edit-form" onSubmit={handleSubmit} className="space-y-5">
+        {editError ? (
+          <div className="rounded-[14px] border border-[rgba(212,32,64,0.2)] bg-[rgba(212,32,64,0.06)] px-4 py-3 text-[13px] text-rojo">
+            {editError}
+          </div>
+        ) : null}
         {isAdminTarget && !isEditingSelf ? (
           <div className="rounded-[14px] border border-[rgba(200,148,42,0.25)] bg-[rgba(200,148,42,0.08)] px-4 py-3 text-[12px] text-oro">
             Este usuario tiene ADMIN_ROLE y no debe modificarse desde este panel.

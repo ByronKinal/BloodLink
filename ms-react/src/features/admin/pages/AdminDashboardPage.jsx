@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DashboardPlaceholderSection } from '../../../shared/components/dashboard/DashboardPlaceholderSection.jsx'
 import { DashboardShell } from '../../../shared/components/dashboard/DashboardShell.jsx'
@@ -41,6 +42,16 @@ export function AdminDashboardPage() {
     clearAuth()
     navigate('/login')
   }
+
+  useEffect(() => {
+    const onGlobalLogout = () => {
+      console.log('[AdminDashboardPage] bl_logout received, executing handleLogout')
+      handleLogout()
+    }
+    console.log('[AdminDashboardPage] registering bl_logout listener')
+    window.addEventListener('bl_logout', onGlobalLogout)
+    return () => window.removeEventListener('bl_logout', onGlobalLogout)
+  }, [])
 
   const displayName = user.name || user.username || 'Admin'
   const initials = ((user.name?.[0] ?? '') + (user.surname?.[0] ?? '')) || displayName[0]?.toUpperCase() || 'A'
