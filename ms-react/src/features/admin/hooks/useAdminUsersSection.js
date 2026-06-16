@@ -228,6 +228,14 @@ export function useAdminUsersSection() {
       setCreateSuccessMessage('Usuario creado con éxito.')
       setSelectedRole(nextRole)
 
+      // notify other parts of the app that users changed (e.g., dashboard totals)
+      try {
+        const eventDetail = { action: 'create', user: createdUser }
+        window.dispatchEvent(new CustomEvent('bl_users_updated', { detail: eventDetail }))
+      } catch (e) {
+        // ignore dispatch errors in older browsers
+      }
+
       const refreshed = await fetchUsersByRole(nextRole)
       setUsers(refreshed.data?.data ?? refreshed.data ?? [])
     } catch (createError) {

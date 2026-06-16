@@ -1,4 +1,5 @@
 import { DashboardActionGrid } from '../../../shared/components/dashboard/DashboardActionGrid.jsx'
+import { useCallback } from 'react'
 import { DashboardEmptyState } from '../../../shared/components/dashboard/DashboardEmptyState.jsx'
 import { DashboardSectionCard } from '../../../shared/components/dashboard/DashboardSectionCard.jsx'
 import { DashboardStatGrid } from '../../../shared/components/dashboard/DashboardStatGrid.jsx'
@@ -45,15 +46,17 @@ export function ClientDashboardHome({ user }) {
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches'
   const displayName = user.name ? `${user.name} ${user.surname ?? ''}`.trim() : user.username ?? 'Donante'
+  const handleDropClick = useCallback(() => {
+    // navigate to citas tab in client dashboard
+    try {
+      window.location.hash = 'citas'
+    } catch (e) {
+      window.location.href = '/dashboard#citas'
+    }
+  }, [])
 
   const stats = [
-    {
-      label: 'Donaciones realizadas',
-      value: '—',
-      sub: 'Sin registros aún',
-      accent: '#D42040',
-      border: 'rgba(212,32,64,0.15)',
-    },
+    { label: 'Donaciones realizadas', value: '—', sub: 'Sin registros aún', accent: '#D42040', border: 'rgba(212,32,64,0.15)', onClick: handleDropClick },
     {
       label: 'Tipo de sangre',
       value: user.bloodType ?? '—',
@@ -104,12 +107,7 @@ export function ClientDashboardHome({ user }) {
           <span className="text-[11px] text-txt3">Últimas actividades</span>
         </div>
 
-        <DashboardEmptyState
-          icon="🩸"
-          title="Sin actividad aún"
-          description="Cuando realices tu primera donación, aparecerá aquí."
-          className="py-10"
-        />
+        <DashboardEmptyState icon="🩸" title="Sin actividad aún" description="Cuando realices tu primera donación, aparecerá aquí." className="py-10" onClick={handleDropClick} />
       </DashboardSectionCard>
 
       <div className="sr-only">{BLOOD_TYPE_LABELS[user.bloodType] ?? user.bloodType ?? 'Sin tipo de sangre registrado'}</div>
