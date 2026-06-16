@@ -6,6 +6,7 @@ import { DashboardSidebar } from '../../../shared/components/dashboard/Dashboard
 import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardTopbar.jsx'
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { ClientDashboardHome } from '../components/ClientDashboardHome.jsx'
+import { ClientProfileSection } from '../components/ClientProfileSection.jsx'
 import { StoreCatalog } from '../../store/components/StoreCatalog.jsx'
 import {
   ClientIconCalendar,
@@ -27,7 +28,7 @@ const NAV_ITEMS = [
 
 export function ClientDashboardPage() {
   const navigate = useNavigate()
-  const auth = getStoredAuth()
+  const [auth, setAuth] = useState(() => getStoredAuth())
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
 
@@ -71,6 +72,8 @@ export function ClientDashboardPage() {
     >
       {active === 'inicio' ? (
         <ClientDashboardHome user={user} />
+      ) : active === 'perfil' ? (
+        <ClientProfileSection />
       ) : active === 'tienda' ? (
         <StoreCatalog />
       ) : (
