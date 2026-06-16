@@ -20,7 +20,7 @@ export function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password"  element={<ResetPasswordPage />} />
 
-      <Route path="/dashboard" element={
+      <Route path="/donador" element={
         <ProtectedRoute clientOnly>
           <ClientDashboardPage />
         </ProtectedRoute>

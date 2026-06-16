@@ -9,11 +9,11 @@ export function ProtectedRoute({ children, adminOnly = false, clientOnly = false
   }
 
   if (adminOnly && !isAdmin(auth)) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/donador" replace />
   }
 
   if (employeeOnly && !isEmployee(auth)) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/donador" replace />
   }
 
   if (clientOnly && (isAdmin(auth) || isEmployee(auth))) {
