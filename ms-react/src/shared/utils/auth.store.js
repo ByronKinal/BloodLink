@@ -19,3 +19,7 @@ export function clearAuth() {
 export function isAdmin(auth) {
   return auth?.user?.role === 'ADMIN_ROLE'
 }
+
+export function isEmployee(auth) {
+  return auth?.user?.role === 'STAFF_ROLE'
+}

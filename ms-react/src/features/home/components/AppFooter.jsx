@@ -17,11 +17,11 @@ const SOCIAL_ICONS = ['👥', '📸', '🐦', '▶️']
 
 export function AppFooter() {
   return (
-    <footer id="contacto" className="bg-carbon px-16 pt-14 pb-7 border-t border-rojo/20">
-      <div className="grid gap-12 mb-12" style={{ gridTemplateColumns: '1.8fr 1fr 1fr 1fr' }}>
+    <footer id="contacto" className="bg-carbon px-4 md:px-16 pt-12 md:pt-14 pb-7 border-t border-rojo/20">
+      <div className="grid grid-cols-2 md:grid-cols-[1.8fr_1fr_1fr_1fr] gap-8 md:gap-12 mb-10 md:mb-12">
 
-        {/* Brand column */}
-        <div>
+        {/* Brand column — full width on mobile */}
+        <div className="col-span-2 md:col-span-1">
           <div className="font-cormorant text-2xl text-blanco mb-1">BloodLink</div>
           <div className="text-[10px] text-oro tracking-[0.07em] uppercase mb-[14px]">
             Banco de Sangre Nacional de Guatemala
@@ -60,11 +60,11 @@ export function AppFooter() {
         ))}
       </div>
 
-      <div className="border-t border-white/[0.06] pt-[22px] flex justify-between items-center">
+      <div className="border-t border-white/[0.06] pt-[22px] flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
         <div className="text-xs text-blanco/20">
           © 2026 BloodLink — Ministerio de Salud Pública de Guatemala
         </div>
-        <div className="flex items-center gap-[7px] bg-rojo/[0.12] border border-rojo/25 rounded-[20px] px-[14px] py-[5px] text-[11px] text-rojo-v">
+        <div className="flex items-center gap-[7px] bg-rojo/[0.12] border border-rojo/25 rounded-[20px] px-[14px] py-[5px] text-[11px] text-rojo-v self-start md:self-auto">
           🛡️ Sitio oficial del gobierno
         </div>
       </div>

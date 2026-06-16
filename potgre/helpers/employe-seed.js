@@ -6,29 +6,29 @@ import { Role, UserRole } from '../src/Auth/role.model.js';
 
 const parseBoolean = (value) => String(value).toLowerCase() === 'true';
 
-const DEFAULT_DOCTOR = {
-  name: 'Doctor',
-  surname: 'Médico',
-  username: 'doctor',
-  email: 'doctor@bloodlink.local',
-  password: 'Doctor1234',
-  phone: '87654321',
+const DEFAULT_EMPLOYEE = {
+  name: 'Employee',
+  surname: 'Staff',
+  username: 'employee',
+  email: 'employee@bloodlink.local',
+  password: 'Employee1234',
+  phone: '55556666',
 };
 
-const shouldSeedDoctor = () => {
-  if (typeof process.env.SEED_DOCTOR_ON_STARTUP === 'undefined') {
+const shouldSeedEmployee = () => {
+  if (typeof process.env.SEED_EMPLOYEE_ON_STARTUP === 'undefined') {
     return true;
   }
-  return parseBoolean(process.env.SEED_DOCTOR_ON_STARTUP);
+  return parseBoolean(process.env.SEED_EMPLOYEE_ON_STARTUP);
 };
 
-const getDoctorSeedConfig = () => ({
-  name: process.env.SEED_DOCTOR_NAME || DEFAULT_DOCTOR.name,
-  surname: process.env.SEED_DOCTOR_SURNAME || DEFAULT_DOCTOR.surname,
-  username: process.env.SEED_DOCTOR_USERNAME || DEFAULT_DOCTOR.username,
-  email: process.env.SEED_DOCTOR_EMAIL || DEFAULT_DOCTOR.email,
-  password: process.env.SEED_DOCTOR_PASSWORD || DEFAULT_DOCTOR.password,
-  phone: process.env.SEED_DOCTOR_PHONE || DEFAULT_DOCTOR.phone,
+const getEmployeeSeedConfig = () => ({
+  name: process.env.SEED_EMPLOYEE_NAME || DEFAULT_EMPLOYEE.name,
+  surname: process.env.SEED_EMPLOYEE_SURNAME || DEFAULT_EMPLOYEE.surname,
+  username: process.env.SEED_EMPLOYEE_USERNAME || DEFAULT_EMPLOYEE.username,
+  email: process.env.SEED_EMPLOYEE_EMAIL || DEFAULT_EMPLOYEE.email,
+  password: process.env.SEED_EMPLOYEE_PASSWORD || DEFAULT_EMPLOYEE.password,
+  phone: process.env.SEED_EMPLOYEE_PHONE || DEFAULT_EMPLOYEE.phone,
 });
 
 const validateConfig = (seedConfig) => {
@@ -37,14 +37,14 @@ const validateConfig = (seedConfig) => {
 
   if (missing.length > 0) {
     throw new Error(
-      `Missing required doctor seed env vars: ${missing
-        .map((key) => `SEED_DOCTOR_${key.toUpperCase()}`)
+      `Missing required employee seed env vars: ${missing
+        .map((key) => `SEED_EMPLOYEE_${key.toUpperCase()}`)
         .join(', ')}`
     );
   }
 };
 
-const ensureUserIsDoctor = async (userId, staffRoleId) => {
+const ensureUserIsEmployee = async (userId, staffRoleId) => {
   await UserRole.destroy({ where: { user_id: userId } });
   await UserRole.create({
     user_id: userId,
@@ -73,13 +73,13 @@ const activateUser = async (userId) => {
   );
 };
 
-export const seedDoctorUser = async () => {
-  if (!shouldSeedDoctor()) {
-    console.log('Doctor seed skipped: SEED_DOCTOR_ON_STARTUP=false');
+export const seedEmployeeUser = async () => {
+  if (!shouldSeedEmployee()) {
+    console.log('Employee seed skipped: SEED_EMPLOYEE_ON_STARTUP=false');
     return;
   }
 
-  const seedConfig = getDoctorSeedConfig();
+  const seedConfig = getEmployeeSeedConfig();
 
   validateConfig(seedConfig);
 
@@ -88,25 +88,14 @@ export const seedDoctorUser = async () => {
     throw new Error('STAFF_ROLE not found. Ensure roles are seeded first.');
   }
 
-  const doctorCount = await UserRole.count({
-    include: [{ model: Role, as: 'role', where: { name: STAFF_ROLE } }],
-    distinct: true,
-    col: 'user_id',
-  });
-
-  if (doctorCount > 0) {
-    console.log('Doctor seed skipped: a staff/doctor user already exists.');
-    return;
-  }
-
   const usingDefaultCredentials =
-    seedConfig.email === DEFAULT_DOCTOR.email &&
-    seedConfig.username === DEFAULT_DOCTOR.username &&
-    seedConfig.password === DEFAULT_DOCTOR.password;
+    seedConfig.email === DEFAULT_EMPLOYEE.email &&
+    seedConfig.username === DEFAULT_EMPLOYEE.username &&
+    seedConfig.password === DEFAULT_EMPLOYEE.password;
 
   if (usingDefaultCredentials) {
     console.warn(
-      'Doctor seed is using default credentials. Configure SEED_DOCTOR_* env vars in production.'
+      'Employee seed is using default credentials. Configure SEED_EMPLOYEE_* env vars in production.'
     );
   }
 
@@ -120,10 +109,10 @@ export const seedDoctorUser = async () => {
   });
 
   if (existingUser) {
-    await ensureUserIsDoctor(existingUser.id, staffRole.id);
+    await ensureUserIsEmployee(existingUser.id, staffRole.id);
     await activateUser(existingUser.id);
     console.log(
-      `Doctor seed: existing user promoted to STAFF_ROLE (${existingUser.email}).`
+      `Employee seed: existing user promoted to STAFF_ROLE (${existingUser.email}).`
     );
     return;
   }
@@ -135,13 +124,13 @@ export const seedDoctorUser = async () => {
     email: seedConfig.email,
     password: seedConfig.password,
     phone: seedConfig.phone,
-    bloodType: 'A+',
+    bloodType: 'B+',
     zone: 'Zona 1',
     municipality: 'Guatemala',
   });
 
-  await ensureUserIsDoctor(newUser.id, staffRole.id);
+  await ensureUserIsEmployee(newUser.id, staffRole.id);
   await activateUser(newUser.id);
 
-  console.log(`Doctor seed: doctor user created (${seedConfig.email}).`);
+  console.log(`Employee seed: employee user created (${seedConfig.email}).`);
 };
