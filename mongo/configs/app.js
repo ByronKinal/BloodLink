@@ -28,6 +28,7 @@ import iotRoutes from '../src/iot/iot.routes.js';
 import bloodBagRoutes from '../src/blood-bags/blood-bag.routes.js';
 import auditRoutes from '../src/audit/audit.routes.js';
 import reportRoutes from '../src/reports/report.routes.js';
+import internalRoutes from '../src/internal/InternalRoutes.js';
 
 const BASE_PATH = '/api/v1';
 
@@ -42,6 +43,8 @@ const middlewares = (app) => {
 
 const routes = (app) => {
   setupSwagger(app);
+
+  app.use('/internal', internalRoutes);
 
   app.use(`${BASE_PATH}/profiles`, profileRoutes);
   app.use(`${BASE_PATH}/ai`, aiRoutes);
