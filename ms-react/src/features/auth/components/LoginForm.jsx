@@ -61,7 +61,7 @@ export function LoginForm() {
       })
       setSuccess(true)
       const authPayload = { user: data.user }
-      const dest = isAdmin(authPayload) ? '/admin' : isEmployee(authPayload) ? '/employee' : '/dashboard'
+      const dest = isAdmin(authPayload) ? '/admin' : isEmployee(authPayload) ? '/employee' : '/donador'
       setTimeout(() => navigate(dest), 1200)
     } catch (err) {
       const status     = err.response?.status
