@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { fetchAllowedRoles, fetchUsersByRole } from '../../../shared/api/users.api.js'
 import { DashboardActionGrid } from '../../../shared/components/dashboard/DashboardActionGrid.jsx'
 import { DashboardEmptyState } from '../../../shared/components/dashboard/DashboardEmptyState.jsx'
 import { DashboardSectionCard } from '../../../shared/components/dashboard/DashboardSectionCard.jsx'
@@ -62,9 +64,61 @@ const DASHBOARD_ACTIONS = [
 ]
 
 export function AdminDashboardHome({ user }) {
+  const [totalUsers, setTotalUsers] = useState(null)
+
+  useEffect(() => {
+    const handler = (e) => {
+      try {
+        const { action } = e?.detail ?? {}
+        if (action === 'create') {
+          setTotalUsers((prev) => (typeof prev === 'number' ? prev + 1 : 1))
+        } else if (action === 'delete') {
+          setTotalUsers((prev) => (typeof prev === 'number' ? Math.max(0, prev - 1) : 0))
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+
+    window.addEventListener('bl_users_updated', handler)
+
+    let cancelled = false
+    const loadInitialTotal = async () => {
+      try {
+        const allowedResp = await fetchAllowedRoles()
+        const roles = allowedResp.data?.data ?? allowedResp.data ?? ['ADMIN_ROLE', 'DONOR_ROLE', 'STAFF_ROLE']
+        const arrays = await Promise.all(
+          (roles || []).map((r) =>
+            fetchUsersByRole(r)
+              .then((res) => res.data?.data ?? res.data ?? [])
+              .catch(() => [])
+          )
+        )
+        const total = arrays.reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
+        if (!cancelled) setTotalUsers(total)
+      } catch (err) {
+        // ignore initial load errors
+      }
+    }
+
+    loadInitialTotal()
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('bl_users_updated', handler)
+    }
+  }, [])
+
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches'
   const displayName = user.name ? `${user.name} ${user.surname ?? ''}`.trim() : user.username ?? 'Admin'
+
+  const dynamicStats = DASHBOARD_STATS.map((s, idx) => {
+    if (idx === 0) {
+      return { ...s, value: totalUsers !== null ? String(totalUsers) : s.value }
+    }
+    return s
+  })
 
   return (
     <div>
@@ -75,7 +129,7 @@ export function AdminDashboardHome({ user }) {
       </div>
 
       <div className="mb-7">
-        <DashboardStatGrid items={DASHBOARD_STATS} />
+        <DashboardStatGrid items={dynamicStats} />
       </div>
 
       <div className="mb-7">
@@ -83,11 +137,7 @@ export function AdminDashboardHome({ user }) {
         <DashboardActionGrid items={DASHBOARD_ACTIONS} />
       </div>
 
-      <DashboardSectionCard
-        title="Usuarios recientes"
-        subtitle="Base inicial para el CRUD de usuarios"
-        cardClassName="bg-white border border-gris2 shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
-      >
+      <DashboardSectionCard title="Usuarios recientes" subtitle="Base inicial para el CRUD de usuarios" cardClassName="bg-white border border-gris2 shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
         <div className="hidden md:grid md:grid-cols-4 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.1em] text-txt3 border-b border-[#EEE8F0] bg-[#FAFAF8]">
           <span>Nombre</span>
           <span>Correo</span>
@@ -95,11 +145,7 @@ export function AdminDashboardHome({ user }) {
           <span>Estado</span>
         </div>
 
-        <DashboardEmptyState
-          icon="🩸"
-          title="Sin usuarios registrados"
-          description="Los nuevos registros aparecerán aquí."
-        />
+        <DashboardEmptyState icon="🩸" title="Sin usuarios registrados" description="Los nuevos registros aparecerán aquí." />
       </DashboardSectionCard>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DashboardPlaceholderSection } from '../../../shared/components/dashboard/DashboardPlaceholderSection.jsx'
 import { DashboardShell } from '../../../shared/components/dashboard/DashboardShell.jsx'
@@ -31,6 +31,7 @@ export function ClientDashboardPage() {
   const [auth, setAuth] = useState(() => getStoredAuth())
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
@@ -41,23 +42,46 @@ export function ClientDashboardPage() {
   const initials = ((user.name?.[0] ?? '') + (user.surname?.[0] ?? '')) || displayName[0]?.toUpperCase() || 'D'
   const currentSection = NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Dashboard'
 
-  return (
-    <DashboardShell
-      sidebar={
-        <DashboardSidebar
-          user={user}
-          displayName={displayName}
-          initials={initials}
-          roleLabel={user.bloodType ? user.bloodType : 'Donante'}
-          navItems={NAV_ITEMS}
-          activeId={active}
-          onNavigate={setActive}
-          onLogout={handleLogout}
-          sidebarStyle={{ background: '#111018', borderRight: '1px solid rgba(184,28,50,0.15)' }}
-          userCardStyle={{ background: 'rgba(212,32,64,0.07)', border: '1px solid rgba(212,32,64,0.14)' }}
-          logoutTone="rgba(255,100,100,0.65)"
-        />
+  useEffect(() => {
+    const setFromHash = () => {
+      try {
+        const hash = (window.location.hash || '').replace(/^#/, '')
+        if (!hash) return
+        const match = NAV_ITEMS.find((i) => i.id === hash)
+        if (match) {
+          setActive(match.id)
+          // if navigating to citas from the drop click, collapse sidebar like admin
+          if (hash === 'citas') setSidebarCollapsed(true)
+        }
+      } catch (e) {
+        // ignore
       }
+    }
+
+    setFromHash()
+    window.addEventListener('hashchange', setFromHash)
+    return () => window.removeEventListener('hashchange', setFromHash)
+  }, [])
+
+  return (
+      <DashboardShell
+        sidebar={
+          <DashboardSidebar
+            user={user}
+            displayName={displayName}
+            initials={initials}
+            roleLabel={user.bloodType ? user.bloodType : 'Donante'}
+            navItems={NAV_ITEMS}
+            activeId={active}
+            onNavigate={setActive}
+            onLogout={handleLogout}
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+            sidebarStyle={{ background: '#111018', borderRight: '1px solid rgba(184,28,50,0.15)' }}
+            userCardStyle={{ background: 'rgba(212,32,64,0.07)', border: '1px solid rgba(212,32,64,0.14)' }}
+            logoutTone="rgba(255,100,100,0.65)"
+          />
+        }
       topbar={
         <DashboardTopbar
           title={currentSection}
