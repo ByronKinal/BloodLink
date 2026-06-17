@@ -31,7 +31,7 @@ export function HeroSection() {
   return (
     <section
       id="inicio"
-      className="px-16 pt-[100px] pb-[130px] grid gap-[72px] items-center relative overflow-hidden min-h-[820px]"
+      className="px-4 md:px-16 pt-[88px] pb-[60px] md:pt-[100px] md:pb-[130px] flex flex-col md:grid gap-8 md:gap-[72px] md:items-center relative overflow-hidden md:min-h-[820px]"
       style={{
         gridTemplateColumns: '1fr 480px',
         background: 'linear-gradient(90deg, #3A1020 0%, #3A1020 55%, #7A1830 68%, #B84058 80%, #D08090 92%, #E0B0B8 100%)',
@@ -43,59 +43,59 @@ export function HeroSection() {
       {/* Gradient overlay for text contrast */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.46) 46%, rgba(0,0,0,0.15) 58%, rgba(0,0,0,0) 65%)' }}
+        style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.55) 46%, rgba(0,0,0,0.30) 70%, rgba(0,0,0,0.10) 100%)' }}
       />
 
       {/* — Left: copy — */}
       <div className="relative z-10">
-        <div className="inline-flex items-center gap-2 bg-rojo/[0.18] border border-rojo/40 text-rojo-med rounded-[20px] px-4 py-[6px] text-[11px] font-medium tracking-[0.06em] uppercase mb-6">
+        <div className="inline-flex items-center gap-2 bg-rojo/[0.18] border border-rojo/40 text-rojo-med rounded-[20px] px-4 py-[6px] text-[11px] font-medium tracking-[0.06em] uppercase mb-5 md:mb-6">
           <div className="w-[6px] h-[6px] rounded-full bg-rojo-v animate-blink" />
           Sistema Nacional de Donación de Sangre
         </div>
 
-        <h1 className="font-cormorant text-[62px] font-medium text-blanco leading-[1.08] mb-[22px] tracking-[-0.01em]">
+        <h1 className="font-cormorant text-[42px] md:text-[62px] font-medium text-blanco leading-[1.08] mb-4 md:mb-[22px] tracking-[-0.01em]">
           Una gota tuya<br />cambia <em className="text-oro-v italic">tres vidas</em>
         </h1>
 
-        <p className="text-base text-blanco/60 leading-[1.75] mb-9 max-w-[500px] font-light">
+        <p className="text-[14px] md:text-base text-blanco/60 leading-[1.75] mb-6 md:mb-9 md:max-w-[500px] font-light">
           Donar sangre es un acto seguro, voluntario y completamente gratuito. En BloodLink
           conectamos donantes con quienes más lo necesitan en todo el país.
         </p>
 
-        <div className="flex gap-[14px] flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-[14px]">
           <button
             onClick={handleScrollToForm}
-            className="btn-shine relative bg-gradient-to-br from-rojo-v to-rojo text-white border-none rounded-xl px-[30px] py-[15px] text-[15px] font-medium cursor-pointer font-outfit inline-flex items-center gap-[9px] transition-all duration-200 shadow-[0_6px_24px_rgba(184,28,50,0.45)] hover:-translate-y-[2px] hover:shadow-[0_10px_32px_rgba(212,32,64,0.55)]"
+            className="btn-shine relative bg-gradient-to-br from-rojo-v to-rojo text-white border-none rounded-xl px-[24px] md:px-[30px] py-[13px] md:py-[15px] text-[14px] md:text-[15px] font-medium cursor-pointer font-outfit inline-flex items-center justify-center gap-[9px] transition-all duration-200 shadow-[0_6px_24px_rgba(184,28,50,0.45)] hover:-translate-y-[2px] hover:shadow-[0_10px_32px_rgba(212,32,64,0.55)]"
           >
             🩸 Agendar mi donación
           </button>
           <button
             onClick={handleScrollToSteps}
-            className="bg-transparent text-blanco/85 border border-blanco/20 rounded-xl px-[30px] py-[15px] text-[15px] font-normal cursor-pointer font-outfit inline-flex items-center gap-[9px] transition-all duration-200 hover:border-oro hover:text-oro"
+            className="bg-transparent text-blanco/85 border border-blanco/20 rounded-xl px-[24px] md:px-[30px] py-[13px] md:py-[15px] text-[14px] md:text-[15px] font-normal cursor-pointer font-outfit inline-flex items-center justify-center gap-[9px] transition-all duration-200 hover:border-oro hover:text-oro"
           >
             ¿Cómo funciona? →
           </button>
         </div>
 
-        <div className="flex gap-11 mt-[46px] pt-9 border-t border-rojo/20">
+        <div className="flex gap-6 md:gap-11 mt-8 md:mt-[46px] pt-6 md:pt-9 border-t border-rojo/20">
           {HERO_NUMBERS.map(({ value, label }) => (
             <div key={label}>
-              <span className="font-cormorant text-[36px] text-oro-v block leading-none">{value}</span>
-              <div className="text-xs text-blanco/45 mt-1 tracking-[0.02em]">{label}</div>
+              <span className="font-cormorant text-[28px] md:text-[36px] text-oro-v block leading-none">{value}</span>
+              <div className="text-[11px] md:text-xs text-blanco/45 mt-1 tracking-[0.02em]">{label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* — Right: inventory card — */}
-      <div className="relative z-10 bg-carbon/85 rounded-[20px] p-7 border border-rojo/25 backdrop-blur-[12px] shadow-[0_24px_60px_rgba(0,0,0,0.5),0_0_0_1px_rgba(184,28,50,0.1)]">
+      <div className="relative z-10 bg-carbon/85 rounded-[20px] p-5 md:p-7 border border-rojo/25 backdrop-blur-[12px] shadow-[0_24px_60px_rgba(0,0,0,0.5),0_0_0_1px_rgba(184,28,50,0.1)]">
         {/* Card header */}
         <div className="flex items-center gap-3 mb-[22px]">
-          <div className="w-12 h-12 bg-rojo rounded-xl flex items-center justify-center text-[22px] shadow-[0_0_20px_rgba(184,28,50,0.5)] flex-shrink-0">
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-rojo rounded-xl flex items-center justify-center text-xl md:text-[22px] shadow-[0_0_20px_rgba(184,28,50,0.5)] flex-shrink-0">
             🩸
           </div>
           <div>
-            <div className="text-[15px] font-medium text-blanco">Inventario nacional</div>
+            <div className="text-[14px] md:text-[15px] font-medium text-blanco">Inventario nacional</div>
             <div className="text-[11px] text-blanco/40 mt-0.5">Actualizado hace 2 horas</div>
           </div>
           <div className="ml-auto flex items-center gap-[5px] bg-rojo/25 border border-rojo/50 text-rojo-med rounded-[20px] px-[11px] py-1 text-[11px]">
@@ -107,8 +107,8 @@ export function HeroSection() {
         {/* Stats grid */}
         <div className="grid grid-cols-3 gap-[10px] mb-5">
           {INVENTORY_STATS.map(({ value, label, color }) => (
-            <div key={label} className="bg-white/[0.04] rounded-xl p-[14px] border border-white/[0.06]">
-              <div className={`font-cormorant text-[28px] ${color}`}>{value}</div>
+            <div key={label} className="bg-white/[0.04] rounded-xl p-3 md:p-[14px] border border-white/[0.06]">
+              <div className={`font-cormorant text-[24px] md:text-[28px] ${color}`}>{value}</div>
               <div className="text-[10px] text-blanco/40 mt-[3px] leading-[1.4]">{label}</div>
             </div>
           ))}

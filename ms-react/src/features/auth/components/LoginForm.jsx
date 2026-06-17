@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { InputField }    from '../../../shared/components/InputField.jsx'
 import { PasswordField } from '../../../shared/components/PasswordField.jsx'
 import { loginUser }     from '../../../shared/api/auth.api.js'
-import { saveAuth, isAdmin } from '../../../shared/utils/auth.store.js'
+import { saveAuth, isAdmin, isEmployee } from '../../../shared/utils/auth.store.js'
 
 const INITIAL_FORM = { emailOrUsername: '', password: '', remember: false }
 
@@ -60,7 +60,8 @@ export function LoginForm() {
         user:         data.user,
       })
       setSuccess(true)
-      const dest = isAdmin({ user: data.user }) ? '/admin' : '/dashboard'
+      const authPayload = { user: data.user }
+      const dest = isAdmin(authPayload) ? '/admin' : isEmployee(authPayload) ? '/employee' : '/donador'
       setTimeout(() => navigate(dest), 1200)
     } catch (err) {
       const status     = err.response?.status
@@ -164,7 +165,7 @@ export function LoginForm() {
       {/* Rate limit countdown banner */}
       {isBlocked && (
         <div className="flex items-start gap-3 bg-rojo/[0.06] border border-rojo/20 rounded-[11px] px-4 py-3 mb-5">
-          <span className="text-[16px] flex-shrink-0 mt-[1px]">🔐</span>
+          <span className="text-[16px] flex-shrink-0 mt-[1px]"></span>
           <div>
             <p className="text-[12px] font-semibold text-rojo leading-[1.4] mb-[2px]">
               Demasiados intentos fallidos
@@ -244,23 +245,6 @@ export function LoginForm() {
             : 'Iniciar sesión'}
         </button>
       </form>
-
-      {/* Divider */}
-      <div className="flex items-center gap-[10px] mb-[14px]">
-        <div className="flex-1 h-px bg-gris2" />
-        <span className="text-[12px] text-gris3 whitespace-nowrap">o continuá con</span>
-        <div className="flex-1 h-px bg-gris2" />
-      </div>
-
-      {/* Social */}
-      <div className="flex gap-[9px] mb-[22px]">
-        {['G  Google', 'f  Facebook'].map((label) => (
-          <button key={label} type="button"
-            className="flex-1 flex items-center justify-center border border-gris2 rounded-[10px] py-[10px] text-[13px] text-txt font-medium bg-white cursor-pointer transition-all duration-200 hover:border-rojo hover:text-rojo hover:bg-rojo-pal font-outfit">
-            {label}
-          </button>
-        ))}
-      </div>
 
       {/* Footer */}
       <p className="text-center text-[13px] text-txt3">

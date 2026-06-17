@@ -164,7 +164,7 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
   await transporter.sendMail({
     from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
     to: email,
-    subject: '🔐 Recuperá tu contraseña de BloodLink',
+    subject: 'Recuperá tu contraseña de BloodLink',
     html: `<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Recuperar contraseña</title></head>
@@ -193,7 +193,7 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
 
         <!-- Icon + label -->
         <tr><td style="padding-bottom:18px;">
-          <div style="width:52px;height:52px;background:rgba(212,32,64,0.1);border:1px solid rgba(212,32,64,0.25);border-radius:14px;text-align:center;line-height:52px;font-size:24px;margin-bottom:18px;">🔐</div>
+          <div style="width:52px;height:52px;background:rgba(212,32,64,0.1);border:1px solid rgba(212,32,64,0.25);border-radius:14px;text-align:center;line-height:52px;font-size:24px;margin-bottom:18px;"></div>
           <div style="font-size:9px;font-weight:700;color:#D42040;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;">Recuperación de contraseña</div>
           <div style="font-size:28px;font-weight:400;color:#FFFFFF;line-height:1.2;">Hola, <strong style="font-weight:700;">${name}</strong></div>
         </td></tr>
@@ -341,6 +341,89 @@ export const sendPasswordChangedEmail = async (email, name) => {
               <p style="margin:0;font-size:12px;color:rgba(255,100,120,0.85);line-height:1.6;">&#x26A0;&#xFE0F; Si no realizaste este cambio, contactá soporte inmediatamente. Tu cuenta podría estar comprometida.</p>
             </td></tr>
           </table>
+        </td></tr>
+      </table>
+    </td></tr>
+    <tr><td align="center" style="padding-top:28px;">
+      <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.18);">&copy; 2026 BloodLink &middot; Banco de Sangre</p>
+    </td></tr>
+  </table>
+  </td></tr>
+</table>
+</body></html>`,
+  });
+};
+
+export const sendRedemptionEmail = async (
+  email,
+  name,
+  rewardName,
+  quantity,
+  pointsSpent,
+  zone,
+  municipality
+) => {
+  ensureTransporter();
+
+  const locationStr =
+    [municipality, zone ? `Zona ${zone}` : ''].filter(Boolean).join(', ') ||
+    'ubicación registrada';
+
+  await transporter.sendMail({
+    from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+    to: email,
+    subject: '🎁 ¡Canjeo exitoso de premio — BloodLink!',
+    html: `<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Canjeo Exitoso</title></head>
+<body style="margin:0;padding:0;background-color:#0D0A12;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0D0A12;padding:40px 20px;">
+  <tr><td align="center">
+  <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+    <tr><td align="center" style="padding-bottom:28px;">
+      <table cellpadding="0" cellspacing="0" border="0"><tr>
+        <td style="width:44px;height:44px;background:linear-gradient(135deg,#D42040,#B81C32);border-radius:11px;text-align:center;vertical-align:middle;font-size:22px;">🩸</td>
+        <td style="padding-left:12px;vertical-align:middle;">
+          <div style="font-size:22px;font-weight:500;line-height:1;"><span style="color:#FFFFFF;">Blood</span><span style="color:#D42040;">Link</span></div>
+          <div style="font-size:9px;color:#C8942A;letter-spacing:0.14em;text-transform:uppercase;margin-top:3px;">Banco de Sangre</div>
+        </td>
+      </tr></table>
+    </td></tr>
+    <tr><td style="background:linear-gradient(135deg,#1A0810 0%,#200A14 50%,#1A0810 100%);border-radius:20px;border:1px solid rgba(212,32,64,0.2);overflow:hidden;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td style="height:3px;background:linear-gradient(90deg,transparent,#28A060 30%,#C8942A 50%,#28A060 70%,transparent);"></td>
+      </tr></table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="padding:40px;">
+        <tr><td style="padding-bottom:18px;">
+          <div style="width:52px;height:52px;background:rgba(40,160,96,0.1);border:1px solid rgba(40,160,96,0.25);border-radius:14px;text-align:center;line-height:52px;font-size:24px;margin-bottom:18px;">🎁</div>
+          <div style="font-size:9px;font-weight:700;color:#28A060;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;">Canjeo de premio exitoso</div>
+          <div style="font-size:28px;font-weight:400;color:#FFFFFF;line-height:1.2;">¡Hola, <strong style="font-weight:700;">${name}</strong>!</div>
+        </td></tr>
+        <tr><td style="padding:12px 0 24px;">
+          <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.45);line-height:1.7;font-weight:300;">
+            Has canjeado tu premio con éxito en la tienda BloodLink. Tu recompensa se enviará a la siguiente ubicación:
+          </p>
+        </td></tr>
+        <tr><td style="padding-bottom:24px;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(212,32,64,0.04);border:1px solid rgba(212,32,64,0.15);border-radius:10px;">
+            <tr><td style="padding:16px;">
+              <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Detalles del Premio</div>
+              <div style="font-size:15px;color:#FFFFFF;font-weight:600;">${rewardName} (x${quantity})</div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px;">Puntos canjeados: ${pointsSpent} pts</div>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding-bottom:24px;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(200,148,42,0.04);border:1px solid rgba(200,148,42,0.18);border-radius:10px;">
+            <tr><td style="padding:16px;">
+              <div style="font-size:11px;font-weight:700;color:rgba(200,148,42,0.6);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;">Dirección de envío</div>
+              <div style="font-size:14px;color:#FFFFFF;font-weight:500;">${locationStr}</div>
+              <div style="font-size:11px;color:rgba(200,148,42,0.7);margin-top:4px;">Se enviará a la ubicación configurada en tu perfil de la base de datos.</div>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td>
+          <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.3);line-height:1.6;font-weight:300;">Si tenés alguna duda sobre tu envío, por favor ponete en contacto con nuestro equipo de soporte.</p>
         </td></tr>
       </table>
     </td></tr>

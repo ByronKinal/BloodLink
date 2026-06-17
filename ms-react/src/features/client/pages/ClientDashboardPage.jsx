@@ -6,10 +6,13 @@ import { DashboardSidebar } from '../../../shared/components/dashboard/Dashboard
 import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardTopbar.jsx'
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { ClientDashboardHome } from '../components/ClientDashboardHome.jsx'
+import { ClientProfileSection } from '../components/ClientProfileSection.jsx'
+import { StoreCatalog } from '../../store/components/StoreCatalog.jsx'
 import {
   ClientIconCalendar,
   ClientIconDrop,
   ClientIconGear,
+  ClientIconGift,
   ClientIconHome,
   ClientIconUser,
 } from '../components/ClientDashboardIcons.jsx'
@@ -18,13 +21,14 @@ const NAV_ITEMS = [
   { id: 'inicio', label: 'Inicio', icon: ClientIconHome },
   { id: 'perfil', label: 'Mi perfil', icon: ClientIconUser },
   { id: 'donaciones', label: 'Mis donaciones', icon: ClientIconDrop },
+  { id: 'tienda', label: 'Tienda', icon: ClientIconGift },
   { id: 'citas', label: 'Agendar cita', icon: ClientIconCalendar },
   { id: 'config', label: 'Configuración', icon: ClientIconGear },
 ]
 
 export function ClientDashboardPage() {
   const navigate = useNavigate()
-  const auth = getStoredAuth()
+  const [auth, setAuth] = useState(() => getStoredAuth())
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -92,6 +96,10 @@ export function ClientDashboardPage() {
     >
       {active === 'inicio' ? (
         <ClientDashboardHome user={user} />
+      ) : active === 'perfil' ? (
+        <ClientProfileSection />
+      ) : active === 'tienda' ? (
+        <StoreCatalog />
       ) : (
         <DashboardPlaceholderSection
           title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

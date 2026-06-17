@@ -39,10 +39,10 @@ export class FileValidator {
     return { isValid: true };
   }
 
-  static generateSecureFileName(originalFileName) {
+  static generateSecureFileName(originalFileName, prefix = 'profile') {
     const extension = path.extname(originalFileName).toLowerCase();
     const uniqueId = randomBytes(6).toString('hex'); 
-    return `profile-${uniqueId}${extension}`;
+    return `${prefix}-${uniqueId}${extension}`;
   }
 
   static sanitizeFileName(fileName) {

@@ -70,9 +70,13 @@ export const initPostgresServer = async () => {
 
     const { seedRoles } = await import('../helpers/role-seed.js');
     const { seedAdminUser } = await import('../helpers/admin-seed.js');
+    const { seedEmployeeUser } = await import('../helpers/employe-seed.js');
+    const { seedDonorUser } = await import('../helpers/user-seed.js');
 
     await seedRoles();
     await seedAdminUser();
+    await seedEmployeeUser();
+    await seedDonorUser();
 
     middlewares(app);
     routes(app);

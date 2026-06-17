@@ -58,26 +58,29 @@ export function AppointmentForm() {
   }
 
   return (
-    <section id="agendar" className="fade-up px-16 py-20 bg-blanco">
+    <section id="agendar" className="fade-up px-4 md:px-16 py-14 md:py-20 bg-blanco">
       <div className="flex items-center gap-[7px] text-[10px] text-rojo font-semibold tracking-[0.12em] uppercase mb-[10px]">
         <span className="inline-block w-6 h-[2px] bg-rojo rounded-sm" />
         Empezá hoy
       </div>
-      <h2 className="font-cormorant text-[42px] font-medium text-txt leading-[1.15] mb-8">
+      <h2 className="font-cormorant text-[32px] md:text-[42px] font-medium text-txt leading-[1.15] mb-6 md:mb-8">
         Agenda tu donación
       </h2>
 
-      <div className="grid gap-[52px] items-start" style={{ gridTemplateColumns: '1fr 360px' }}>
+      <div
+        className="flex flex-col md:grid gap-8 md:gap-[52px] items-start"
+        style={{ gridTemplateColumns: '1fr 360px' }}
+      >
 
         {/* Form card */}
-        <div className="bg-blanco rounded-[20px] p-10 border border-gris2">
-          <div className="font-cormorant text-[28px] font-medium text-txt mb-[6px]">Reservar mi cita</div>
-          <p className="text-sm text-txt3 mb-7 font-light leading-[1.6]">
+        <div className="bg-blanco rounded-[20px] p-5 md:p-10 border border-gris2">
+          <div className="font-cormorant text-[26px] md:text-[28px] font-medium text-txt mb-[6px]">Reservar mi cita</div>
+          <p className="text-sm text-txt3 mb-6 md:mb-7 font-light leading-[1.6]">
             Completá el formulario y te confirmamos por correo en menos de 24 horas. Sin costo ni compromiso.
           </p>
 
           <form onSubmit={handleFormSubmit}>
-            <div className="grid grid-cols-2 gap-4 mb-[14px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-[14px]">
               <label className="flex flex-col gap-[6px]">
                 <span className="text-[11px] font-semibold text-txt2 tracking-[0.06em] uppercase">Nombre completo</span>
                 <input type="text" placeholder="María García López" value={formData.fullName} onChange={handleFieldChange('fullName')} className={inputClass} required />

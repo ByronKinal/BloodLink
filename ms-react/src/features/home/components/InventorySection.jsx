@@ -30,8 +30,8 @@ const BLOOD_LEVELS = [
 
 export function InventorySection() {
   return (
-    <section id="inventario" className="fade-up px-16 py-20 bg-carbon2">
-      <div className="grid gap-16 items-center" style={{ gridTemplateColumns: '1fr 1fr' }}>
+    <section id="inventario" className="fade-up px-4 md:px-16 py-14 md:py-20 bg-carbon2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
 
         {/* Left: impact copy + stats */}
         <div>
@@ -39,11 +39,11 @@ export function InventorySection() {
             <span className="inline-block w-6 h-[2px] bg-rojo-v rounded-sm" />
             Nuestro impacto
           </div>
-          <h2 className="font-cormorant text-[42px] font-medium text-blanco leading-[1.15] mb-3">
+          <h2 className="font-cormorant text-[32px] md:text-[42px] font-medium text-blanco leading-[1.15] mb-3">
             Juntos hemos<br />cambiado miles<br />de{' '}
             <em className="text-oro-v italic font-cormorant">historias</em>
           </h2>
-          <p className="text-[15px] text-blanco/45 leading-[1.75] max-w-[540px] font-light mb-8">
+          <p className="text-[14px] md:text-[15px] text-blanco/45 leading-[1.75] md:max-w-[540px] font-light mb-8">
             Cada año más guatemaltecos se suman a la red de donantes. Tu decisión de donar hoy
             puede significar la diferencia para alguien esta noche.
           </p>
@@ -51,9 +51,9 @@ export function InventorySection() {
             {IMPACT_STATS.map(({ value, label }) => (
               <div
                 key={label}
-                className="bg-white/[0.05] rounded-[14px] p-5 border border-white/[0.07] transition-all duration-200 hover:border-rojo/40 hover:bg-rojo/[0.08]"
+                className="bg-white/[0.05] rounded-[14px] p-4 md:p-5 border border-white/[0.07] transition-all duration-200 hover:border-rojo/40 hover:bg-rojo/[0.08]"
               >
-                <div className="font-cormorant text-[38px] text-rojo-v mb-1">{value}</div>
+                <div className="font-cormorant text-[32px] md:text-[38px] text-rojo-v mb-1">{value}</div>
                 <div className="text-xs text-blanco/40">{label}</div>
               </div>
             ))}
@@ -75,9 +75,9 @@ export function InventorySection() {
                 <div className={`w-12 h-12 rounded-xl ${typeBg} flex items-center justify-center font-cormorant text-[17px] font-medium flex-shrink-0 ${typeColor}`}>
                   {type}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-blanco mb-0.5">{desc}</div>
-                  <div className="text-[11px] text-blanco/35 mb-2">{sub}</div>
+                  <div className="text-[11px] text-blanco/35 mb-2 truncate">{sub}</div>
                   <div className="bg-white/[0.08] rounded-[20px] h-[5px]">
                     <div className="h-[5px] rounded-[20px]" style={{ width: `${pct}%`, ...barStyle }} />
                   </div>

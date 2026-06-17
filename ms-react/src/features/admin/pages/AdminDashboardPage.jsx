@@ -7,21 +7,25 @@ import { DashboardSidebar } from '../../../shared/components/dashboard/Dashboard
 import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardTopbar.jsx'
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { AdminUsersSection } from '../components/AdminUsersSection.jsx'
+import { AdminRewardsSection } from '../components/AdminRewardsSection.jsx'
 import { AdminDashboardHome } from '../components/AdminDashboardHome.jsx'
+import { AdminConfigSection } from '../components/AdminConfigSection.jsx'
 import {
   AdminIconBox,
   AdminIconChart,
   AdminIconDrop,
   AdminIconGear,
+  AdminIconGift,
   AdminIconHome,
   AdminIconUsers,
 } from '../components/AdminDashboardIcons.jsx'
 
 const NAV_ITEMS = [
   { id: 'inicio', label: 'Inicio', icon: AdminIconHome },
-  { id: 'usuarios', label: 'Usuarios', icon: AdminIconUsers },
+  { id: 'usuarios', label: 'Usuarios', icon: AdminIconUsers, roles: ['ADMIN_ROLE'] },
   { id: 'donaciones', label: 'Donaciones', icon: AdminIconDrop },
   { id: 'inventario', label: 'Inventario', icon: AdminIconBox },
+  { id: 'premios', label: 'Premios', icon: AdminIconGift },
   { id: 'reportes', label: 'Reportes', icon: AdminIconChart },
   { id: 'config', label: 'Configuración', icon: AdminIconGear },
 ]
@@ -33,7 +37,7 @@ const ROLE_LABEL = {
 
 export function AdminDashboardPage() {
   const navigate = useNavigate()
-  const auth = getStoredAuth()
+  const [auth, setAuth] = useState(() => getStoredAuth())
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -52,11 +56,21 @@ export function AdminDashboardPage() {
     window.addEventListener('bl_logout', onGlobalLogout)
     return () => window.removeEventListener('bl_logout', onGlobalLogout)
   }, [])
+  const handleProfileUpdate = () => {
+    setAuth(getStoredAuth())
+  }
+
 
   const displayName = user.name || user.username || 'Admin'
   const initials = ((user.name?.[0] ?? '') + (user.surname?.[0] ?? '')) || displayName[0]?.toUpperCase() || 'A'
   const roleLabel = ROLE_LABEL[user.role] ?? 'Admin'
   const currentSection = NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Dashboard'
+
+  // Filtrar nav items según el rol del usuario
+  const visibleNavItems = NAV_ITEMS.filter((item) => {
+    if (!item.roles) return true
+    return item.roles.includes(user.role)
+  })
 
   return (
     <DashboardShell
@@ -66,7 +80,7 @@ export function AdminDashboardPage() {
           displayName={displayName}
           initials={initials}
           roleLabel={roleLabel}
-          navItems={NAV_ITEMS}
+          navItems={visibleNavItems}
           activeId={active}
           onNavigate={setActive}
           onLogout={handleLogout}
@@ -93,6 +107,10 @@ export function AdminDashboardPage() {
         <AdminDashboardHome user={user} />
       ) : active === 'usuarios' ? (
         <AdminUsersSection currentUserId={user.id} />
+      ) : active === 'premios' ? (
+        <AdminRewardsSection />
+      ) : active === 'config' ? (
+        <AdminConfigSection user={user} onUpdate={handleProfileUpdate} />
       ) : (
         <DashboardPlaceholderSection
           title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}
