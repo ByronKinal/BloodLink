@@ -8,10 +8,10 @@ import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { ClientDashboardHome } from '../components/ClientDashboardHome.jsx'
 import { ClientProfileSection } from '../components/ClientProfileSection.jsx'
 import { StoreCatalog } from '../../store/components/StoreCatalog.jsx'
+import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   ClientIconCalendar,
   ClientIconDrop,
-  ClientIconGear,
   ClientIconGift,
   ClientIconHome,
   ClientIconUser,
@@ -23,7 +23,6 @@ const NAV_ITEMS = [
   { id: 'donaciones', label: 'Mis donaciones', icon: ClientIconDrop },
   { id: 'tienda', label: 'Tienda', icon: ClientIconGift },
   { id: 'citas', label: 'Agendar cita', icon: ClientIconCalendar },
-  { id: 'config', label: 'Configuración', icon: ClientIconGear },
 ]
 
 export function ClientDashboardPage() {
@@ -32,10 +31,15 @@ export function ClientDashboardPage() {
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isConfigOpen, setIsConfigOpen] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
     navigate('/login')
+  }
+
+  const handleProfileUpdate = () => {
+    setAuth(getStoredAuth())
   }
 
   const displayName = user.name || user.username || 'Donante'
@@ -64,6 +68,7 @@ export function ClientDashboardPage() {
   }, [])
 
   return (
+    <>
       <DashboardShell
         sidebar={
           <DashboardSidebar
@@ -80,32 +85,42 @@ export function ClientDashboardPage() {
             sidebarStyle={{ background: '#111018', borderRight: '1px solid rgba(184,28,50,0.15)' }}
             userCardStyle={{ background: 'rgba(212,32,64,0.07)', border: '1px solid rgba(212,32,64,0.14)' }}
             logoutTone="rgba(255,100,100,0.65)"
+            onProfileClick={() => setIsConfigOpen(true)}
           />
         }
-      topbar={
-        <DashboardTopbar
-          title={currentSection}
-          subtitle="BloodLink · Panel de donante"
-          displayName={displayName}
-          email={user.email}
-          initials={initials}
-          profilePicture={user.profilePicture}
-        />
-      }
-      mainClassName="bg-gris1"
-    >
-      {active === 'inicio' ? (
-        <ClientDashboardHome user={user} />
-      ) : active === 'perfil' ? (
-        <ClientProfileSection />
-      ) : active === 'tienda' ? (
-        <StoreCatalog />
-      ) : (
-        <DashboardPlaceholderSection
-          title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}
-          description="Esta sección se activa cuando el módulo correspondiente esté listo."
-        />
-      )}
-    </DashboardShell>
+        topbar={
+          <DashboardTopbar
+            title={currentSection}
+            subtitle="BloodLink · Panel de donante"
+            displayName={displayName}
+            email={user.email}
+            initials={initials}
+            profilePicture={user.profilePicture}
+            onProfileClick={() => setIsConfigOpen(true)}
+          />
+        }
+        mainClassName="bg-gris1"
+      >
+        {active === 'inicio' ? (
+          <ClientDashboardHome user={user} />
+        ) : active === 'perfil' ? (
+          <ClientProfileSection />
+        ) : active === 'tienda' ? (
+          <StoreCatalog />
+        ) : (
+          <DashboardPlaceholderSection
+            title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}
+            description="Esta sección se activa cuando el módulo correspondiente esté listo."
+          />
+        )}
+      </DashboardShell>
+
+      <ProfileConfigModal
+        open={isConfigOpen}
+        onClose={() => setIsConfigOpen(false)}
+        user={user}
+        onUpdate={handleProfileUpdate}
+      />
+    </>
   )
 }
