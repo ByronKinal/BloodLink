@@ -11,6 +11,7 @@ import {
   getUserRoleNames,
   getUsersByRole as getUsersByRoleRepo,
 } from './role-db.js';
+import { awardPointsForAppointmentConfirmation } from './incentive-operations.js';
 
 const isValidDateString = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '');
 
@@ -370,9 +371,19 @@ export const confirmAppointmentHelper = async ({
     replacedStaff = true;
   }
 
+  const shouldAwardConfirmationPoints = !appointment.status;
+
   appointment.status = true;
   appointment.staffUserId = assignedStaffUserId;
   await appointment.save();
+
+  if (shouldAwardConfirmationPoints) {
+    await awardPointsForAppointmentConfirmation({
+      userId: appointment.donorUserId,
+      appointmentId: appointment._id,
+      points: 100,
+    });
+  }
 
   return {
     appointment: await hydrateAppointment(appointment),

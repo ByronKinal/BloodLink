@@ -280,6 +280,125 @@ export const getBloodBagById = asyncHandler(async (req, res) => {
   });
 });
 
+export const createBloodBag = asyncHandler(async (req, res) => {
+  if (!ensureMongoReady()) {
+    return res.status(503).json({
+      success: false,
+      message: 'MongoDB no esta conectado',
+    });
+  }
+
+  const {
+    bloodType,
+    quantity,
+    donorId,
+    collectionDate,
+    expiryDate,
+  } = req.body;
+
+  const volumeMl = Number(quantity);
+  const extractionDate = new Date(collectionDate);
+  const expirationDate = new Date(expiryDate);
+
+  const bag = await BloodBag.create({
+    bagIdentifier: `BAG-${Date.now()}-${Math.floor(Math.random() * 900) + 100}`,
+    donationId: new mongoose.Types.ObjectId(),
+    bloodType,
+    extractionDate,
+    expirationDate,
+    volumeMl,
+    donorUserId: donorId,
+    availabilityStatus: 'Disponible',
+  });
+
+  return res.status(201).json({
+    success: true,
+    message: 'Bolsa de sangre creada exitosamente',
+    data: sanitizeBloodBag(bag),
+  });
+});
+
+export const updateBloodBag = asyncHandler(async (req, res) => {
+  if (!ensureMongoReady()) {
+    return res.status(503).json({
+      success: false,
+      message: 'MongoDB no esta conectado',
+    });
+  }
+
+  const { id } = req.params;
+  const {
+    bloodType,
+    quantity,
+    donorId,
+    collectionDate,
+    expiryDate,
+  } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'ID invalido',
+    });
+  }
+
+  const bag = await BloodBag.findById(id);
+
+  if (!bag) {
+    return res.status(404).json({
+      success: false,
+      message: 'Bolsa de sangre no encontrada',
+    });
+  }
+
+  if (bloodType) bag.bloodType = bloodType;
+  if (typeof quantity !== 'undefined') bag.volumeMl = Number(quantity);
+  if (donorId) bag.donorUserId = donorId;
+  if (collectionDate) bag.extractionDate = new Date(collectionDate);
+  if (expiryDate) bag.expirationDate = new Date(expiryDate);
+
+  await bag.save();
+
+  return res.status(200).json({
+    success: true,
+    message: 'Bolsa de sangre actualizada exitosamente',
+    data: sanitizeBloodBag(bag),
+  });
+});
+
+export const deleteBloodBag = asyncHandler(async (req, res) => {
+  if (!ensureMongoReady()) {
+    return res.status(503).json({
+      success: false,
+      message: 'MongoDB no esta conectado',
+    });
+  }
+
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      success: false,
+      message: 'ID invalido',
+    });
+  }
+
+  const bag = await BloodBag.findByIdAndDelete(id);
+
+  if (!bag) {
+    return res.status(404).json({
+      success: false,
+      message: 'Bolsa de sangre no encontrada',
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: 'Bolsa de sangre eliminada exitosamente',
+    data: { id },
+  });
+});
+
 export const getBloodBagStats = asyncHandler(async (req, res) => {
   if (!ensureMongoReady()) {
     return res.status(503).json({

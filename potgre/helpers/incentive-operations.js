@@ -4,6 +4,7 @@ import { IncentiveTransaction, Wallet } from '../src/incentives/incentive.model.
 import { Reward, RewardRedemption } from '../src/rewards/reward.model.js';
 import {
   awardDonationPointsInPostgresService,
+  awardAppointmentConfirmationPointsInPostgresService,
   fetchWalletFromPostgresService,
   shouldUsePostgresService,
 } from './postgres-service-client.js';
@@ -104,6 +105,83 @@ export const awardPointsForDonation = async ({
 
     return {
       pointsAwarded: points,
+      alreadyAwarded: false,
+      balancePoints: wallet.balance_points,
+      totalEarnedPoints: wallet.total_earned_points,
+      walletId: wallet.id,
+    };
+  });
+};
+
+export const awardPointsForAppointmentConfirmation = async ({
+  userId,
+  appointmentId,
+  points,
+}) => {
+  if (shouldUsePostgresService()) {
+    return awardAppointmentConfirmationPointsInPostgresService({
+      userId,
+      appointmentId,
+      points,
+    });
+  }
+
+  const user = await findUserById(userId);
+
+  if (!user) {
+    const error = new Error('Usuario donador no encontrado para incentivos');
+    error.status = 404;
+    throw error;
+  }
+
+  const confirmationDonationId = `confirmation-${appointmentId}`;
+  const existingTransaction = await IncentiveTransaction.findOne({
+    where: { donation_id: confirmationDonationId },
+  });
+
+  if (existingTransaction) {
+    const wallet = await Wallet.findOne({ where: { user_id: userId } });
+    return {
+      pointsAwarded: 0,
+      alreadyAwarded: true,
+      balancePoints: wallet?.balance_points || 0,
+      totalEarnedPoints: wallet?.total_earned_points || 0,
+      transactionId: existingTransaction.id,
+    };
+  }
+
+  return sequelize.transaction(async (transaction) => {
+    const [wallet] = await Wallet.findOrCreate({
+      where: { user_id: userId },
+      defaults: {
+        user_id: userId,
+        balance_points: 0,
+        total_earned_points: 0,
+      },
+      transaction,
+    });
+
+    await IncentiveTransaction.create(
+      {
+        wallet_id: wallet.id,
+        user_id: userId,
+        donation_id: confirmationDonationId,
+        appointment_id: String(appointmentId),
+        points: Math.round(Number(points)),
+        volume_ml: Math.max(1, Math.round(Number(points))),
+        transaction_type: 'DONATION_REWARD',
+        description: `Puntos por confirmacion de cita: ${Math.round(Number(points))}`,
+      },
+      { transaction }
+    );
+
+    wallet.balance_points += Number(points);
+    wallet.total_earned_points += Number(points);
+
+    await wallet.save({ transaction });
+
+    return {
+      pointsAwarded: Number(points),
       alreadyAwarded: false,
       balancePoints: wallet.balance_points,
       totalEarnedPoints: wallet.total_earned_points,
