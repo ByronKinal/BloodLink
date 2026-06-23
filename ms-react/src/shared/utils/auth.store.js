@@ -18,7 +18,7 @@ export function clearAuth() {
 
 export function isAdmin(auth) {
   const role = auth?.user?.role
-  return role === 'ADMIN_ROLE' || role === 'STAFF_ROLE'
+  return role === 'ADMIN_ROLE'
 }
 
 export function isEmployee(auth) {
