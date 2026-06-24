@@ -16,6 +16,7 @@ import {
   ClientIconHome,
   ClientIconUser,
 } from '../components/ClientDashboardIcons.jsx'
+import { AiChatWidget } from '../components/AiChatWidget.jsx'
 
 const NAV_ITEMS = [
   { id: 'inicio', label: 'Inicio', icon: ClientIconHome },
@@ -121,6 +122,8 @@ export function ClientDashboardPage() {
         user={user}
         onUpdate={handleProfileUpdate}
       />
+
+      <AiChatWidget />
     </>
   )
 }
