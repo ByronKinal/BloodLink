@@ -1,231 +1,165 @@
-# BloodLink - Sistema de Gestión de Donación de Sangre
+# BloodLink - Plataforma de Gestión de Donaciones de Sangre
 
-Proyecto Node.js con Express, MongoDB y PostgreSQL para gestionar donaciones de sangre.
+**BloodLink** es una plataforma de gestión de donaciones de sangre con arquitectura de microservicios.
+
+## Arquitectura
+
+| Servicio | Puerto | Responsabilidad |
+|----------|--------|-----------------|
+| **MongoDB Service** | 3006 | Citas, triajes, sangre, auditoría, reportes, IA |
+| **PostgreSQL Service** | 3007 | Autenticación, usuarios, incentivos, recompensas |
+
+---
 
 ## Requisitos
 
-- Node.js v18 o superior
-- pnpm (recomendado) o npm
-- Docker y Docker Compose (para ejecutar con Docker)
+- Node.js 18+
+- MongoDB (localhost:27017)
+- PostgreSQL (localhost:5432)
+- pnpm 10.29.2+
+
+---
 
 ## Instalación
 
-### Opción 1: Desarrollo Local
+```bash
+git clone https://github.com/tuusuario/BloodLink.git
+cd BloodLink
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone <tu-repositorio>
-   cd BloodLink
-   ```
+# MongoDB service
+cd mongo
+pnpm install
 
-2. **Instalar dependencias**
-   ```bash
-   pnpm install
-   ```
+# PostgreSQL service
+cd ../potgre
+pnpm install
+```
 
-3. **Configurar variables de entorno** - Crear `.env` en la raíz con el siguiente contenido:
-   ```bash
-   NODE_ENV = development
-   PORT = 3006
+## Ejecución
 
-   MONGODB_URI=mongodb://localhost:27017/bloodlink
+**MongoDB Service (Terminal 1):**
+```bash
+cd mongo
+pnpm dev
+```
 
-   DB_HOST=localhost
-   DB_PORT=5435
-   DB_NAME=bloodlink
-   DB_USERNAME=postgres
-   DB_PASSWORD=password
-   DB_SQL_LOGGING=false
+**PostgreSQL Service (Terminal 2):**
+```bash
+cd potgre
+pnpm dev
+```
 
-   JWT_SECRET=MyVerySecretKeyForJWTTokenAuthenticationWith256Bits!
-   JWT_EXPIRES_IN=30m
-   JWT_REFRESH_EXPIRES_IN=7d
-   JWT_ISSUER=BloodLinkAuthService
-   JWT_AUDIENCE=BloodLinkApp
+**Acceso:**
+- MongoDB: http://localhost:3006
+- PostgreSQL: http://localhost:3007
+- Swagger Docs: http://localhost:3007/api/docs
 
-   SMTP_HOST=smtp.gmail.com
-   SMTP_PORT=587
-   SMTP_ENABLE_SSL=true
-   SMTP_USERNAME=kinalsports@gmail.com
-   SMTP_PASSWORD=yrsd prvf kwat toee
-   EMAIL_FROM=kinalsports@gmail.com
-   EMAIL_FROM_NAME=AuthDotnet App
+---
 
-   VERIFICATION_EMAIL_EXPIRY_HOURS=24
-   PASSWORD_RESET_EXPIRY_HOURS=1
+## Configuración de Bases de Datos
 
-   CLOUDINARY_CLOUD_NAME=dut08rmaz
-   CLOUDINARY_API_KEY=279612751725163
-   CLOUDINARY_API_SECRET=UxGMRqU1iB580Kxb2AlDR4n4hu0
-   CLOUDINARY_BASE_URL=https://res.cloudinary.com/dut08rmaz/image/upload/
-   CLOUDINARY_FOLDER=gastroflow/profiles
-   CLOUDINARY_DEFAULT_AVATAR_FILENAME=default-avatar_ewzxwx.png
-   ```
+### MongoDB
+Se crea automáticamente al conectar. Configurar en `mongo/.env`:
+```env
+MONGODB_URI=mongodb://localhost:27017/bloodlink
+POSTGRES_SERVICE_URL=http://localhost:3007
+```
 
-4. **Iniciar servidor**
-   ```bash
-   pnpm start         # Producción
-   pnpm dev           # Desarrollo con nodemon
-   ```
+### PostgreSQL
+Crear manualmente en `potgre/.env`:
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=bloodlink_db
+DB_USERNAME=bloodlink_user
+DB_PASSWORD=bloodlink_password
+```
 
-### Opción 2: Con Docker Compose
+---
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone <tu-repositorio>
-   cd BloodLink
-   ```
+## Endpoints Principales
 
-2. **Crear archivo .env** (usar el contenido anterior)
+**Autenticación:**
+- `POST /api/auth/register` - Registro
+- `POST /api/auth/login` - Login
+- `POST /api/auth/refresh` - Renovar token
 
-3. **Iniciar con Docker**
-   ```bash
-   docker-compose up -d
-   ```
+**Usuarios:**
+- `GET /api/users` - Listar
+- `GET /api/users/:id` - Obtener
+- `PUT /api/users` - Actualizar
 
-4. **Parar contenedores**
-   ```bash
-   docker-compose down
-   ```
+**Incentivos & Recompensas:**
+- `GET /api/incentives` - Listar incentivos
+- `GET /api/rewards` - Listar recompensas
+- `POST /api/rewards/redeem` - Canjear
+
+**MongoDB Service:**
+- `GET/POST /api/appointments` - Citas
+- `GET/POST /api/triage` - Triajes
+- `GET/POST /api/blood-bags` - Sangre
+- `GET /api/reports` - Reportes
+- `POST /api/ai/donation-assistant` - Asistente IA
+
+---
+
+## Autenticación
+
+```bash
+# Login
+curl -X POST http://localhost:3007/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@bloodlink.com", "password": "Password123!"}'
+
+# Usar token en requests
+curl -X GET http://localhost:3007/api/users \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+---
 
 ## Estructura del Proyecto
 
 ```
 BloodLink/
-├── configs/                 # Configuración del servidor
-│   ├── config.js           # Configuración general
-│   ├── mongodb.js          # Conexión MongoDB
-│   └── postgresql.js       # Conexión PostgreSQL
-├── helper/                 # Funciones auxiliares
-├── middlewares/            # Middlewares (autenticación, validación)
-├── seeders/                # Scripts de base de datos
-│   └── schema.sql          # Esquema de PostgreSQL
-├── src/
-│   ├── User/               # Módulo de usuarios
-│   │   ├── User.model.js
-│   │   ├── user.controller.js
-│   │   ├── user.routes.js
-│   │   ├── auth.controller.js
-│   │   └── auth.routes.js
-│   └── routes/
-│       ├── health.js       # Health check
-│       └── index.js        # Agregador de rutas
-├── utils/                  # Utilidades
-├── index.js                # Punto de entrada
-├── package.json
-├── .env                    # Variables de entorno
-├── docker-compose.yml      # Configuración Docker
+├── mongo/              # MongoDB Microservice
+│   ├── src/
+│   ├── configs/
+│   ├── helpers/
+│   ├── middlewares/
+│   ├── utils/
+│   ├── package.json
+│   ├── .env
+│   ├── pnpm-workspace.yaml
+│   └── index.js
+├── potgre/             # PostgreSQL Microservice
+│   ├── src/
+│   ├── configs/
+│   ├── helpers/
+│   ├── middlewares/
+│   ├── utils/
+│   ├── package.json
+│   ├── .env
+│   ├── pnpm-workspace.yaml
+│   └── index.js
 └── README.md
 ```
 
-## Variables de Entorno
-
-Todas las variables están configuradas en el archivo `.env`. Las credenciales compartidas en este README son para desarrollo local.
-
-## APIs
-
-### Health Check
-```
-GET /api/health
-```
-
-### Usuarios
-```
-GET /api/auth/register      # Registrar usuario
-POST /api/auth/login        # Iniciar sesión
-GET /api/users              # Obtener usuarios
-GET /api/users/:id          # Obtener usuario por ID
-```
-
-## Bases de Datos
-
-- **MongoDB**: Para donaciones e historial
-- **PostgreSQL**: Para usuarios y autenticación
-
-## Tecnologías
-
-- Express.js 5.2.1
-- Mongoose 9.2.1
-- PostgreSQL (pg)
-- JWT para autenticación
-- Bcryptjs para encriptación de contraseñas
-- Multer para subida de archivos
-- Cloudinary para almacenamiento de imágenes
-- Morgan para logging
-- Helmet para seguridad
-
-## Desarrollo
-
-El proyecto usa `pnpm` como package manager y `nodemon` para desarrollo automático.
-
-```bash
-pnpm dev    # Inicia servidor en modo desarrollo con hot reload
-```
-
-## Licencia
-
-ISC
-
-2. **Configurar variables de entorno**
-   ```bash
-   cp .env.example .env
-   # El archivo ya tiene la configuración para Docker
-   ```
-
-3. **Iniciar con Docker**
-   ```bash
-   docker-compose up -d      # En background
-   docker-compose up         # En foreground (ver logs)
-   ```
-
-4. **Ver logs**
-   ```bash
-   docker-compose logs -f
-   ```
-
-5. **Detener servicios**
-   ```bash
-   docker-compose down
-   ```
-
-6. **Eliminar volúmenes** (limpiar base de datos)
-   ```bash
-   docker-compose down -v
-   ```
-
-## Estructura del Proyecto
-
-```
-src/
-├── server.js              # Punto de entrada
-├── config/
-│   ├── mongodb.js        # Conexión a MongoDB
-│   └── postgresql.js     # Conexión a PostgreSQL
-├── models/
-│   └── User.js          # Modelo de usuario (MongoDB)
-├── routes/
-│   ├── users.js         # Rutas de usuarios
-│   └── health.js        # Health check
-├── controllers/          # Controladores (a llenar)
-├── middleware/          # Middlewares (a llenar)
-└── database/
-    └── schema.sql       # Esquema de PostgreSQL
-```
-
-## Endpoints Disponibles
-
-- `GET /api/health` - Health check
-- `GET /api/users` - Obtener todos los usuarios
-- `POST /api/users` - Crear nuevo usuario
+---
 
 ## Variables de Entorno
 
-Ver `.env.example` para la lista completa de variables necesarias.
+Ver archivos `.env` en cada microservicio:
+- `mongo/.env` - Configuración MongoDB Service
+- `potgre/.env` - Configuración PostgreSQL Service
 
-## Próximos Pasos
+---
 
-- [ ] Implementar autenticación JWT
-- [ ] Crear controladores para donaciones
-- [ ] Implementar validaciones
-- [ ] Agregar tests
-- [ ] Documentar con Swagger
+## Documentación Adicional
+
+- Ver `mongo/README.md` para detalles del MongoDB Service
+- Ver `potgre/README.md` para detalles del PostgreSQL Service
+
+---
+
+**Versión:** 1.0.0 | **Última actualización:** 28 de abril de 2026

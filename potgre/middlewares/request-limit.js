@@ -1,0 +1,83 @@
+import rateLimit from 'express-rate-limit';
+import { config } from '../configs/config.js';
+
+export const requestLimit = rateLimit({
+  windowMs: config.rateLimit.windowMs,
+  max: config.rateLimit.maxRequests,
+  message: {
+    success: false,
+    message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.',
+    retryAfter: Math.ceil(config.rateLimit.windowMs / 1000),
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message:
+        'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.',
+      retryAfter: Math.ceil(config.rateLimit.windowMs / 1000),
+    });
+  },
+});
+
+export const authRateLimit = rateLimit({
+  windowMs: config.rateLimit.authWindowMs,
+  max: config.rateLimit.authMaxRequests,
+
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    console.log(`Rate limit exceeded for IP: ${req.ip} on ${req.path}`);
+
+}});
+
+// Solo cuenta intentos FALLIDOS de login. 3 intentos por 60 segundos.
+export const loginRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'Demasiados intentos fallidos. Esperá 1 minuto e intentá de nuevo.',
+      retryAfter: 60,
+    });
+  },
+});
+
+export const aiRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'Demasiadas consultas a la IA, intenta de nuevo en un minuto.',
+      retryAfter: 60,
+    });
+  },
+});
+
+export const emailRateLimit = rateLimit({
+  windowMs: config.rateLimit.emailWindowMs, 
+  max: config.rateLimit.emailMaxRequests, 
+  message: {
+    success: false,
+    message: 'Demasiados emails enviados, intenta de nuevo en 15 minutos.',
+    retryAfter: Math.ceil(config.rateLimit.emailWindowMs / 1000),
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    console.log(`Email rate limit exceeded for: ${req.body.email || req.ip}`);
+    res.status(429).json({
+      success: false,
+      message: 'Demasiados emails enviados, intenta de nuevo en 15 minutos.',
+      retryAfter: Math.ceil(config.rateLimit.emailWindowMs / 1000),
+    });
+  },
+});
