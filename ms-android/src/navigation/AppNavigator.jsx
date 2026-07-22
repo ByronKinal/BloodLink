@@ -6,7 +6,7 @@ import RegisterScreen from '../features/auth/screens/RegisterScreen';
 import VerifyEmailScreen from '../features/auth/screens/VerifyEmailScreen';
 import ForgotPasswordScreen from '../features/auth/screens/ForgotPasswordScreen';
 import ResetPasswordScreen from '../features/auth/screens/ResetPasswordScreen';
-import SessionPlaceholderScreen from '../shared/components/SessionPlaceholderScreen';
+import MainTabNavigator from './MainTabNavigator';
 
 const AuthStack = createNativeStackNavigator();
 const MainStack = createNativeStackNavigator();
@@ -26,7 +26,7 @@ function AuthNavigator() {
 function MainNavigator() {
   return (
     <MainStack.Navigator screenOptions={{ headerShown: false }}>
-      <MainStack.Screen name="Session" component={SessionPlaceholderScreen} />
+      <MainStack.Screen name="MainTabs" component={MainTabNavigator} />
     </MainStack.Navigator>
   );
 }
