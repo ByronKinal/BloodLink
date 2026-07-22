@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { useAuthStore } from '../../features/auth/store/authStore';
 
-const POSTGRES_BASE_URL = 'http://10.0.2.2:3007';
-const MONGO_BASE_URL = 'http://10.0.2.2:3006';
+const POSTGRES_BASE_URL = process.env.EXPO_PUBLIC_POSTGRES_API_URL;
+const MONGO_BASE_URL = process.env.EXPO_PUBLIC_MONGO_API_URL;
 
 function attachAuthInterceptor(instance) {
   instance.interceptors.request.use((config) => {
