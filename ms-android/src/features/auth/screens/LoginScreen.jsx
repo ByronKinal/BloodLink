@@ -1,16 +1,19 @@
 import { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
+import { StyleSheet, Text, View } from 'react-native';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '../hooks/useAuth';
+import FormField from '../../../shared/components/FormField';
+import PrimaryButton from '../../../shared/components/PrimaryButton';
+import Banner from '../../../shared/components/Banner';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const { signIn } = useAuth();
   const [serverError, setServerError] = useState('');
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm({
     defaultValues: { emailOrUsername: '', password: '' },
   });
@@ -20,8 +23,7 @@ export default function LoginScreen() {
     try {
       await signIn(values);
     } catch (error) {
-      const message = error?.response?.data?.message || 'No se pudo iniciar sesión. Intenta de nuevo.';
-      setServerError(message);
+      setServerError(error?.response?.data?.message || 'No se pudo iniciar sesión. Intenta de nuevo.');
     }
   };
 
@@ -29,51 +31,30 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Iniciar sesión</Text>
 
-      <Controller
+      <FormField
         control={control}
         name="emailOrUsername"
+        placeholder="Correo o usuario"
+        autoCapitalize="none"
         rules={{ required: 'El correo o usuario es obligatorio' }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={styles.input}
-            placeholder="Correo o usuario"
-            autoCapitalize="none"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
       />
-      {errors.emailOrUsername ? (
-        <Text style={styles.errorText}>{errors.emailOrUsername.message}</Text>
-      ) : null}
 
-      <Controller
+      <FormField
         control={control}
         name="password"
-        rules={{
-          required: 'La contraseña es obligatoria',
-          minLength: { value: 6, message: 'Debe tener al menos 6 caracteres' },
-        }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            style={styles.input}
-            placeholder="Contraseña"
-            secureTextEntry
-            autoCapitalize="none"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
+        placeholder="Contraseña"
+        secureTextEntry
+        autoCapitalize="none"
+        rules={{ required: 'La contraseña es obligatoria' }}
       />
-      {errors.password ? <Text style={styles.errorText}>{errors.password.message}</Text> : null}
 
-      {serverError ? <Text style={styles.errorText}>{serverError}</Text> : null}
+      <Banner message={serverError} />
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)} disabled={isSubmitting}>
-        {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Ingresar</Text>}
-      </TouchableOpacity>
+      <PrimaryButton label="Ingresar" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+
+      <Text style={styles.linkText} onPress={() => navigation.navigate('Register')}>
+        ¿No tienes cuenta? Regístrate
+      </Text>
     </View>
   );
 }
@@ -91,30 +72,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     textAlign: 'center',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 8,
-    fontSize: 15,
-  },
-  errorText: {
+  linkText: {
     color: '#D42040',
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  button: {
-    backgroundColor: '#D42040',
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: 16,
   },
 });
