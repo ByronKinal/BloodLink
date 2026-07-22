@@ -10,7 +10,6 @@ import ProfilePicturePicker from '../../../shared/components/ProfilePicturePicke
 
 export default function RegisterScreen({ navigation }) {
   const [serverError, setServerError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [bloodType, setBloodType] = useState('');
   const [bloodTypeError, setBloodTypeError] = useState('');
   const [profilePicture, setProfilePicture] = useState(null);
@@ -38,7 +37,6 @@ export default function RegisterScreen({ navigation }) {
 
   const onSubmit = async (values) => {
     setServerError('');
-    setSuccessMessage('');
     setBloodTypeError('');
     setProfilePictureError('');
 
@@ -73,7 +71,7 @@ export default function RegisterScreen({ navigation }) {
 
     try {
       await authApi.register(formData);
-      setSuccessMessage('Registro exitoso. Revisa tu correo para verificar tu cuenta e inicia sesión.');
+      navigation.navigate('VerifyEmail', { email: values.email });
     } catch (error) {
       setServerError(error?.response?.data?.message || 'No se pudo completar el registro. Intenta de nuevo.');
     }
@@ -183,7 +181,6 @@ export default function RegisterScreen({ navigation }) {
       <ProfilePicturePicker value={profilePicture} onChange={setProfilePicture} error={profilePictureError} />
 
       <Banner message={serverError} />
-      <Banner message={successMessage} tone="success" />
 
       <PrimaryButton label="Registrarme" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
 

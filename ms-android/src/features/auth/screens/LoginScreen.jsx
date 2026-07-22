@@ -52,6 +52,10 @@ export default function LoginScreen({ navigation }) {
 
       <PrimaryButton label="Ingresar" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
 
+      <Text style={styles.linkText} onPress={() => navigation.navigate('ForgotPassword')}>
+        ¿Olvidaste tu contraseña?
+      </Text>
+
       <Text style={styles.linkText} onPress={() => navigation.navigate('Register')}>
         ¿No tienes cuenta? Regístrate
       </Text>
