@@ -35,6 +35,9 @@ importers:
       expo-dev-client:
         specifier: ~56.0.23
         version: 56.0.23(expo@56.0.16)(react-native@0.85.3(@babel/core@7.29.7)(react@19.2.3))
+      expo-device:
+        specifier: ~56.0.4
+        version: 56.0.4(expo@56.0.16)
       expo-image-picker:
         specifier: ~56.0.21
         version: 56.0.21(expo@56.0.16)
@@ -1196,6 +1199,11 @@ packages:
       expo: '*'
       react-native: '*'
 
+  expo-device@56.0.4:
+    resolution: {integrity: sha512-ucVcGPkvBrl2QHuy7XcYex2Y6BETvJ6TREutZrwLGUDnlvbpKS8KfQoNZOpvkyo5Nmm9RrasYQ0CrXmBHho2mg==}
+    peerDependencies:
+      expo: '*'
+
   expo-file-system@56.0.8:
     resolution: {integrity: sha512-NrH41/8snGIBSbYicwVLB4txPdgCATd7ZYhMAGS3YJZ9GbnduhlAoV4/YCbGayjrbpE9bJb/6wegPL/zmvRMnQ==}
     peerDependencies:
@@ -2194,6 +2202,10 @@ packages:
   type-fest@0.7.1:
     resolution: {integrity: sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg==}
     engines: {node: '>=8'}
+
+  ua-parser-js@0.7.41:
+    resolution: {integrity: sha512-O3oYyCMPYgNNHuO7Jjk3uacJWZF8loBgwrfd/5LE/HyZ3lUIOdniQ7DNXJcIgZbwioZxk0fLfI4EVnetdiX5jg==}
+    hasBin: true
 
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
@@ -3849,6 +3861,11 @@ snapshots:
       expo-dev-menu-interface: 56.0.1(expo@56.0.16)
       react-native: 0.85.3(@babel/core@7.29.7)(react@19.2.3)
 
+  expo-device@56.0.4(expo@56.0.16):
+    dependencies:
+      expo: 56.0.16(@babel/core@7.29.7)(@expo/dom-webview@56.0.6)(react-native@0.85.3(@babel/core@7.29.7)(react@19.2.3))(react@19.2.3)
+      ua-parser-js: 0.7.41
+
   expo-file-system@56.0.8(expo@56.0.16)(react-native@0.85.3(@babel/core@7.29.7)(react@19.2.3)):
     dependencies:
       expo: 56.0.16(@babel/core@7.29.7)(@expo/dom-webview@56.0.6)(react-native@0.85.3(@babel/core@7.29.7)(react@19.2.3))(react@19.2.3)
@@ -4898,6 +4915,8 @@ snapshots:
   type-fest@0.21.3: {}
 
   type-fest@0.7.1: {}
+
+  ua-parser-js@0.7.41: {}
 
   undici-types@8.3.0: {}
 
