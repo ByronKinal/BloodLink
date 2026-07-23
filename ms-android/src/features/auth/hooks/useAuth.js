@@ -10,6 +10,26 @@ export function useAuth() {
     await setSession({ accessToken, refreshToken, user });
   };
 
+  const signUp = async (formData) => {
+    return await authApi.register(formData);
+  };
+
+  const verifyEmail = async (payload) => {
+    return await authApi.verifyEmail(payload);
+  };
+
+  const resendVerification = async (payload) => {
+    return await authApi.resendVerification(payload);
+  };
+
+  const forgotPassword = async (payload) => {
+    return await authApi.forgotPassword(payload);
+  };
+
+  const resetPassword = async (payload) => {
+    return await authApi.resetPassword(payload);
+  };
+
   const signOut = async () => {
     try {
       if (refreshToken) {
@@ -27,6 +47,11 @@ export function useAuth() {
     isAuthenticated: Boolean(accessToken),
     isReady,
     signIn,
+    signUp,
+    verifyEmail,
+    resendVerification,
+    forgotPassword,
+    resetPassword,
     signOut,
   };
 }
