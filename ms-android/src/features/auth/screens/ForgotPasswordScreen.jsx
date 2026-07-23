@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useForm } from 'react-hook-form';
-import * as authApi from '../api/auth.api';
+import { useAuth } from '../hooks/useAuth';
 import FormField from '../../../shared/components/FormField';
 import PrimaryButton from '../../../shared/components/PrimaryButton';
 import Banner from '../../../shared/components/Banner';
 
 export default function ForgotPasswordScreen({ navigation }) {
+  const { forgotPassword } = useAuth();
   const [serverError, setServerError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -23,7 +24,7 @@ export default function ForgotPasswordScreen({ navigation }) {
     setServerError('');
     setSuccessMessage('');
     try {
-      await authApi.forgotPassword(values);
+      await forgotPassword(values);
       setSuccessMessage('Si el correo existe, te enviamos un enlace de recuperación.');
     } catch (error) {
       setServerError(error?.response?.data?.message || 'No se pudo procesar la solicitud.');

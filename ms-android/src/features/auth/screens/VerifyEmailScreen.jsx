@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useForm } from 'react-hook-form';
-import * as authApi from '../api/auth.api';
+import { useAuth } from '../hooks/useAuth';
 import FormField from '../../../shared/components/FormField';
 import PrimaryButton from '../../../shared/components/PrimaryButton';
 import Banner from '../../../shared/components/Banner';
@@ -9,6 +9,7 @@ import Banner from '../../../shared/components/Banner';
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function VerifyEmailScreen({ navigation, route }) {
+  const { verifyEmail, resendVerification } = useAuth();
   const [serverError, setServerError] = useState('');
   const [resendMessage, setResendMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
@@ -39,7 +40,7 @@ export default function VerifyEmailScreen({ navigation, route }) {
   const onSubmit = async (values) => {
     setServerError('');
     try {
-      await authApi.verifyEmail(values);
+      await verifyEmail(values);
       navigation.navigate('Login');
     } catch (error) {
       setServerError(error?.response?.data?.message || 'No se pudo verificar tu cuenta. Intenta de nuevo.');
@@ -59,7 +60,7 @@ export default function VerifyEmailScreen({ navigation, route }) {
     setIsResending(true);
 
     try {
-      await authApi.resendVerification({ email });
+      await resendVerification({ email });
       setResendMessage('Código reenviado. Revisa tu correo.');
       setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (error) {

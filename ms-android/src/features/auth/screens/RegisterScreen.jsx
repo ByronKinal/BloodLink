@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import { useForm } from 'react-hook-form';
-import * as authApi from '../api/auth.api';
+import { useAuth } from '../hooks/useAuth';
 import FormField from '../../../shared/components/FormField';
 import PrimaryButton from '../../../shared/components/PrimaryButton';
 import Banner from '../../../shared/components/Banner';
@@ -9,6 +9,7 @@ import BloodTypeSelector from '../../../shared/components/BloodTypeSelector';
 import ProfilePicturePicker from '../../../shared/components/ProfilePicturePicker';
 
 export default function RegisterScreen({ navigation }) {
+  const { signUp } = useAuth();
   const [serverError, setServerError] = useState('');
   const [bloodType, setBloodType] = useState('');
   const [bloodTypeError, setBloodTypeError] = useState('');
@@ -70,7 +71,7 @@ export default function RegisterScreen({ navigation }) {
     });
 
     try {
-      await authApi.register(formData);
+      await signUp(formData);
       navigation.navigate('VerifyEmail', { email: values.email });
     } catch (error) {
       setServerError(error?.response?.data?.message || 'No se pudo completar el registro. Intenta de nuevo.');
