@@ -73,7 +73,7 @@ export function EmployeeDashboardPage() {
       mainClassName="bg-gris1"
     >
       {active === 'inicio' ? (
-        <EmployeeDashboardHome user={user} />
+        <EmployeeDashboardHome user={user} onNavigate={setActive} />
       ) : active === 'triaje' ? (
         <TriageReviewPanel />
       ) : active === 'citas' ? (

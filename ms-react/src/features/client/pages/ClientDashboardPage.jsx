@@ -74,7 +74,7 @@ export function ClientDashboardPage() {
       mainClassName="bg-gris1"
     >
       {active === 'inicio' ? (
-        <ClientDashboardHome user={user} />
+        <ClientDashboardHome user={user} onNavigate={setActive} />
       ) : active === 'tienda' ? (
         <StoreCatalog />
       ) : active === 'triaje' ? (

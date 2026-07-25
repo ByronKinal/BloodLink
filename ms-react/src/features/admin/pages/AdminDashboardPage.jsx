@@ -82,7 +82,7 @@ export function AdminDashboardPage() {
       mainClassName="bg-[#F5F3F8]"
     >
       {active === 'inicio' ? (
-        <AdminDashboardHome user={user} />
+        <AdminDashboardHome user={user} onNavigate={setActive} />
       ) : active === 'usuarios' ? (
         <AdminUsersSection currentUserId={user.id} />
       ) : active === 'premios' ? (
