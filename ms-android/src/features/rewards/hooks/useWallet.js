@@ -1,79 +1,92 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Alert } from 'react-native';
 import { useAuthStore } from '../../auth/store/authStore';
 import * as rewardsApi from '../api/rewards.api';
 
 /**
- * Hook para la gestión de la Billetera de Puntos (BloodPoints) y Recompensas del donante.
+ * Hook para la gestión de la Billetera de Puntos (BloodPoints) y el catálogo de Recompensas del donante.
  */
 export function useWallet() {
   const user = useAuthStore((state) => state.user);
+  const userId = user?.id || user?._id;
+
   const [wallet, setWallet] = useState(null);
+  const [loadingWallet, setLoadingWallet] = useState(true);
+
   const [rewardsCatalog, setRewardsCatalog] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingCatalog, setLoadingCatalog] = useState(true);
+  const [catalogError, setCatalogError] = useState(null);
+
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
-  const [claimLoading, setClaimLoading] = useState(false);
+  const [claimingRewardId, setClaimingRewardId] = useState(null);
 
-  const fetchWalletData = useCallback(async () => {
+  const fetchWallet = useCallback(async () => {
+    if (!userId) return;
+    setLoadingWallet(true);
     try {
-      setError(null);
-      const userId = user?.id || user?._id || 'me';
-
-      const [walletData, catalogData] = await Promise.allSettled([
-        rewardsApi.getWallet(userId),
-        rewardsApi.getAvailableRewards(),
-      ]);
-
-      if (walletData.status === 'fulfilled') {
-        setWallet(walletData.value);
-      } else {
-        setWallet({ balance: 0, points: 0 });
-      }
-
-      if (catalogData.status === 'fulfilled') {
-        setRewardsCatalog(catalogData.value);
-      }
+      const data = await rewardsApi.getWallet(userId);
+      setWallet(data);
     } catch (err) {
-      console.log('Error fetching wallet data:', err?.message);
-      setError('No se pudo cargar la información de la billetera.');
-      setWallet({ balance: 0, points: 0 });
+      console.log('Error fetching wallet:', err?.message);
+      setWallet({ balancePoints: 0, totalEarnedPoints: 0 });
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setLoadingWallet(false);
     }
-  }, [user]);
+  }, [userId]);
+
+  const fetchCatalog = useCallback(async () => {
+    setLoadingCatalog(true);
+    setCatalogError(null);
+    try {
+      const data = await rewardsApi.getAvailableRewards();
+      setRewardsCatalog(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.log('Error fetching rewards catalog:', err?.message);
+      setCatalogError('No se pudo cargar el catálogo de recompensas.');
+    } finally {
+      setLoadingCatalog(false);
+    }
+  }, []);
+
+  const fetchAll = useCallback(async () => {
+    await Promise.allSettled([fetchWallet(), fetchCatalog()]);
+    setRefreshing(false);
+  }, [fetchWallet, fetchCatalog]);
 
   useEffect(() => {
-    fetchWalletData();
-  }, [fetchWalletData]);
+    fetchAll();
+  }, [fetchAll]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchWalletData();
-  }, [fetchWalletData]);
+    fetchAll();
+  }, [fetchAll]);
 
-  const handleClaimReward = async (rewardId) => {
-    setClaimLoading(true);
+  const handleClaimReward = async (reward) => {
+    setClaimingRewardId(reward.id);
     try {
-      const result = await rewardsApi.claimReward(rewardId);
-      await fetchWalletData();
-      return { success: true, data: result };
+      await rewardsApi.claimReward(reward.id);
+      Alert.alert('Canje exitoso', `Reclamaste "${reward.name}" correctamente.`);
+      await fetchAll();
+      return { success: true };
     } catch (err) {
-      console.log('Error claiming reward:', err?.message);
-      return { success: false, error: err?.response?.data?.message || 'No se pudo canjear el beneficio.' };
+      const message = err?.response?.data?.message || 'No se pudo canjear el beneficio.';
+      Alert.alert('No se pudo canjear', message);
+      return { success: false, error: message };
     } finally {
-      setClaimLoading(false);
+      setClaimingRewardId(null);
     }
   };
 
   return {
     wallet,
+    loadingWallet,
     rewardsCatalog,
-    loading,
+    loadingCatalog,
+    catalogError,
     refreshing,
-    error,
-    claimLoading,
-    refetch: fetchWalletData,
+    claimingRewardId,
+    refetch: fetchAll,
     onRefresh,
     claimReward: handleClaimReward,
   };

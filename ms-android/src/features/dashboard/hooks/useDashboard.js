@@ -53,13 +53,13 @@ export function useDashboard() {
     setLoadingWallet(true);
     setErrorWallet(null);
     try {
-      const userId = user?.id || user?._id || 'me';
-      const res = await rewardsApi.getWallet(userId);
-      setWallet(res.data?.data || res.data || { balance: 0 });
+      const userId = user?.id || user?._id;
+      const data = await rewardsApi.getWallet(userId);
+      setWallet(data);
     } catch (err) {
       console.log('Dashboard Widget Wallet error:', err?.message);
       setErrorWallet('No disponible');
-      setWallet({ balance: 0 });
+      setWallet({ balancePoints: 0, totalEarnedPoints: 0 });
     } finally {
       setLoadingWallet(false);
     }
