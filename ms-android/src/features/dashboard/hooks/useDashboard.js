@@ -4,6 +4,7 @@ import * as appointmentsApi from '../../appointments/api/appointments.api';
 import * as rewardsApi from '../../rewards/api/rewards.api';
 import * as triageApi from '../../triage/api/triage.api';
 import * as dashboardApi from '../api/dashboard.api';
+import { isTriageApto } from '../../../shared/utils/triageEligibility';
 
 export function useDashboard() {
   const user = useAuthStore((state) => state.user);
@@ -126,10 +127,7 @@ export function useDashboard() {
     if (errorTriage) return { color: '#D97706', text: 'Triage pendiente de realizar', bg: '#FEF3C7', icon: 'alert-circle-outline' };
     if (!triage) return { color: '#D97706', text: 'Realiza tu Triage clínico', bg: '#FEF3C7', icon: 'clipboard-outline' };
 
-    const status = (triage.estado || triage.status || triage.resultado || '').toLowerCase();
-    const isEligible = triage.esApto ?? triage.isEligible ?? status.includes('apto') ?? true;
-
-    if (isEligible) {
+    if (isTriageApto(triage)) {
       return { color: '#16A34A', text: 'Elegible para Donar', bg: '#DCFCE7', icon: 'checkmark-circle-outline' };
     } else {
       return { color: '#DC2626', text: 'No Elegible por el momento', bg: '#FEE2E2', icon: 'close-circle-outline' };

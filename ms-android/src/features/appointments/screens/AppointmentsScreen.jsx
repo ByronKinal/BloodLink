@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,47 +10,87 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppointments } from '../hooks/useAppointments';
+import { useCreateAppointment } from '../hooks/useCreateAppointment';
 import AppointmentCard from '../components/AppointmentCard';
+import CreateAppointmentForm from '../components/CreateAppointmentForm';
+import AppointmentEligibilityGate from '../components/AppointmentEligibilityGate';
+import TabSwitcher from '../../../shared/components/TabSwitcher';
 
-export default function AppointmentsScreen() {
+const APPOINTMENT_TABS = [
+  { value: 'list', label: 'Mis Citas' },
+  { value: 'create', label: 'Agendar Nueva' },
+];
+
+export default function AppointmentsScreen({ navigation }) {
+  const [mode, setMode] = useState('list'); // 'list' | 'create'
   const { appointments, loading, refreshing, error, refetch, onRefresh } = useAppointments();
+
+  const handleCreated = () => {
+    setMode('list');
+    refetch();
+  };
+
+  const {
+    loadingEligibility,
+    hasTriage,
+    isApto,
+    submitError,
+    handleSubmit,
+    refetchEligibility,
+    ...createFormProps
+  } = useCreateAppointment({ onCreated: handleCreated });
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Mis Citas de Donación</Text>
         <Text style={styles.headerSubtitle}>Gestiona tus agendamientos de donación de sangre</Text>
+
+        <TabSwitcher tabs={APPOINTMENT_TABS} activeTab={mode} onChange={setMode} />
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#D42040']} />}
-      >
-        {loading ? (
-          <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color="#D42040" />
-            <Text style={styles.loadingText}>Cargando tus citas...</Text>
-          </View>
-        ) : error ? (
-          <View style={styles.errorCard}>
-            <Ionicons name="alert-circle-outline" size={48} color="#E53935" />
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity style={styles.retryButton} onPress={refetch}>
-              <Text style={styles.retryButtonText}>Reintentar</Text>
-            </TouchableOpacity>
-          </View>
-        ) : appointments.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Ionicons name="calendar-outline" size={64} color="#9E9E9E" />
-            <Text style={styles.emptyTitle}>No tienes citas programadas</Text>
-            <Text style={styles.emptySub}>Programa una nueva cita en tu centro de donación más cercano.</Text>
-          </View>
-        ) : (
-          appointments.map((item, index) => (
-            <AppointmentCard key={item._id || item.id || index} item={item} />
-          ))
-        )}
-      </ScrollView>
+      {mode === 'create' ? (
+        <ScrollView contentContainerStyle={styles.content}>
+          {loadingEligibility ? (
+            <View style={styles.centerContainer}>
+              <ActivityIndicator size="large" color="#D42040" />
+              <Text style={styles.loadingText}>Verificando tu elegibilidad...</Text>
+            </View>
+          ) : !isApto ? (
+            <AppointmentEligibilityGate hasTriage={hasTriage} onGoToTriage={() => navigation?.navigate('Triage')} />
+          ) : (
+            <CreateAppointmentForm {...createFormProps} submitError={submitError} onSubmit={handleSubmit} />
+          )}
+        </ScrollView>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.content}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#D42040']} />}
+        >
+          {loading ? (
+            <View style={styles.centerContainer}>
+              <ActivityIndicator size="large" color="#D42040" />
+              <Text style={styles.loadingText}>Cargando tus citas...</Text>
+            </View>
+          ) : error ? (
+            <View style={styles.errorCard}>
+              <Ionicons name="alert-circle-outline" size={48} color="#E53935" />
+              <Text style={styles.errorText}>{error}</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={refetch}>
+                <Text style={styles.retryButtonText}>Reintentar</Text>
+              </TouchableOpacity>
+            </View>
+          ) : appointments.length === 0 ? (
+            <View style={styles.emptyCard}>
+              <Ionicons name="calendar-outline" size={64} color="#9E9E9E" />
+              <Text style={styles.emptyTitle}>No tienes citas programadas</Text>
+              <Text style={styles.emptySub}>Programa una nueva cita en tu centro de donación más cercano.</Text>
+            </View>
+          ) : (
+            appointments.map((item, index) => <AppointmentCard key={item._id || item.id || index} item={item} />)
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 }
