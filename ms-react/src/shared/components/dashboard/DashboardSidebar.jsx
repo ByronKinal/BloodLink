@@ -1,4 +1,5 @@
 import { BrandLogo } from '../BrandLogo.jsx'
+import { UserAvatar } from '../UserAvatar.jsx'
 
 export function DashboardSidebar({
   user,
@@ -16,9 +17,8 @@ export function DashboardSidebar({
   userCardStyle,
   accent = '#D42040',
   logoutTone = 'rgba(255,100,100,0.65)',
+  onProfileClick,
 }) {
-  const fallbackInitials = initials || displayName?.[0]?.toUpperCase() || 'A'
-
   return (
     <aside
       className={`w-full flex-shrink-0 h-auto lg:h-screen flex flex-col transition-[width] duration-300 ${collapsed ? 'lg:w-[82px]' : 'lg:w-[240px]'} ${sidebarClassName}`}
@@ -36,22 +36,18 @@ export function DashboardSidebar({
         </button>
       </div>
 
-      <div className={`mx-3 mt-4 rounded-[12px] ${collapsed ? 'px-3 py-4' : 'px-4 py-4'}`} style={userCardStyle}>
+      <button
+        onClick={onProfileClick}
+        className={`mx-3 mt-4 rounded-[12px] ${collapsed ? 'px-3 py-4' : 'px-4 py-4'} border-none text-left cursor-pointer transition-all duration-150 hover:brightness-110`}
+        style={{ ...userCardStyle, cursor: 'pointer' }}
+        title="Configurar perfil"
+      >
         <div className="flex items-center gap-3">
-          {user?.profilePicture ? (
-            <img
-              src={user.profilePicture}
-              alt={displayName}
-              className="w-9 h-9 rounded-full object-cover flex-shrink-0"
-            />
-          ) : (
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-[13px] font-bold text-white flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg,#D42040,#B81C32)' }}
-            >
-              {fallbackInitials}
-            </div>
-          )}
+          <UserAvatar
+            src={user?.profilePicture}
+            displayName={displayName}
+            className="w-9 h-9"
+          />
 
           {collapsed ? null : (
             <div className="min-w-0">
@@ -65,7 +61,7 @@ export function DashboardSidebar({
             </div>
           )}
         </div>
-      </div>
+      </button>
 
       <nav className={`flex-1 mt-4 space-y-[2px] ${collapsed ? 'px-2' : 'px-3'}`}>
         {navItems.map(({ id, label, icon: Icon }) => {

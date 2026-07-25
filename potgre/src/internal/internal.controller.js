@@ -1,7 +1,11 @@
 import { asyncHandler } from '../../middlewares/errorHandler.js';
 import { findUserById, findUsersByIds } from '../../helpers/user-db.js';
 import { getUserRoleNames, getUsersByRole } from '../../helpers/role-db.js';
-import { awardPointsForDonation, getWalletByUserId } from '../../helpers/incentive-operations.js';
+import {
+  awardPointsForDonation,
+  awardPointsForAppointmentConfirmation,
+  getWalletByUserId,
+} from '../../helpers/incentive-operations.js';
 
 const parseIds = (value) =>
   Array.from(
@@ -74,6 +78,15 @@ export const awardDonationPoints = asyncHandler(async (req, res) => {
   });
 });
 
+export const awardConfirmationPoints = asyncHandler(async (req, res) => {
+  const result = await awardPointsForAppointmentConfirmation(req.body);
+
+  return res.status(200).json({
+    success: true,
+    data: result,
+  });
+});
+
 export const getInternalUsersByRole = asyncHandler(async (req, res) => {
   const users = await getUsersByRole(req.params.roleName);
 
@@ -81,4 +94,4 @@ export const getInternalUsersByRole = asyncHandler(async (req, res) => {
     success: true,
     data: users,
   });
-});
+});

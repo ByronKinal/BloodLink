@@ -739,10 +739,10 @@ export const validateAdminUpdateUser = [
     .toBoolean(),
 
   body().custom((_, { req }) => {
-    const allowed = ['name', 'surname', 'phone', 'zone', 'municipality', 'status'];
+    const allowed = ['name', 'surname', 'phone', 'zone', 'municipality', 'status', 'profilePicture'];
     const sent = Object.keys(req.body || {});
 
-    if (sent.length === 0) {
+    if (sent.length === 0 && !req.file) {
       throw new Error('Debes enviar al menos un campo para actualizar');
     }
 

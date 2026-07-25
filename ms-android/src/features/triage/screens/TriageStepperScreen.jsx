@@ -7,6 +7,7 @@ import TriageStep2Health from '../components/TriageStep2Health';
 import TriageStep3Habits from '../components/TriageStep3Habits';
 import TriageResultView from '../components/TriageResultView';
 import TriageHistoryView from '../components/TriageHistoryView';
+import TriageLockedView from '../components/TriageLockedView';
 
 export default function TriageStepperScreen() {
   const {
@@ -24,6 +25,7 @@ export default function TriageStepperScreen() {
     history,
     loadingHistory,
     historyError,
+    triageLock,
   } = useTriage();
 
   return (
@@ -34,6 +36,8 @@ export default function TriageStepperScreen() {
         <TriageHistoryView history={history} loading={loadingHistory} error={historyError} />
       ) : result ? (
         <TriageResultView result={result} onReset={handleResetForm} />
+      ) : triageLock.isLocked ? (
+        <TriageLockedView message={triageLock.message} />
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
           {/* Progress Indicator */}

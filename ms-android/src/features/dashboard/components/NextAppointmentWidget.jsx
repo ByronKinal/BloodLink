@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { formatAppointmentDate, getAppointmentStatusInfo } from '../../../shared/utils/appointment';
 
 export default function NextAppointmentWidget({ loading, error, appointment, onNavigate }) {
   return (
@@ -21,8 +22,10 @@ export default function NextAppointmentWidget({ loading, error, appointment, onN
         <Text style={styles.widgetErrorText}>{error}</Text>
       ) : appointment ? (
         <View style={styles.appointmentContent}>
-          <Text style={styles.appointmentHospital}>{appointment.location || appointment.bancoSangre || 'Centro de Donación'}</Text>
-          <Text style={styles.appointmentTime}>{appointment.scheduledAt || appointment.fecha || 'Fecha por confirmar'}</Text>
+          <Text style={styles.appointmentDateText}>{formatAppointmentDate(appointment.date)}</Text>
+          <Text style={styles.appointmentTime}>
+            {appointment.time || 'Hora por confirmar'} · {getAppointmentStatusInfo(appointment.status).label}
+          </Text>
         </View>
       ) : (
         <View style={styles.emptyWidget}>
@@ -67,7 +70,7 @@ const styles = StyleSheet.create({
   appointmentContent: {
     paddingVertical: 4,
   },
-  appointmentHospital: {
+  appointmentDateText: {
     fontSize: 15,
     fontWeight: 'bold',
     color: '#1E293B',

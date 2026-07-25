@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DashboardPlaceholderSection } from '../../../shared/components/dashboard/DashboardPlaceholderSection.jsx'
 import { DashboardShell } from '../../../shared/components/dashboard/DashboardShell.jsx'
@@ -8,11 +9,12 @@ import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { AdminUsersSection } from '../components/AdminUsersSection.jsx'
 import { AdminRewardsSection } from '../components/AdminRewardsSection.jsx'
 import { AdminDashboardHome } from '../components/AdminDashboardHome.jsx'
+import { EmployeeInventorySection } from '../../employee/components/EmployeeInventorySection.jsx'
+import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   AdminIconBox,
   AdminIconChart,
   AdminIconDrop,
-  AdminIconGear,
   AdminIconGift,
   AdminIconHome,
   AdminIconUsers,
@@ -20,12 +22,11 @@ import {
 
 const NAV_ITEMS = [
   { id: 'inicio', label: 'Inicio', icon: AdminIconHome },
-  { id: 'usuarios', label: 'Usuarios', icon: AdminIconUsers },
+  { id: 'usuarios', label: 'Usuarios', icon: AdminIconUsers, roles: ['ADMIN_ROLE'] },
   { id: 'donaciones', label: 'Donaciones', icon: AdminIconDrop },
   { id: 'inventario', label: 'Inventario', icon: AdminIconBox },
   { id: 'premios', label: 'Premios', icon: AdminIconGift },
   { id: 'reportes', label: 'Reportes', icon: AdminIconChart },
-  { id: 'config', label: 'Configuración', icon: AdminIconGear },
 ]
 
 const ROLE_LABEL = {
@@ -35,14 +36,28 @@ const ROLE_LABEL = {
 
 export function AdminDashboardPage() {
   const navigate = useNavigate()
-  const auth = getStoredAuth()
+  const [auth, setAuth] = useState(() => getStoredAuth())
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isConfigOpen, setIsConfigOpen] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
     navigate('/login')
+  }
+
+  useEffect(() => {
+    const onGlobalLogout = () => {
+      console.log('[AdminDashboardPage] bl_logout received, executing handleLogout')
+      handleLogout()
+    }
+    console.log('[AdminDashboardPage] registering bl_logout listener')
+    window.addEventListener('bl_logout', onGlobalLogout)
+    return () => window.removeEventListener('bl_logout', onGlobalLogout)
+  }, [])
+  const handleProfileUpdate = () => {
+    setAuth(getStoredAuth())
   }
 
   const displayName = user.name || user.username || 'Admin'
@@ -50,49 +65,68 @@ export function AdminDashboardPage() {
   const roleLabel = ROLE_LABEL[user.role] ?? 'Admin'
   const currentSection = NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Dashboard'
 
+  // Filtrar nav items según el rol del usuario
+  const visibleNavItems = NAV_ITEMS.filter((item) => {
+    if (!item.roles) return true
+    return item.roles.includes(user.role)
+  })
+
   return (
-    <DashboardShell
-      sidebar={
-        <DashboardSidebar
-          user={user}
-          displayName={displayName}
-          initials={initials}
-          roleLabel={roleLabel}
-          navItems={NAV_ITEMS}
-          activeId={active}
-          onNavigate={setActive}
-          onLogout={handleLogout}
-          collapsed={sidebarCollapsed}
-          onToggleCollapse={() => setSidebarCollapsed((current) => !current)}
-          sidebarStyle={{ background: '#111018', borderRight: '1px solid rgba(212,32,64,0.12)' }}
-          userCardStyle={{ background: 'rgba(212,32,64,0.08)', border: '1px solid rgba(212,32,64,0.2)' }}
-          logoutTone="rgba(255,120,120,0.6)"
-        />
-      }
-      topbar={
-        <DashboardTopbar
-          title={currentSection}
-          subtitle="BloodLink · Panel de administración"
-          displayName={displayName}
-          email={user.email}
-          initials={initials}
-          profilePicture={user.profilePicture}
-        />
-      }
-      mainClassName="bg-[#F5F3F8]"
-    >
-      {active === 'inicio' ? (
-        <AdminDashboardHome user={user} />
-      ) : active === 'usuarios' ? (
-        <AdminUsersSection currentUserId={user.id} />
-      ) : active === 'premios' ? (
-        <AdminRewardsSection />
-      ) : (
-        <DashboardPlaceholderSection
-          title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}
-          description="Esta sección se conecta cuando el CRUD de administración entre en desarrollo."
-        />
-      )}
-    </DashboardShell>
+    <>
+      <DashboardShell
+        sidebar={
+          <DashboardSidebar
+            user={user}
+            displayName={displayName}
+            initials={initials}
+            roleLabel={roleLabel}
+            navItems={visibleNavItems}
+            activeId={active}
+            onNavigate={setActive}
+            onLogout={handleLogout}
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed((current) => !current)}
+            sidebarStyle={{ background: '#111018', borderRight: '1px solid rgba(212,32,64,0.12)' }}
+            userCardStyle={{ background: 'rgba(212,32,64,0.08)', border: '1px solid rgba(212,32,64,0.2)' }}
+            logoutTone="rgba(255,120,120,0.6)"
+            onProfileClick={() => setIsConfigOpen(true)}
+          />
+        }
+        topbar={
+          <DashboardTopbar
+            title={currentSection}
+            subtitle="BloodLink · Panel de administración"
+            displayName={displayName}
+            email={user.email}
+            initials={initials}
+            profilePicture={user.profilePicture}
+            onProfileClick={() => setIsConfigOpen(true)}
+          />
+        }
+        mainClassName="bg-[#F5F3F8]"
+      >
+        {active === 'inicio' ? (
+          <AdminDashboardHome user={user} />
+        ) : active === 'usuarios' ? (
+          <AdminUsersSection currentUserId={user.id} />
+        ) : active === 'premios' ? (
+          <AdminRewardsSection />
+        ) : active === 'inventario' ? (
+          <EmployeeInventorySection />
+        ) : (
+          <DashboardPlaceholderSection
+            title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}
+            description="Esta sección se conecta cuando el CRUD de administración entre en desarrollo."
+          />
+        )}
+      </DashboardShell>
+
+      <ProfileConfigModal
+        open={isConfigOpen}
+        onClose={() => setIsConfigOpen(false)}
+        user={user}
+        onUpdate={handleProfileUpdate}
+      />
+    </>
   )
 }

@@ -1,13 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { formatAppointmentDate, getAppointmentStatusInfo } from '../../../shared/utils/appointment';
 
 export default function AppointmentCard({ item }) {
-  const dateStr = item.scheduledAt || item.fecha || item.createdAt || 'Fecha pendiente';
-  const statusStr = item.status || item.estado || 'PENDIENTE';
-  const locationStr = item.location || item.lugar || item.bancoSangre || 'Centro de Donación Principal';
-
-  const isSuccess = statusStr.toUpperCase() === 'COMPLETADA';
+  const statusInfo = getAppointmentStatusInfo(item.status);
 
   return (
     <View style={styles.appointmentCard}>
@@ -16,13 +13,11 @@ export default function AppointmentCard({ item }) {
           <Ionicons name="water" size={24} color="#D42040" />
         </View>
         <View style={styles.cardHeaderInfo}>
-          <Text style={styles.hospitalName}>{locationStr}</Text>
-          <Text style={styles.appointmentDate}>{dateStr}</Text>
+          <Text style={styles.appointmentDate}>{formatAppointmentDate(item.date)}</Text>
+          <Text style={styles.appointmentTime}>{item.time || 'Hora por confirmar'}</Text>
         </View>
-        <View style={[styles.badge, isSuccess ? styles.badgeSuccess : styles.badgePending]}>
-          <Text style={[styles.badgeText, isSuccess ? styles.badgeTextSuccess : styles.badgeTextPending]}>
-            {statusStr}
-          </Text>
+        <View style={[styles.badge, { backgroundColor: statusInfo.bg }]}>
+          <Text style={[styles.badgeText, { color: statusInfo.color }]}>{statusInfo.label}</Text>
         </View>
       </View>
     </View>
@@ -56,35 +51,27 @@ const styles = StyleSheet.create({
   cardHeaderInfo: {
     flex: 1,
   },
-  hospitalName: {
+  appointmentDate: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#1E293B',
+    textTransform: 'capitalize',
   },
-  appointmentDate: {
+  appointmentTime: {
     fontSize: 13,
     color: '#64748B',
     marginTop: 2,
   },
   badge: {
+    flexShrink: 1,
+    marginLeft: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
-  badgePending: {
-    backgroundColor: '#FEF3C7',
-  },
-  badgeSuccess: {
-    backgroundColor: '#D1FAE5',
-  },
   badgeText: {
     fontSize: 11,
     fontWeight: 'bold',
-  },
-  badgeTextPending: {
-    color: '#D97706',
-  },
-  badgeTextSuccess: {
-    color: '#16A34A',
+    textAlign: 'center',
   },
 });

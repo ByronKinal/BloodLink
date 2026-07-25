@@ -9,7 +9,7 @@ export default function WalletBalanceCard({ wallet, loading }) {
         <ActivityIndicator size="small" color="#FFF" style={{ marginVertical: 10 }} />
       ) : (
         <Text style={styles.cardBalance}>
-          {wallet?.balance ?? wallet?.points ?? 0} <Text style={styles.ptsText}>pts</Text>
+          {wallet?.balancePoints ?? 0} <Text style={styles.ptsText}>pts</Text>
         </Text>
       )}
       <Text style={styles.cardFooter}>Canjeables por beneficios médicos y farmacéuticos</Text>

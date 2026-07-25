@@ -11,6 +11,7 @@ import {
   getUserRoleNames,
   getUsersByRole as getUsersByRoleRepo,
 } from './role-db.js';
+import { awardPointsForAppointmentConfirmation } from './incentive-operations.js';
 
 const isValidDateString = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '');
 
@@ -260,9 +261,17 @@ export const getAllAppointmentsHelper = async ({
   assertMongoReady();
 
   const requesterRoles = await getUserRoleNames(requesterUserId);
-  assertRoles(requesterRoles, [STAFF_ROLE, ADMIN_ROLE]);
+  assertRoles(requesterRoles, [STAFF_ROLE, ADMIN_ROLE, DONOR_ROLE]);
+
+  const isStaffOrAdmin = requesterRoles.some((role) =>
+    [STAFF_ROLE, ADMIN_ROLE].includes(role)
+  );
 
   const query = {};
+
+  if (!isStaffOrAdmin) {
+    query.donorUserId = requesterUserId;
+  }
 
   if (date) {
     query.appointmentDate = normalizeDate(date);
@@ -370,9 +379,19 @@ export const confirmAppointmentHelper = async ({
     replacedStaff = true;
   }
 
+  const shouldAwardConfirmationPoints = !appointment.status;
+
   appointment.status = true;
   appointment.staffUserId = assignedStaffUserId;
   await appointment.save();
+
+  if (shouldAwardConfirmationPoints) {
+    await awardPointsForAppointmentConfirmation({
+      userId: appointment.donorUserId,
+      appointmentId: appointment._id,
+      points: 100,
+    });
+  }
 
   return {
     appointment: await hydrateAppointment(appointment),
