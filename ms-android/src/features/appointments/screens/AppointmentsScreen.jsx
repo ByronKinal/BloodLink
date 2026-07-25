@@ -83,8 +83,11 @@ export default function AppointmentsScreen({ navigation }) {
           ) : appointments.length === 0 ? (
             <View style={styles.emptyCard}>
               <Ionicons name="calendar-outline" size={64} color="#9E9E9E" />
-              <Text style={styles.emptyTitle}>No tienes citas programadas</Text>
+              <Text style={styles.emptyTitle}>Aún no tienes citas agendadas</Text>
               <Text style={styles.emptySub}>Programa una nueva cita en tu centro de donación más cercano.</Text>
+              <TouchableOpacity style={styles.emptyActionBtn} onPress={() => setMode('create')}>
+                <Text style={styles.emptyActionBtnText}>Agendar mi cita</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             appointments.map((item, index) => <AppointmentCard key={item._id || item.id || index} item={item} />)
@@ -175,5 +178,17 @@ const styles = StyleSheet.create({
     color: '#64748B',
     textAlign: 'center',
     marginTop: 8,
+  },
+  emptyActionBtn: {
+    backgroundColor: '#D42040',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 18,
+  },
+  emptyActionBtnText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });

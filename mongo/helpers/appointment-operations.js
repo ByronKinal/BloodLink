@@ -261,9 +261,17 @@ export const getAllAppointmentsHelper = async ({
   assertMongoReady();
 
   const requesterRoles = await getUserRoleNames(requesterUserId);
-  assertRoles(requesterRoles, [STAFF_ROLE, ADMIN_ROLE]);
+  assertRoles(requesterRoles, [STAFF_ROLE, ADMIN_ROLE, DONOR_ROLE]);
+
+  const isStaffOrAdmin = requesterRoles.some((role) =>
+    [STAFF_ROLE, ADMIN_ROLE].includes(role)
+  );
 
   const query = {};
+
+  if (!isStaffOrAdmin) {
+    query.donorUserId = requesterUserId;
+  }
 
   if (date) {
     query.appointmentDate = normalizeDate(date);

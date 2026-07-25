@@ -5,6 +5,7 @@ import * as rewardsApi from '../../rewards/api/rewards.api';
 import * as triageApi from '../../triage/api/triage.api';
 import * as dashboardApi from '../api/dashboard.api';
 import { isTriageApto } from '../../../shared/utils/triageEligibility';
+import { isAppointmentInPast } from '../../../shared/utils/appointment';
 
 export function useDashboard() {
   const user = useAuthStore((state) => state.user);
@@ -36,13 +37,9 @@ export function useDashboard() {
     setLoadingAppointment(true);
     setErrorAppointment(null);
     try {
-      const res = await appointmentsApi.getAppointments();
-      const list = res.data?.data || res.data || [];
-      if (Array.isArray(list) && list.length > 0) {
-        setAppointment(list[0]);
-      } else {
-        setAppointment(null);
-      }
+      const list = await appointmentsApi.getAppointments();
+      const upcoming = Array.isArray(list) ? list.find((item) => !isAppointmentInPast(item)) : null;
+      setAppointment(upcoming || null);
     } catch (err) {
       console.log('Dashboard Widget Appointment error:', err?.message);
       setErrorAppointment('No se pudo obtener la cita.');
