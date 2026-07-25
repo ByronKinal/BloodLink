@@ -7,18 +7,21 @@ import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardT
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { ClientDashboardHome } from '../components/ClientDashboardHome.jsx'
 import { StoreCatalog } from '../../store/components/StoreCatalog.jsx'
+import { TriageSection } from '../components/triage/TriageSection.jsx'
 import {
   ClientIconCalendar,
   ClientIconDrop,
   ClientIconGear,
   ClientIconGift,
   ClientIconHome,
+  ClientIconPulse,
   ClientIconUser,
 } from '../components/ClientDashboardIcons.jsx'
 
 const NAV_ITEMS = [
   { id: 'inicio', label: 'Inicio', icon: ClientIconHome },
   { id: 'perfil', label: 'Mi perfil', icon: ClientIconUser },
+  { id: 'triaje', label: 'Triaje médico', icon: ClientIconPulse },
   { id: 'donaciones', label: 'Mis donaciones', icon: ClientIconDrop },
   { id: 'tienda', label: 'Tienda', icon: ClientIconGift },
   { id: 'citas', label: 'Agendar cita', icon: ClientIconCalendar },
@@ -73,6 +76,8 @@ export function ClientDashboardPage() {
         <ClientDashboardHome user={user} />
       ) : active === 'tienda' ? (
         <StoreCatalog />
+      ) : active === 'triaje' ? (
+        <TriageSection />
       ) : (
         <DashboardPlaceholderSection
           title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}
