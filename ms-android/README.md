@@ -1,0 +1,2 @@
+EXPO_PUBLIC_POSTGRES_API_URL=http://localhost:3007
+EXPO_PUBLIC_MONGO_API_URL=http://localhost:3006
