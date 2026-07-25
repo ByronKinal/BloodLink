@@ -39,7 +39,7 @@ const toDaysBetween = (fromDate, toDate) => {
   return Math.floor(diff / DAY_IN_MS);
 };
 
-const sanitizeTriage = (triage) => ({
+export const sanitizeTriage = (triage) => ({
   id: String(triage._id),
   accountId: triage.accountId,
   edadAnios: triage.ageYears,
@@ -62,6 +62,7 @@ const sanitizeTriage = (triage) => ({
   fechaUltimaCirugia: triage.lastSurgeryDate,
   fechaUltimaDonacion: triage.lastDonationDate,
   evaluation: triage.evaluation,
+  reviewStatus: triage.reviewStatus,
   createdAt: triage.createdAt,
   updatedAt: triage.updatedAt,
 });

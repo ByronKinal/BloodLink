@@ -5,7 +5,7 @@ import { TriageStepPersonalInfo } from './TriageStepPersonalInfo.jsx'
 import { TriageStepVitals } from './TriageStepVitals.jsx'
 import { TriageStepMedical } from './TriageStepMedical.jsx'
 import { TriageStepHabits } from './TriageStepHabits.jsx'
-import { TriageResultBanner } from './TriageResultBanner.jsx'
+import { TriageResultBanner } from '../../../../shared/components/triage/TriageResultBanner.jsx'
 
 const STEP_COMPONENTS = {
   personal: TriageStepPersonalInfo,

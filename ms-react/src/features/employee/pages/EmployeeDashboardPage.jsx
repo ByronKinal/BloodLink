@@ -6,17 +6,20 @@ import { DashboardSidebar } from '../../../shared/components/dashboard/Dashboard
 import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardTopbar.jsx'
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { EmployeeDashboardHome } from '../components/EmployeeDashboardHome.jsx'
+import { TriageReviewPanel } from '../components/triage/TriageReviewPanel.jsx'
 import {
   EmployeeIconHome,
   EmployeeIconDrop,
   EmployeeIconClipboard,
   EmployeeIconCalendar,
+  EmployeeIconPulse,
   EmployeeIconUser,
   EmployeeIconGear,
 } from '../components/EmployeeDashboardIcons.jsx'
 
 const NAV_ITEMS = [
   { id: 'inicio',      label: 'Inicio',           icon: EmployeeIconHome },
+  { id: 'triaje',      label: 'Revisión de triaje', icon: EmployeeIconPulse },
   { id: 'donaciones',  label: 'Donaciones',        icon: EmployeeIconDrop },
   { id: 'inventario',  label: 'Inventario',        icon: EmployeeIconClipboard },
   { id: 'citas',       label: 'Citas',             icon: EmployeeIconCalendar },
@@ -70,6 +73,8 @@ export function EmployeeDashboardPage() {
     >
       {active === 'inicio' ? (
         <EmployeeDashboardHome user={user} />
+      ) : active === 'triaje' ? (
+        <TriageReviewPanel />
       ) : (
         <DashboardPlaceholderSection
           title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

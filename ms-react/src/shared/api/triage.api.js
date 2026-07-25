@@ -23,3 +23,6 @@ export const fetchTriageForms = (accountId) =>
 
 export const createTriage = (payload) =>
   mongoApi.post('/api/v1/triage', payload, getAuthConfig())
+
+export const updateTriageStatus = (triageId, status) =>
+  mongoApi.patch(`/api/v1/triage/${triageId}/status`, { status }, getAuthConfig())
