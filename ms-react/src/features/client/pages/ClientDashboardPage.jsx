@@ -8,6 +8,7 @@ import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { ClientDashboardHome } from '../components/ClientDashboardHome.jsx'
 import { StoreCatalog } from '../../store/components/StoreCatalog.jsx'
 import { TriageSection } from '../components/triage/TriageSection.jsx'
+import { ClientAppointmentsPanel } from '../components/appointments/ClientAppointmentsPanel.jsx'
 import {
   ClientIconCalendar,
   ClientIconDrop,
@@ -78,6 +79,8 @@ export function ClientDashboardPage() {
         <StoreCatalog />
       ) : active === 'triaje' ? (
         <TriageSection />
+      ) : active === 'citas' ? (
+        <ClientAppointmentsPanel />
       ) : (
         <DashboardPlaceholderSection
           title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

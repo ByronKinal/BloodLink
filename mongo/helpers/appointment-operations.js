@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
-import Appointment from '../src/appointments/appointment.model.js';
+import Appointment, {
+  ACTIVE_APPOINTMENT_STATUSES,
+  APPOINTMENT_STATUSES,
+} from '../src/appointments/appointment.model.js';
 import TriageForm from '../src/triage/triage.model.js';
 import {
   ADMIN_ROLE,
@@ -103,7 +106,7 @@ const isStaffBusyAtSlot = async ({
     staffUserId,
     appointmentDate: date,
     appointmentTime: time,
-    status: true,
+    status: 'CONFIRMED',
   };
 
   if (excludeAppointmentId) {
@@ -195,14 +198,28 @@ export const createAppointmentHelper = async ({ donorUserId, date, time }) => {
     throw error;
   }
 
+  const existingActiveForDonor = await Appointment.findOne({
+    donorUserId,
+    status: { $in: ACTIVE_APPOINTMENT_STATUSES },
+  }).lean();
+
+  if (existingActiveForDonor) {
+    const error = new Error(
+      'Ya tienes una cita activa. Cancélala antes de agendar otra.'
+    );
+    error.status = 400;
+    throw error;
+  }
+
   const existingAtSlot = await Appointment.findOne({
     appointmentDate: normalizedDate,
     appointmentTime: normalizedTime,
+    status: { $in: ACTIVE_APPOINTMENT_STATUSES },
   }).lean();
 
   if (existingAtSlot) {
-    const error = new Error('Horario no disponible. Selecciona otra fecha u hora.');
-    error.status = 409;
+    const error = new Error('El horario ya no está disponible. Selecciona otra fecha u hora.');
+    error.status = 400;
     throw error;
   }
 
@@ -212,7 +229,7 @@ export const createAppointmentHelper = async ({ donorUserId, date, time }) => {
       donorUserId,
       appointmentDate: normalizedDate,
       appointmentTime: normalizedTime,
-      status: false,
+      status: 'PENDING',
     });
   } catch (error) {
     if (error?.code === 11000) {
@@ -260,24 +277,36 @@ export const getAllAppointmentsHelper = async ({
   assertMongoReady();
 
   const requesterRoles = await getUserRoleNames(requesterUserId);
-  assertRoles(requesterRoles, [STAFF_ROLE, ADMIN_ROLE]);
+  const isStaffOrAdmin = requesterRoles.some((role) =>
+    [STAFF_ROLE, ADMIN_ROLE].includes(role)
+  );
+
+  if (!isStaffOrAdmin) {
+    assertRoles(requesterRoles, [DONOR_ROLE]);
+  }
 
   const query = {};
+
+  if (!isStaffOrAdmin) {
+    query.donorUserId = requesterUserId;
+  }
 
   if (date) {
     query.appointmentDate = normalizeDate(date);
   }
 
   if (typeof status === 'string' && status.trim().length > 0) {
-    const normalizedStatus = status.trim().toLowerCase();
+    const normalizedStatus = status.trim().toUpperCase();
 
-    if (normalizedStatus !== 'true' && normalizedStatus !== 'false') {
-      const error = new Error('status debe ser true o false');
+    if (!APPOINTMENT_STATUSES.includes(normalizedStatus)) {
+      const error = new Error(
+        `status debe ser uno de: ${APPOINTMENT_STATUSES.join(', ')}`
+      );
       error.status = 400;
       throw error;
     }
 
-    query.status = normalizedStatus === 'true';
+    query.status = normalizedStatus;
   }
 
   const appointments = await Appointment.find(query)
@@ -308,6 +337,12 @@ export const confirmAppointmentHelper = async ({
   if (!appointment) {
     const error = new Error('Cita no encontrada');
     error.status = 404;
+    throw error;
+  }
+
+  if (appointment.status === 'CANCELLED') {
+    const error = new Error('No se puede confirmar una cita cancelada');
+    error.status = 400;
     throw error;
   }
 
@@ -370,7 +405,7 @@ export const confirmAppointmentHelper = async ({
     replacedStaff = true;
   }
 
-  appointment.status = true;
+  appointment.status = 'CONFIRMED';
   appointment.staffUserId = assignedStaffUserId;
   await appointment.save();
 
@@ -380,4 +415,52 @@ export const confirmAppointmentHelper = async ({
     requestedStaffUserId: targetStaffUserId,
     assignedStaffUserId,
   };
+};
+
+export const cancelAppointmentHelper = async ({ appointmentId, requesterUserId }) => {
+  assertMongoReady();
+
+  const appointment = await Appointment.findById(appointmentId);
+
+  if (!appointment) {
+    const error = new Error('Cita no encontrada');
+    error.status = 404;
+    throw error;
+  }
+
+  if (appointment.donorUserId !== requesterUserId) {
+    const error = new Error('No autorizado para cancelar esta cita');
+    error.status = 403;
+    throw error;
+  }
+
+  if (appointment.status === 'CANCELLED') {
+    const error = new Error('La cita ya está cancelada');
+    error.status = 400;
+    throw error;
+  }
+
+  appointment.status = 'CANCELLED';
+  await appointment.save();
+
+  return hydrateAppointment(appointment);
+};
+
+export const getAvailabilityHelper = async ({ date }) => {
+  assertMongoReady();
+
+  const normalizedDate = normalizeDate(date);
+
+  const busyAppointments = await Appointment.find({
+    appointmentDate: normalizedDate,
+    status: { $in: ACTIVE_APPOINTMENT_STATUSES },
+  })
+    .select('appointmentTime')
+    .lean();
+
+  const bookedTimes = [
+    ...new Set(busyAppointments.map((appointment) => appointment.appointmentTime)),
+  ].sort();
+
+  return { date: normalizedDate, bookedTimes };
 };

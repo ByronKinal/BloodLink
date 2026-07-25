@@ -7,6 +7,7 @@ import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardT
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { EmployeeDashboardHome } from '../components/EmployeeDashboardHome.jsx'
 import { TriageReviewPanel } from '../components/triage/TriageReviewPanel.jsx'
+import { StaffAgendaPanel } from '../components/appointments/StaffAgendaPanel.jsx'
 import {
   EmployeeIconHome,
   EmployeeIconDrop,
@@ -75,6 +76,8 @@ export function EmployeeDashboardPage() {
         <EmployeeDashboardHome user={user} />
       ) : active === 'triaje' ? (
         <TriageReviewPanel />
+      ) : active === 'citas' ? (
+        <StaffAgendaPanel />
       ) : (
         <DashboardPlaceholderSection
           title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}
