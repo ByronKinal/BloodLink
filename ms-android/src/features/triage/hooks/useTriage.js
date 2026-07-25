@@ -1,6 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import * as triageApi from '../api/triage.api';
+
+const TRIAGE_LOCK_WINDOW_MS = 24 * 60 * 60 * 1000;
+const LOCK_COUNTDOWN_TICK_MS = 60 * 1000;
+
+function formatRemainingTime(ms) {
+  const totalMinutes = Math.max(1, Math.ceil(ms / 60000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours > 0) {
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  }
+  return `${minutes}m`;
+}
 
 const INITIAL_FORM = {
   edadAnios: '',
@@ -38,8 +51,7 @@ export function useTriage() {
     setLoadingHistory(true);
     setHistoryError(null);
     try {
-      const res = await triageApi.getTriageHistory();
-      const data = res.data?.data || res.data;
+      const data = await triageApi.getTriageHistory();
       setHistory(Array.isArray(data) ? data : data ? [data] : []);
     } catch (err) {
       console.log('Error fetching triage history:', err?.message);
@@ -50,10 +62,41 @@ export function useTriage() {
   }, []);
 
   useEffect(() => {
+    fetchTriageHistory();
+  }, [fetchTriageHistory]);
+
+  useEffect(() => {
     if (activeTab === 'history') {
       fetchTriageHistory();
     }
   }, [activeTab, fetchTriageHistory]);
+
+  // Bloqueo de 24h: se basa en la fecha del último formulario devuelto por GET /api/v1/triage.
+  const [now, setNow] = useState(() => Date.now());
+
+  const triageLock = useMemo(() => {
+    const latest = history[0];
+    const submittedAt = latest?.createdAt ? new Date(latest.createdAt) : null;
+    if (!submittedAt || Number.isNaN(submittedAt.getTime())) {
+      return { isLocked: false, message: null };
+    }
+
+    const remainingMs = TRIAGE_LOCK_WINDOW_MS - (now - submittedAt.getTime());
+    if (remainingMs <= 0) {
+      return { isLocked: false, message: null };
+    }
+
+    return {
+      isLocked: true,
+      message: `Debes esperar ${formatRemainingTime(remainingMs)} para volver a intentar`,
+    };
+  }, [history, now]);
+
+  useEffect(() => {
+    if (!triageLock.isLocked) return undefined;
+    const interval = setInterval(() => setNow(Date.now()), LOCK_COUNTDOWN_TICK_MS);
+    return () => clearInterval(interval);
+  }, [triageLock.isLocked]);
 
   const handleChangeField = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -139,6 +182,7 @@ export function useTriage() {
         data: resData,
         message: resData?.message || 'Triage médico enviado con éxito.',
       });
+      fetchTriageHistory();
     } catch (err) {
       console.log('Error submitting triage:', err?.message);
       const esApto =
@@ -186,5 +230,6 @@ export function useTriage() {
     loadingHistory,
     historyError,
     refetchHistory: fetchTriageHistory,
+    triageLock,
   };
 }

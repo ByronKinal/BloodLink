@@ -87,8 +87,7 @@ export function useDashboard() {
     setLoadingTriage(true);
     setErrorTriage(null);
     try {
-      const res = await triageApi.getTriageHistory();
-      const data = res.data?.data || res.data;
+      const data = await triageApi.getTriageHistory();
       if (Array.isArray(data)) {
         setTriage(data[0] || null);
       } else {
