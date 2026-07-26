@@ -254,10 +254,31 @@ export const getStaffAgendaHelper = async ({ requesterUserId, date }) => {
   const selectedDate = date || new Date().toISOString().slice(0, 10);
   normalizeDate(selectedDate);
 
+  const [year, month, day] = selectedDate.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
+  const dayOfWeek = dateObj.getDay();
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+  const mondayObj = new Date(dateObj);
+  mondayObj.setDate(dateObj.getDate() + diffToMonday);
+
+  const sundayObj = new Date(mondayObj);
+  sundayObj.setDate(mondayObj.getDate() + 6);
+
+  const formatDate = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const r = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${r}`;
+  };
+
+  const monday = formatDate(mondayObj);
+  const sunday = formatDate(sundayObj);
+
   const appointments = await Appointment.find({
-    appointmentDate: selectedDate,
+    appointmentDate: { $gte: monday, $lte: sunday },
   })
-    .sort({ appointmentTime: 1, createdAt: 1 })
+    .sort({ appointmentDate: 1, appointmentTime: 1, createdAt: 1 })
     .lean();
 
   const hydratedAppointments = await Promise.all(
@@ -266,6 +287,7 @@ export const getStaffAgendaHelper = async ({ requesterUserId, date }) => {
 
   return {
     selectedDate,
+    weekRange: { monday, sunday },
     appointments: hydratedAppointments,
   };
 };

@@ -37,6 +37,16 @@ function ConfirmButton({ appointment, confirmingId, onConfirm, className = '' })
   )
 }
 
+const WEEKDAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—'
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const dateObj = new Date(y, m - 1, d)
+  const dayName = WEEKDAYS[dateObj.getDay()]
+  return `${dayName} ${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}`
+}
+
 export function StaffAgendaTable({ appointments, confirmingId, onConfirm }) {
   return (
     <div className="overflow-hidden rounded-[16px] border border-gris2 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
@@ -45,6 +55,7 @@ export function StaffAgendaTable({ appointments, confirmingId, onConfirm }) {
           <thead className="bg-[#FAFAF8]">
             <tr className="text-left text-[10px] font-bold uppercase tracking-[0.1em] text-txt3">
               <th className="px-5 py-3">Donante</th>
+              <th className="px-5 py-3">Fecha</th>
               <th className="px-5 py-3">Hora</th>
               <th className="px-5 py-3">Estado</th>
               <th className="px-5 py-3 text-right">Acciones</th>
@@ -54,6 +65,7 @@ export function StaffAgendaTable({ appointments, confirmingId, onConfirm }) {
             {appointments.map((appointment) => (
               <tr key={appointment.id}>
                 <td className="px-5 py-4 text-[13px] font-medium text-txt">{getDonorLabel(appointment)}</td>
+                <td className="px-5 py-4 text-[12px] text-txt2 font-medium">{formatDate(appointment.date)}</td>
                 <td className="px-5 py-4 text-[12px] text-txt3">{appointment.time}</td>
                 <td className="px-5 py-4"><AppointmentStatusBadge status={appointment.status} /></td>
                 <td className="px-5 py-4 text-right">
@@ -71,7 +83,7 @@ export function StaffAgendaTable({ appointments, confirmingId, onConfirm }) {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[14px] font-semibold text-txt">{getDonorLabel(appointment)}</p>
-                <p className="text-[11px] text-txt3">{appointment.time}</p>
+                <p className="text-[11px] text-txt3">{formatDate(appointment.date)} a las {appointment.time}</p>
               </div>
               <AppointmentStatusBadge status={appointment.status} />
             </div>

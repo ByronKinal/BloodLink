@@ -13,6 +13,7 @@ function getErrorMessage(error) {
 export function useStaffAgenda() {
   const [selectedDate, setSelectedDate] = useState(todayDateKey)
   const [appointments, setAppointments] = useState([])
+  const [weekRange, setWeekRange] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [confirmingId, setConfirmingId] = useState(null)
@@ -28,6 +29,7 @@ export function useStaffAgenda() {
     try {
       const response = await fetchStaffAgenda(selectedDate)
       setAppointments(response.data?.data ?? [])
+      setWeekRange(response.data?.weekRange ?? null)
     } catch (loadError) {
       setError(getErrorMessage(loadError))
     } finally {
@@ -71,5 +73,6 @@ export function useStaffAgenda() {
     refresh: load,
     toast,
     dismissToast,
+    weekRange,
   }
 }

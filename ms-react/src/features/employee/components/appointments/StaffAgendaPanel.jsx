@@ -6,6 +6,15 @@ import { StaffAgendaDatePicker } from './StaffAgendaDatePicker.jsx'
 import { StaffAgendaTable } from './StaffAgendaTable.jsx'
 import { StaffAgendaSkeleton } from './StaffAgendaSkeleton.jsx'
 
+function formatWeekRange(weekRange) {
+  if (!weekRange) return 'Agenda'
+  const formatSingle = (dateStr) => {
+    const [y, m, d] = dateStr.split('-')
+    return `${d}/${m}`
+  }
+  return `Semana del ${formatSingle(weekRange.monday)} al ${formatSingle(weekRange.sunday)}`
+}
+
 export function StaffAgendaPanel() {
   const {
     selectedDate,
@@ -17,14 +26,17 @@ export function StaffAgendaPanel() {
     confirmAttendance,
     toast,
     dismissToast,
+    weekRange,
   } = useStaffAgenda()
 
   return (
     <div>
       <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] font-bold text-rojo tracking-[0.12em] uppercase mb-1">Agenda</p>
-          <h2 className="font-cormorant text-[32px] font-medium text-txt leading-none">Citas del día</h2>
+          <p className="text-[11px] font-bold text-rojo tracking-[0.12em] uppercase mb-1">
+            {formatWeekRange(weekRange)}
+          </p>
+          <h2 className="font-cormorant text-[32px] font-medium text-txt leading-none">Citas de la semana</h2>
           <p className="text-[13px] text-txt3 font-light mt-1">Revisá y confirmá la asistencia de los donantes.</p>
         </div>
 
@@ -51,8 +63,8 @@ export function StaffAgendaPanel() {
         <div className="rounded-[16px] border border-gris2 bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
           <DashboardEmptyState
             icon="🗓️"
-            title="Sin citas para este día"
-            description="Cambiá la fecha para revisar otro día."
+            title="Sin citas para esta semana"
+            description="Cambiá la fecha para revisar otra semana."
             className="py-12"
           />
         </div>
