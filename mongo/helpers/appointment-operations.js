@@ -255,15 +255,10 @@ export const getStaffAgendaHelper = async ({ requesterUserId, date }) => {
   normalizeDate(selectedDate);
 
   const [year, month, day] = selectedDate.split('-').map(Number);
-  const dateObj = new Date(year, month - 1, day);
-  const dayOfWeek = dateObj.getDay();
-  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const startDateObj = new Date(year, month - 1, day);
 
-  const mondayObj = new Date(dateObj);
-  mondayObj.setDate(dateObj.getDate() + diffToMonday);
-
-  const sundayObj = new Date(mondayObj);
-  sundayObj.setDate(mondayObj.getDate() + 6);
+  const endDateObj = new Date(startDateObj);
+  endDateObj.setDate(startDateObj.getDate() + 7);
 
   const formatDate = (d) => {
     const y = d.getFullYear();
@@ -272,8 +267,8 @@ export const getStaffAgendaHelper = async ({ requesterUserId, date }) => {
     return `${y}-${m}-${r}`;
   };
 
-  const monday = formatDate(mondayObj);
-  const sunday = formatDate(sundayObj);
+  const monday = formatDate(startDateObj);
+  const sunday = formatDate(endDateObj);
 
   const appointments = await Appointment.find({
     appointmentDate: { $gte: monday, $lte: sunday },
