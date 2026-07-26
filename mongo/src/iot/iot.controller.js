@@ -218,15 +218,16 @@ export const listDonations = asyncHandler(async (req, res) => {
   }
 
   const requesterRoles = await getUserRoleNames(req.userId);
+  const isStaffOrAdmin = requesterRoles.some((role) =>
+    [STAFF_ROLE, ADMIN_ROLE].includes(role)
+  );
 
-  if (!hasPersonnelRole(requesterRoles)) {
-    return res.status(403).json({
-      success: false,
-      message: 'Solo personal autorizado puede listar donaciones',
-    });
+  const query = {};
+  if (!isStaffOrAdmin) {
+    query.donorUserId = req.userId;
   }
 
-  const donations = await Donation.find().sort({ donationDate: -1 }).lean();
+  const donations = await Donation.find(query).sort({ donationDate: -1 }).lean();
 
   const hydrated = await Promise.all(
     donations.map(async (donation) => {

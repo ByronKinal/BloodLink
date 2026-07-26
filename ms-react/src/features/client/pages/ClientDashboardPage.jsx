@@ -10,6 +10,7 @@ import { ClientProfileSection } from '../components/ClientProfileSection.jsx'
 import { StoreCatalog } from '../../store/components/StoreCatalog.jsx'
 import { TriageSection } from '../components/triage/TriageSection.jsx'
 import { ClientAppointmentsPanel } from '../components/appointments/ClientAppointmentsPanel.jsx'
+import { ClientDonationsSection } from '../components/ClientDonationsSection.jsx'
 import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   ClientIconCalendar,
@@ -118,6 +119,8 @@ export function ClientDashboardPage() {
           <TriageSection />
         ) : active === 'citas' ? (
           <ClientAppointmentsPanel />
+        ) : active === 'donaciones' ? (
+          <ClientDonationsSection onNavigate={setActive} />
         ) : (
           <DashboardPlaceholderSection
             title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}
