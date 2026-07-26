@@ -34,9 +34,59 @@ const createTransporter = () => {
 const transporter = createTransporter();
 
 const ensureTransporter = () => {
-  if (!transporter) {
-    throw new Error('SMTP transporter not configured');
+  const brevoApiKey =
+    process.env.BREVO_API_KEY ||
+    (config.smtp.password && config.smtp.password.startsWith('xkeysib-')
+      ? config.smtp.password
+      : null);
+  if (!transporter && !brevoApiKey) {
+    throw new Error('SMTP credentials / Brevo API Key not configured');
   }
+};
+
+const sendMailViaBrevoOrSmtp = async ({ to, subject, html }) => {
+  const brevoApiKey =
+    process.env.BREVO_API_KEY ||
+    (config.smtp.password && config.smtp.password.startsWith('xkeysib-')
+      ? config.smtp.password
+      : null);
+
+  if (brevoApiKey) {
+    const fromEmail = config.smtp.fromEmail || 'billyrey3645@gmail.com';
+    const fromName = config.smtp.fromName || 'BloodLink';
+
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': brevoApiKey,
+        accept: 'application/json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: fromName, email: fromEmail },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(
+        `Error enviando correo via Brevo API: ${errData.message || res.statusText}`
+      );
+    }
+
+    return await res.json();
+  }
+
+  ensureTransporter();
+  return transporter.sendMail({
+    from: `${config.smtp.fromName || 'BloodLink'} <${config.smtp.fromEmail || 'billyrey3645@gmail.com'}>`,
+    to,
+    subject,
+    html,
+  });
 };
 
 export const sendVerificationEmail = async (
@@ -50,8 +100,7 @@ export const sendVerificationEmail = async (
   const frontendUrl = config.app.frontendUrl || 'http://localhost:5173';
   const verificationUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
 
-  await transporter.sendMail({
-    from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+  await sendMailViaBrevoOrSmtp({
     to: email,
     subject: '🩸 Activá tu cuenta de BloodLink',
     html: `<!DOCTYPE html>
@@ -161,8 +210,7 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
   const frontendUrl = config.app.frontendUrl || 'http://localhost:5173';
   const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
-  await transporter.sendMail({
-    from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+  await sendMailViaBrevoOrSmtp({
     to: email,
     subject: 'Recuperá tu contraseña de BloodLink',
     html: `<!DOCTYPE html>
@@ -254,8 +302,7 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
 export const sendWelcomeEmail = async (email, name) => {
   ensureTransporter();
 
-  await transporter.sendMail({
-    from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+  await sendMailViaBrevoOrSmtp({
     to: email,
     subject: '🩸 ¡Bienvenido a BloodLink!',
     html: `<!DOCTYPE html>
@@ -302,8 +349,7 @@ export const sendWelcomeEmail = async (email, name) => {
 export const sendPasswordChangedEmail = async (email, name) => {
   ensureTransporter();
 
-  await transporter.sendMail({
-    from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+  await sendMailViaBrevoOrSmtp({
     to: email,
     subject: '🔒 Tu contraseña fue actualizada — BloodLink',
     html: `<!DOCTYPE html>
@@ -369,8 +415,7 @@ export const sendRedemptionEmail = async (
     [municipality, zone ? `Zona ${zone}` : ''].filter(Boolean).join(', ') ||
     'ubicación registrada';
 
-  await transporter.sendMail({
-    from: `${config.smtp.fromName} <${config.smtp.fromEmail}>`,
+  await sendMailViaBrevoOrSmtp({
     to: email,
     subject: '🎁 ¡Canjeo exitoso de premio — BloodLink!',
     html: `<!DOCTYPE html>
