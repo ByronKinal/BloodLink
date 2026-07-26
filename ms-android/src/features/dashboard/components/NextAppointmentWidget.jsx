@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { formatAppointmentDate, getAppointmentStatusInfo } from '../../../shared/utils/appointment';
 
-export default function NextAppointmentWidget({ loading, error, appointment, onNavigate }) {
+export default function NextAppointmentWidget({ loading, error, appointment, onNavigate, onRetry }) {
   return (
     <View style={styles.widgetCard}>
       <View style={styles.widgetHeader}>
@@ -19,7 +19,14 @@ export default function NextAppointmentWidget({ loading, error, appointment, onN
       {loading ? (
         <ActivityIndicator size="small" color="#D42040" style={{ marginVertical: 12 }} />
       ) : error ? (
-        <Text style={styles.widgetErrorText}>{error}</Text>
+        <View style={styles.errorRow}>
+          <Text style={styles.widgetErrorText}>{error}</Text>
+          {onRetry ? (
+            <TouchableOpacity onPress={onRetry}>
+              <Text style={styles.retryText}>Reintentar</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       ) : appointment ? (
         <View style={styles.appointmentContent}>
           <Text style={styles.appointmentDateText}>{formatAppointmentDate(appointment.date)}</Text>
@@ -91,5 +98,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94A3B8',
     marginTop: 4,
+  },
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  retryText: {
+    fontSize: 12,
+    color: '#D42040',
+    fontWeight: '600',
   },
 });

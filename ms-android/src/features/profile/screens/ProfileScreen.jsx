@@ -16,6 +16,7 @@ export default function ProfileScreen() {
     refreshing,
     profileError,
     onRefresh,
+    refetch,
     signOut,
   } = useProfile();
 
@@ -58,6 +59,7 @@ export default function ProfileScreen() {
           profileError={profileError}
           phone={phone}
           email={email}
+          onRetry={refetch}
         />
 
         <TouchableOpacity style={styles.logoutBtn} onPress={signOut}>

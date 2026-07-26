@@ -25,6 +25,7 @@ export default function TriageStepperScreen() {
     history,
     loadingHistory,
     historyError,
+    refetchHistory,
     triageLock,
   } = useTriage();
 
@@ -33,7 +34,12 @@ export default function TriageStepperScreen() {
       <TriageStepperHeader activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === 'history' ? (
-        <TriageHistoryView history={history} loading={loadingHistory} error={historyError} />
+        <TriageHistoryView
+          history={history}
+          loading={loadingHistory}
+          error={historyError}
+          onRetry={refetchHistory}
+        />
       ) : result ? (
         <TriageResultView result={result} onReset={handleResetForm} />
       ) : triageLock.isLocked ? (

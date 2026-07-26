@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useAuthStore } from '../../auth/store/authStore';
 import * as rewardsApi from '../api/rewards.api';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 /**
  * Hook para la gestión de la Billetera de Puntos (BloodPoints) y el catálogo de Recompensas del donante.
@@ -42,7 +43,7 @@ export function useWallet() {
       setRewardsCatalog(Array.isArray(data) ? data : []);
     } catch (err) {
       console.log('Error fetching rewards catalog:', err?.message);
-      setCatalogError('No se pudo cargar el catálogo de recompensas.');
+      setCatalogError(getErrorMessage(err, 'No se pudo cargar el catálogo de recompensas.'));
     } finally {
       setLoadingCatalog(false);
     }
@@ -62,20 +63,35 @@ export function useWallet() {
     fetchAll();
   }, [fetchAll]);
 
-  const handleClaimReward = async (reward) => {
+  const performClaim = async (reward) => {
     setClaimingRewardId(reward.id);
     try {
       await rewardsApi.claimReward(reward.id);
       Alert.alert('Canje exitoso', `Reclamaste "${reward.name}" correctamente.`);
       await fetchAll();
-      return { success: true };
     } catch (err) {
-      const message = err?.response?.data?.message || 'No se pudo canjear el beneficio.';
+      const message = getErrorMessage(err, 'No se pudo canjear el beneficio.');
       Alert.alert('No se pudo canjear', message);
-      return { success: false, error: message };
     } finally {
       setClaimingRewardId(null);
     }
+  };
+
+  const handleClaimReward = (reward) => {
+    const currentBalance = wallet?.balancePoints ?? 0;
+    if (currentBalance < reward.requiredPoints) {
+      Alert.alert('Puntos insuficientes', 'No tienes suficientes BloodPoints para canjear este beneficio.');
+      return;
+    }
+
+    Alert.alert(
+      'Confirmar canje',
+      `¿Deseas canjear "${reward.name}" por ${reward.requiredPoints} BloodPoints?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Confirmar', onPress: () => performClaim(reward) },
+      ]
+    );
   };
 
   return {

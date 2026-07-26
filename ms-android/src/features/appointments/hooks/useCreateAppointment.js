@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import * as appointmentsApi from '../api/appointments.api';
 import * as triageApi from '../../triage/api/triage.api';
 import { isTriageApto } from '../../../shared/utils/triageEligibility';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 const pad = (n) => String(n).padStart(2, '0');
 const formatDateForApi = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -82,7 +83,7 @@ export function useCreateAppointment({ onCreated } = {}) {
       setTime(null);
       onCreated?.(created);
     } catch (err) {
-      setSubmitError(err?.response?.data?.message || 'No se pudo agendar la cita.');
+      setSubmitError(getErrorMessage(err, 'No se pudo agendar la cita.'));
       if (err?.response?.status === 409) {
         setTime(null);
       }

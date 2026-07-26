@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import * as triageApi from '../api/triage.api';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 const TRIAGE_LOCK_WINDOW_MS = 24 * 60 * 60 * 1000;
 const LOCK_COUNTDOWN_TICK_MS = 60 * 1000;
@@ -55,7 +56,7 @@ export function useTriage() {
       setHistory(Array.isArray(data) ? data : data ? [data] : []);
     } catch (err) {
       console.log('Error fetching triage history:', err?.message);
-      setHistoryError('No se pudo cargar el historial de triage.');
+      setHistoryError(getErrorMessage(err, 'No se pudo cargar el historial de triage.'));
     } finally {
       setLoadingHistory(false);
     }

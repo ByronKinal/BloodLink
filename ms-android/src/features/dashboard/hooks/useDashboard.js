@@ -6,6 +6,7 @@ import * as triageApi from '../../triage/api/triage.api';
 import * as dashboardApi from '../api/dashboard.api';
 import { isTriageApto } from '../../../shared/utils/triageEligibility';
 import { isAppointmentInPast } from '../../../shared/utils/appointment';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 export function useDashboard() {
   const user = useAuthStore((state) => state.user);
@@ -42,7 +43,7 @@ export function useDashboard() {
       setAppointment(upcoming || null);
     } catch (err) {
       console.log('Dashboard Widget Appointment error:', err?.message);
-      setErrorAppointment('No se pudo obtener la cita.');
+      setErrorAppointment(getErrorMessage(err, 'No se pudo obtener la cita.'));
     } finally {
       setLoadingAppointment(false);
     }
@@ -58,7 +59,7 @@ export function useDashboard() {
       setWallet(data);
     } catch (err) {
       console.log('Dashboard Widget Wallet error:', err?.message);
-      setErrorWallet('No disponible');
+      setErrorWallet(getErrorMessage(err, 'No disponible'));
       setWallet({ balancePoints: 0, totalEarnedPoints: 0 });
     } finally {
       setLoadingWallet(false);
@@ -74,7 +75,7 @@ export function useDashboard() {
       setStats(res.data?.data || res.data || {});
     } catch (err) {
       console.log('Dashboard Widget Stats error:', err?.message);
-      setErrorStats('Estadísticas no disponibles');
+      setErrorStats(getErrorMessage(err, 'Estadísticas no disponibles'));
     } finally {
       setLoadingStats(false);
     }
@@ -136,12 +137,15 @@ export function useDashboard() {
     appointment,
     loadingAppointment,
     errorAppointment,
+    refetchAppointment: fetchAppointment,
     wallet,
     loadingWallet,
     errorWallet,
+    refetchWallet: fetchWallet,
     stats,
     loadingStats,
     errorStats,
+    refetchStats: fetchStats,
     triage,
     loadingTriage,
     errorTriage,

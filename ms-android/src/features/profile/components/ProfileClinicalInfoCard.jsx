@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileClinicalInfoCard({ loading, profileError, phone, email }) {
+export default function ProfileClinicalInfoCard({ loading, profileError, phone, email, onRetry }) {
   if (loading) {
     return (
       <View style={styles.loadingBox}>
@@ -17,6 +17,11 @@ export default function ProfileClinicalInfoCard({ loading, profileError, phone, 
         <Ionicons name="information-circle-outline" size={32} color="#D97706" />
         <Text style={styles.infoErrorText}>{profileError}</Text>
         <Text style={styles.infoErrorSub}>Realiza tu primer Triage o consulta médica para actualizar tu perfil.</Text>
+        {onRetry ? (
+          <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
+            <Text style={styles.retryButtonText}>Reintentar</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     );
   }
@@ -77,6 +82,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     marginTop: 4,
+  },
+  retryButton: {
+    backgroundColor: '#D97706',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  retryButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 13,
   },
   infoRow: {
     flexDirection: 'row',

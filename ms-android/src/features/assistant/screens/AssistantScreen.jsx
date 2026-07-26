@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, Text, View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAssistant } from '../hooks/useAssistant';
 import ChatBubble from '../components/ChatBubble';
 import ChatInputBar from '../components/ChatInputBar';
+import TypingIndicator from '../components/TypingIndicator';
 
 export default function AssistantScreen() {
-  const { input, setInput, messages, handleSend } = useAssistant();
+  const { input, setInput, messages, loading, handleSend } = useAssistant();
+  const scrollRef = useRef(null);
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
@@ -21,13 +23,18 @@ export default function AssistantScreen() {
         <Text style={styles.headerSubtitle}>Consultas clínicas y dudas frecuentes</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.chatContent}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.chatContent}
+        onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+      >
         {messages.map((msg) => (
           <ChatBubble key={msg.id} msg={msg} />
         ))}
+        {loading ? <TypingIndicator /> : null}
       </ScrollView>
 
-      <ChatInputBar input={input} setInput={setInput} onSend={handleSend} />
+      <ChatInputBar input={input} setInput={setInput} onSend={handleSend} disabled={loading} />
     </KeyboardAvoidingView>
   );
 }

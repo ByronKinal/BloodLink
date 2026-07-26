@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as appointmentsApi from '../api/appointments.api';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 /**
  * Hook para la gestión de estado y operaciones del módulo de Citas de Donación.
@@ -18,7 +19,7 @@ export function useAppointments() {
       setAppointments(Array.isArray(data) ? data : []);
     } catch (err) {
       console.log('Error fetching appointments:', err?.message);
-      setError('No se pudieron cargar las citas de donación.');
+      setError(getErrorMessage(err, 'No se pudieron cargar las citas de donación.'));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -42,7 +43,7 @@ export function useAppointments() {
       return { success: true, data: newAppointment };
     } catch (err) {
       console.log('Error creating appointment:', err?.message);
-      return { success: false, error: err?.response?.data?.message || 'No se pudo programar la cita.' };
+      return { success: false, error: getErrorMessage(err, 'No se pudo programar la cita.') };
     } finally {
       setActionLoading(false);
     }
@@ -56,7 +57,7 @@ export function useAppointments() {
       return { success: true };
     } catch (err) {
       console.log('Error canceling appointment:', err?.message);
-      return { success: false, error: err?.response?.data?.message || 'No se pudo cancelar la cita.' };
+      return { success: false, error: getErrorMessage(err, 'No se pudo cancelar la cita.') };
     } finally {
       setActionLoading(false);
     }

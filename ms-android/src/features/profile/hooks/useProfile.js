@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../../auth/store/authStore';
 import * as profileApi from '../api/profile.api';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 export function useProfile() {
   const user = useAuthStore((state) => state.user);
@@ -23,7 +24,7 @@ export function useProfile() {
       setProfile(profileRes.data?.data || profileRes.data);
     } catch (err) {
       console.log('Error loading profile:', err?.message);
-      setProfileError('Perfil no encontrado o aún no generado.');
+      setProfileError(getErrorMessage(err, 'Perfil no encontrado o aún no generado.'));
     } finally {
       setLoadingProfile(false);
     }
@@ -36,7 +37,7 @@ export function useProfile() {
       setStats(statsRes.data?.data || statsRes.data);
     } catch (err) {
       console.log('Error loading stats:', err?.message);
-      setStatsError('No se pudieron obtener las estadísticas de impacto.');
+      setStatsError(getErrorMessage(err, 'No se pudieron obtener las estadísticas de impacto.'));
     } finally {
       setLoadingStats(false);
       setRefreshing(false);

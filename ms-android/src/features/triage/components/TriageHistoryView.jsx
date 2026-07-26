@@ -1,26 +1,23 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import LoadingView from '../../../shared/components/LoadingView';
+import ErrorView from '../../../shared/components/ErrorView';
+import EmptyView from '../../../shared/components/EmptyView';
 
-export default function TriageHistoryView({ history, loading, error }) {
+export default function TriageHistoryView({ history, loading, error, onRetry }) {
   return (
     <ScrollView contentContainerStyle={styles.content}>
       {loading ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#D42040" />
-          <Text style={styles.loadingText}>Cargando historial...</Text>
-        </View>
+        <LoadingView message="Cargando historial..." />
       ) : error ? (
-        <View style={styles.errorCard}>
-          <Ionicons name="alert-circle-outline" size={40} color="#DC2626" />
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
+        <ErrorView message={error} onRetry={onRetry} />
       ) : history.length === 0 ? (
-        <View style={styles.emptyCard}>
-          <Ionicons name="clipboard-outline" size={54} color="#94A3B8" />
-          <Text style={styles.emptyTitle}>Sin evaluaciones registradas</Text>
-          <Text style={styles.emptySub}>Completa tu primer cuestionario de triage para registrar tu estado.</Text>
-        </View>
+        <EmptyView
+          icon="clipboard-outline"
+          title="Sin evaluaciones registradas"
+          subtitle="Completa tu primer cuestionario de triage para registrar tu estado."
+        />
       ) : (
         history.map((item, index) => {
           const isEligible = item.esApto ?? item.isEligible ?? true;
@@ -52,42 +49,6 @@ export default function TriageHistoryView({ history, loading, error }) {
 const styles = StyleSheet.create({
   content: {
     padding: 16,
-  },
-  centerContainer: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    color: '#64748B',
-  },
-  errorCard: {
-    backgroundColor: '#FFEBEE',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-  },
-  errorText: {
-    color: '#DC2626',
-    marginTop: 8,
-  },
-  emptyCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 32,
-    alignItems: 'center',
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1E293B',
-    marginTop: 12,
-  },
-  emptySub: {
-    fontSize: 13,
-    color: '#64748B',
-    textAlign: 'center',
-    marginTop: 6,
   },
   historyCard: {
     backgroundColor: '#FFF',

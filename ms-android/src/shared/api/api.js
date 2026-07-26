@@ -21,6 +21,19 @@ function attachAuthInterceptor(instance) {
     }
     return config;
   });
+
+  // Token invalido o expirado (401): forzar logout. AppNavigator reacciona
+  // solo al accessToken volverse null y redirige a Login, sin navegacion manual.
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error?.response?.status === 401) {
+        useAuthStore.getState().clearSession();
+      }
+      return Promise.reject(error);
+    }
+  );
+
   return instance;
 }
 

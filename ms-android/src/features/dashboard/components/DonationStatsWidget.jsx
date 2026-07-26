@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function DonationStatsWidget({ loading, error, stats }) {
+export default function DonationStatsWidget({ loading, error, stats, onRetry }) {
   return (
     <View style={styles.widgetCard}>
       <View style={styles.widgetHeader}>
@@ -15,7 +15,14 @@ export default function DonationStatsWidget({ loading, error, stats }) {
       {loading ? (
         <ActivityIndicator size="small" color="#16A34A" style={{ marginVertical: 12 }} />
       ) : error ? (
-        <Text style={styles.widgetErrorText}>{error}</Text>
+        <View style={styles.errorRow}>
+          <Text style={styles.widgetErrorText}>{error}</Text>
+          {onRetry ? (
+            <TouchableOpacity onPress={onRetry}>
+              <Text style={styles.retryText}>Reintentar</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       ) : (
         <View style={styles.statsGrid}>
           <View style={styles.statGridBox}>
@@ -85,5 +92,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94A3B8',
     marginTop: 4,
+  },
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  retryText: {
+    fontSize: 12,
+    color: '#D42040',
+    fontWeight: '600',
   },
 });

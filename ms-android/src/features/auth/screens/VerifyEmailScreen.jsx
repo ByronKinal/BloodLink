@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import FormField from '../../../shared/components/FormField';
 import PrimaryButton from '../../../shared/components/PrimaryButton';
 import Banner from '../../../shared/components/Banner';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
@@ -43,7 +44,7 @@ export default function VerifyEmailScreen({ navigation, route }) {
       await verifyEmail(values);
       navigation.navigate('Login');
     } catch (error) {
-      setServerError(error?.response?.data?.message || 'No se pudo verificar tu cuenta. Intenta de nuevo.');
+      setServerError(getErrorMessage(error, 'No se pudo verificar tu cuenta. Intenta de nuevo.'));
     }
   };
 
@@ -64,7 +65,7 @@ export default function VerifyEmailScreen({ navigation, route }) {
       setResendMessage('Código reenviado. Revisa tu correo.');
       setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (error) {
-      setServerError(error?.response?.data?.message || 'No se pudo reenviar el código.');
+      setServerError(getErrorMessage(error, 'No se pudo reenviar el código.'));
     } finally {
       setIsResending(false);
     }

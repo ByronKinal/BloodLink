@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ChatInputBar({ input, setInput, onSend }) {
+export default function ChatInputBar({ input, setInput, onSend, disabled }) {
   return (
     <View style={styles.inputBar}>
       <TextInput
@@ -12,8 +12,13 @@ export default function ChatInputBar({ input, setInput, onSend }) {
         value={input}
         onChangeText={setInput}
         onSubmitEditing={onSend}
+        editable={!disabled}
       />
-      <TouchableOpacity style={styles.sendBtn} onPress={onSend}>
+      <TouchableOpacity
+        style={[styles.sendBtn, disabled && styles.sendBtnDisabled]}
+        onPress={onSend}
+        disabled={disabled}
+      >
         <Ionicons name="send" size={20} color="#FFF" />
       </TouchableOpacity>
     </View>
@@ -45,5 +50,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
+  },
+  sendBtnDisabled: {
+    backgroundColor: '#CBD5E1',
   },
 });
