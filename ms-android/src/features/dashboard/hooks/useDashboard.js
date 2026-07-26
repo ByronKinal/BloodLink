@@ -4,6 +4,8 @@ import * as appointmentsApi from '../../appointments/api/appointments.api';
 import * as rewardsApi from '../../rewards/api/rewards.api';
 import * as triageApi from '../../triage/api/triage.api';
 import * as dashboardApi from '../api/dashboard.api';
+import { isTriageApto } from '../../../shared/utils/triageEligibility';
+import { isAppointmentInPast } from '../../../shared/utils/appointment';
 
 export function useDashboard() {
   const user = useAuthStore((state) => state.user);
@@ -35,13 +37,9 @@ export function useDashboard() {
     setLoadingAppointment(true);
     setErrorAppointment(null);
     try {
-      const res = await appointmentsApi.getAppointments();
-      const list = res.data?.data || res.data || [];
-      if (Array.isArray(list) && list.length > 0) {
-        setAppointment(list[0]);
-      } else {
-        setAppointment(null);
-      }
+      const list = await appointmentsApi.getAppointments();
+      const upcoming = Array.isArray(list) ? list.find((item) => !isAppointmentInPast(item)) : null;
+      setAppointment(upcoming || null);
     } catch (err) {
       console.log('Dashboard Widget Appointment error:', err?.message);
       setErrorAppointment('No se pudo obtener la cita.');
@@ -55,13 +53,13 @@ export function useDashboard() {
     setLoadingWallet(true);
     setErrorWallet(null);
     try {
-      const userId = user?.id || user?._id || 'me';
-      const res = await rewardsApi.getWallet(userId);
-      setWallet(res.data?.data || res.data || { balance: 0 });
+      const userId = user?.id || user?._id;
+      const data = await rewardsApi.getWallet(userId);
+      setWallet(data);
     } catch (err) {
       console.log('Dashboard Widget Wallet error:', err?.message);
       setErrorWallet('No disponible');
-      setWallet({ balance: 0 });
+      setWallet({ balancePoints: 0, totalEarnedPoints: 0 });
     } finally {
       setLoadingWallet(false);
     }
@@ -87,8 +85,7 @@ export function useDashboard() {
     setLoadingTriage(true);
     setErrorTriage(null);
     try {
-      const res = await triageApi.getTriageHistory();
-      const data = res.data?.data || res.data;
+      const data = await triageApi.getTriageHistory();
       if (Array.isArray(data)) {
         setTriage(data[0] || null);
       } else {
@@ -127,10 +124,7 @@ export function useDashboard() {
     if (errorTriage) return { color: '#D97706', text: 'Triage pendiente de realizar', bg: '#FEF3C7', icon: 'alert-circle-outline' };
     if (!triage) return { color: '#D97706', text: 'Realiza tu Triage clínico', bg: '#FEF3C7', icon: 'clipboard-outline' };
 
-    const status = (triage.estado || triage.status || triage.resultado || '').toLowerCase();
-    const isEligible = triage.esApto ?? triage.isEligible ?? status.includes('apto') ?? true;
-
-    if (isEligible) {
+    if (isTriageApto(triage)) {
       return { color: '#16A34A', text: 'Elegible para Donar', bg: '#DCFCE7', icon: 'checkmark-circle-outline' };
     } else {
       return { color: '#DC2626', text: 'No Elegible por el momento', bg: '#FEE2E2', icon: 'close-circle-outline' };

@@ -22,17 +22,33 @@ export function useAiAssistantChat() {
 
     setInput('')
     setMessages((prev) => [...prev, { role: 'user', text: question }])
+
+    if (question.length < 5) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          text: 'La pregunta debe tener entre 5 y 800 caracteres.',
+        },
+      ])
+      return
+    }
+
     setIsLoading(true)
 
     try {
       const { data } = await askDonationAssistant(question)
       setMessages((prev) => [...prev, { role: 'assistant', text: data.answer }])
-    } catch {
+    } catch (err) {
+      const errorMsg =
+        err.response?.data?.errors?.[0]?.message ||
+        err.response?.data?.message ||
+        'No se pudo conectar con el asistente. Verifica tu conexión e intenta de nuevo.'
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          text: 'No se pudo conectar con el asistente. Verifica tu conexión e intenta de nuevo.',
+          text: errorMsg,
         },
       ])
     } finally {

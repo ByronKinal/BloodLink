@@ -8,6 +8,7 @@ import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { EmployeeDashboardHome } from '../components/EmployeeDashboardHome.jsx'
 import { TriageReviewPanel } from '../components/triage/TriageReviewPanel.jsx'
 import { StaffAgendaPanel } from '../components/appointments/StaffAgendaPanel.jsx'
+import { EmployeeInventorySection } from '../components/EmployeeInventorySection.jsx'
 import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   EmployeeIconHome,
@@ -85,6 +86,8 @@ export function EmployeeDashboardPage() {
           <TriageReviewPanel />
         ) : active === 'citas' ? (
           <StaffAgendaPanel />
+        ) : active === 'inventario' ? (
+          <EmployeeInventorySection />
         ) : (
           <DashboardPlaceholderSection
             title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

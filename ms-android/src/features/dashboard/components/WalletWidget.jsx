@@ -20,7 +20,7 @@ export default function WalletWidget({ loading, wallet, error, onNavigate }) {
       ) : (
         <View style={styles.walletContent}>
           <Text style={styles.walletPoints}>
-            {wallet?.balance ?? wallet?.points ?? 0} <Text style={styles.walletUnit}>BloodPoints</Text>
+            {wallet?.balancePoints ?? 0} <Text style={styles.walletUnit}>BloodPoints</Text>
           </Text>
           {error && <Text style={styles.widgetErrorText}>({error})</Text>}
         </View>

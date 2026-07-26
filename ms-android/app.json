@@ -33,7 +33,8 @@
           "photosPermission": "BloodLink necesita acceso a tus fotos para tu foto de perfil.",
           "cameraPermission": "BloodLink necesita acceso a tu cámara para tu foto de perfil."
         }
-      ]
+      ],
+      "expo-splash-screen"
     ]
   }
 }
