@@ -14,7 +14,6 @@ import { EmployeeInventorySection } from '../../employee/components/EmployeeInve
 import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   AdminIconBox,
-  AdminIconChart,
   AdminIconDrop,
   AdminIconGift,
   AdminIconHome,
@@ -27,7 +26,6 @@ const NAV_ITEMS = [
   { id: 'donaciones', label: 'Donaciones', icon: AdminIconDrop },
   { id: 'inventario', label: 'Inventario', icon: AdminIconBox },
   { id: 'premios', label: 'Premios', icon: AdminIconGift },
-  { id: 'reportes', label: 'Reportes', icon: AdminIconChart },
 ]
 
 const ROLE_LABEL = {

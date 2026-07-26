@@ -50,9 +50,24 @@ pnpm dev
 ```
 
 **Acceso:**
-- MongoDB: http://localhost:3006
-- PostgreSQL: http://localhost:3007
+- Web Frontend: http://localhost:5173
+- MongoDB Service: http://localhost:3006
+- PostgreSQL Service: http://localhost:3007
 - Swagger Docs: http://localhost:3007/api/docs
+
+---
+
+## Ejecución con Docker
+
+El proyecto cuenta con un archivo `docker-compose.yml` en la raíz que orquesta todo el ecosistema (bases de datos PostgreSQL y MongoDB, microservicios backend y aplicación web frontend). Cada microservicio contiene su propio `Dockerfile` independiente para la construcción de imágenes.
+
+```bash
+# Levantar todos los servicios y bases de datos
+docker compose up --build -d
+
+# Detener los servicios
+docker compose down
+```
 
 ---
 

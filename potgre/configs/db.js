@@ -12,6 +12,14 @@ export const sequelize = new Sequelize({
   database: process.env.DB_NAME,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
+  dialectOptions:
+    process.env.DB_SSL === 'true'
+      ? {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        }
+      : {},
   logging: process.env.DB_SQL_LOGGING === 'true' ? console.log : false,
   define: {
     freezeTableName: true, 
@@ -33,13 +41,19 @@ export const dbConnection = async () => {
     console.log('PostgreSQL | Trying to connect...');
 
     await sequelize.authenticate();
+    await sequelize.query('SET search_path TO public;');
     console.log('PostgreSQL | Connected to PostgreSQL');
     console.log('PostgreSQL | Connection to database established');
 
     if (process.env.NODE_ENV === 'development') {
       const syncLogging =
         process.env.DB_SQL_LOGGING === 'true' ? console.log : false;
-      await sequelize.sync({ alter: true, logging: syncLogging });
+      try {
+        await sequelize.sync({ alter: true, logging: syncLogging });
+      } catch (syncErr) {
+        console.warn('PostgreSQL | alter sync warning, falling back to standard sync:', syncErr.message);
+        await sequelize.sync({ logging: syncLogging });
+      }
       console.log('PostgreSQL | Models synchronized with database');
     }
   } catch (error) {
