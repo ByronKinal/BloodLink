@@ -9,6 +9,7 @@ import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { AdminUsersSection } from '../components/AdminUsersSection.jsx'
 import { AdminRewardsSection } from '../components/AdminRewardsSection.jsx'
 import { AdminDashboardHome } from '../components/AdminDashboardHome.jsx'
+import { AdminDonationsSection } from '../components/AdminDonationsSection.jsx'
 import { EmployeeInventorySection } from '../../employee/components/EmployeeInventorySection.jsx'
 import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
@@ -113,6 +114,8 @@ export function AdminDashboardPage() {
           <AdminRewardsSection />
         ) : active === 'inventario' ? (
           <EmployeeInventorySection />
+        ) : active === 'donaciones' ? (
+          <AdminDonationsSection />
         ) : (
           <DashboardPlaceholderSection
             title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

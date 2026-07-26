@@ -17,3 +17,6 @@ function getAuthConfig() {
 
 export const registerDonationWeight = (payload) =>
   mongoApi.post('/api/v1/iot/weight', payload, getAuthConfig())
+
+export const fetchDonationsList = () =>
+  mongoApi.get('/api/v1/iot', getAuthConfig())
