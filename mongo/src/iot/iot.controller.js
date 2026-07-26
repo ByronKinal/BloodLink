@@ -230,8 +230,19 @@ export const listDonations = asyncHandler(async (req, res) => {
 
   const hydrated = await Promise.all(
     donations.map(async (donation) => {
-      const donor = await findUserById(donation.donorUserId);
-      const staff = await findUserById(donation.staffUserId);
+      let donor = null;
+      try {
+        donor = await findUserById(donation.donorUserId);
+      } catch (err) {
+        // Ignore user not found
+      }
+
+      let staff = null;
+      try {
+        staff = await findUserById(donation.staffUserId);
+      } catch (err) {
+        // Ignore user not found
+      }
 
       const donorName = donor
         ? `${donor.name ?? ''} ${donor.surname ?? ''}`.trim() || donor.username

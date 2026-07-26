@@ -75,10 +75,21 @@ const mapUser = (user) => {
 };
 
 const hydrateAppointment = async (appointmentDoc) => {
-  const donor = await findUserById(appointmentDoc.donorUserId);
-  const staff = appointmentDoc.staffUserId
-    ? await findUserById(appointmentDoc.staffUserId)
-    : null;
+  let donor = null;
+  try {
+    donor = await findUserById(appointmentDoc.donorUserId);
+  } catch (err) {
+    // Ignore user not found
+  }
+
+  let staff = null;
+  if (appointmentDoc.staffUserId) {
+    try {
+      staff = await findUserById(appointmentDoc.staffUserId);
+    } catch (err) {
+      // Ignore user not found
+    }
+  }
 
   const Donation = mongoose.model('Donation');
   const donation = await Donation.findOne({ appointmentId: appointmentDoc._id }).lean();
