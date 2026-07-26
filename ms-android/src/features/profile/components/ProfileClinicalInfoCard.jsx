@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileClinicalInfoCard({ loading, profileError, phone, email, onRetry }) {
+export default function ProfileClinicalInfoCard({ loading, profileError, phone, email, lastDonationDate, onRetry }) {
   if (loading) {
     return (
       <View style={styles.loadingBox}>
@@ -42,8 +42,10 @@ export default function ProfileClinicalInfoCard({ loading, profileError, phone, 
       <View style={styles.divider} />
       <View style={styles.infoRow}>
         <Ionicons name="medkit-outline" size={20} color="#64748B" />
-        <Text style={styles.infoLabel}>Estado:</Text>
-        <Text style={[styles.infoVal, { color: '#16A34A', fontWeight: 'bold' }]}>Activo para Donar</Text>
+        <Text style={styles.infoLabel}>Última donación:</Text>
+        <Text style={styles.infoVal}>
+          {lastDonationDate ? new Date(lastDonationDate).toLocaleDateString('es-GT') : 'Sin registro'}
+        </Text>
       </View>
     </View>
   );

@@ -21,7 +21,7 @@ export function useProfile() {
     setProfileError(null);
     try {
       const profileRes = await profileApi.getProfileMe();
-      setProfile(profileRes.data?.data || profileRes.data);
+      setProfile(profileRes);
     } catch (err) {
       console.log('Error loading profile:', err?.message);
       setProfileError(getErrorMessage(err, 'Perfil no encontrado o aún no generado.'));
@@ -34,7 +34,7 @@ export function useProfile() {
     setStatsError(null);
     try {
       const statsRes = await profileApi.getMyStats();
-      setStats(statsRes.data?.data || statsRes.data);
+      setStats(statsRes);
     } catch (err) {
       console.log('Error loading stats:', err?.message);
       setStatsError(getErrorMessage(err, 'No se pudieron obtener las estadísticas de impacto.'));

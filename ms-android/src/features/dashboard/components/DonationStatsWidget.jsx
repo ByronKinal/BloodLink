@@ -26,12 +26,12 @@ export default function DonationStatsWidget({ loading, error, stats, onRetry }) 
       ) : (
         <View style={styles.statsGrid}>
           <View style={styles.statGridBox}>
-            <Text style={styles.statGridVal}>{stats?.totalDonations ?? stats?.donacionesTotales ?? 0}</Text>
+            <Text style={styles.statGridVal}>{stats?.donationCount ?? 0}</Text>
             <Text style={styles.statGridLabel}>Donaciones Realizadas</Text>
           </View>
           <View style={styles.statGridBox}>
-            <Text style={styles.statGridVal}>{stats?.livesImpacted ?? stats?.vidasImpactadas ?? 0}</Text>
-            <Text style={styles.statGridLabel}>Vidas Salvadas</Text>
+            <Text style={styles.statGridVal}>{stats?.totalBloodDonatedLiters ?? 0} L</Text>
+            <Text style={styles.statGridLabel}>Sangre Donada</Text>
           </View>
         </View>
       )}

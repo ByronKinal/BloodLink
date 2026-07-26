@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import LoadingView from '../../../shared/components/LoadingView';
 import ErrorView from '../../../shared/components/ErrorView';
 import EmptyView from '../../../shared/components/EmptyView';
+import { isTriageApto } from '../../../shared/utils/triageEligibility';
 
 export default function TriageHistoryView({ history, loading, error, onRetry }) {
   return (
@@ -20,9 +21,9 @@ export default function TriageHistoryView({ history, loading, error, onRetry }) 
         />
       ) : (
         history.map((item, index) => {
-          const isEligible = item.esApto ?? item.isEligible ?? true;
+          const isEligible = isTriageApto(item);
           return (
-            <View key={item._id || index} style={styles.historyCard}>
+            <View key={item._id || item.id || index} style={styles.historyCard}>
               <View style={styles.historyCardHeader}>
                 <Ionicons
                   name={isEligible ? 'checkmark-circle' : 'close-circle'}
@@ -34,7 +35,7 @@ export default function TriageHistoryView({ history, loading, error, onRetry }) 
                     {isEligible ? 'Elegible para Donación' : 'No Elegible'}
                   </Text>
                   <Text style={styles.historyDate}>
-                    {item.createdAt || item.fecha || 'Fecha registrada'}
+                    {item.createdAt || 'Fecha registrada'}
                   </Text>
                 </View>
               </View>

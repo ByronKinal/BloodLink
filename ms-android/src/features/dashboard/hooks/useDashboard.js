@@ -72,7 +72,7 @@ export function useDashboard() {
     setErrorStats(null);
     try {
       const res = await dashboardApi.getDashboardStats();
-      setStats(res.data?.data || res.data || {});
+      setStats(res);
     } catch (err) {
       console.log('Dashboard Widget Stats error:', err?.message);
       setErrorStats(getErrorMessage(err, 'Estadísticas no disponibles'));

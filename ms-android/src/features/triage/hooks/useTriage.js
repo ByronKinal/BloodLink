@@ -42,6 +42,7 @@ export function useTriage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
+  const [submitError, setSubmitError] = useState(null);
 
   // History state
   const [history, setHistory] = useState([]);
@@ -176,34 +177,17 @@ export function useTriage() {
     };
 
     try {
-      const response = await triageApi.submitTriage(payload);
-      const resData = response.data?.data || response.data;
+      const resData = await triageApi.submitTriage(payload);
       setResult({
         success: true,
         data: resData,
-        message: resData?.message || 'Triage médico enviado con éxito.',
+        message: `Formulario registrado. Resultado: ${resData?.evaluation?.result || ''}`.trim(),
       });
+      setSubmitError(null);
       fetchTriageHistory();
     } catch (err) {
       console.log('Error submitting triage:', err?.message);
-      const esApto =
-        payload.edadAnios >= 18 &&
-        payload.pesoKg >= 50 &&
-        !payload.tieneFiebre &&
-        !payload.tieneSintomasInfeccion &&
-        !payload.consumioAlcoholUltimas24h &&
-        !payload.tomoAntibioticosUltimos7d &&
-        !payload.embarazadaOLactando &&
-        !payload.tuvoTatuajeOPiercing &&
-        !payload.tuvoCirugiaReciente;
-
-      setResult({
-        success: true,
-        data: { esApto, status: esApto ? 'APTO' : 'NO_APTO' },
-        message: esApto
-          ? 'Evaluación preliminar: APTO para donar sangre.'
-          : 'Evaluación preliminar: No cumples con los criterios para donar hoy.',
-      });
+      setSubmitError(getErrorMessage(err, 'No se pudo enviar el formulario de triage. Intenta de nuevo.'));
     } finally {
       setSubmitting(false);
     }
@@ -213,6 +197,7 @@ export function useTriage() {
     setFormData(INITIAL_FORM);
     setStep(1);
     setResult(null);
+    setSubmitError(null);
   };
 
   return {
@@ -227,6 +212,7 @@ export function useTriage() {
     handleResetForm,
     submitting,
     result,
+    submitError,
     history,
     loadingHistory,
     historyError,
