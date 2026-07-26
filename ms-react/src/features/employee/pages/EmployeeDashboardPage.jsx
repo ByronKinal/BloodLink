@@ -34,6 +34,7 @@ export function EmployeeDashboardPage() {
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
   const [isConfigOpen, setIsConfigOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
@@ -65,6 +66,8 @@ export function EmployeeDashboardPage() {
             userCardStyle={{ background: 'rgba(32,96,160,0.07)', border: '1px solid rgba(32,96,160,0.14)' }}
             logoutTone="rgba(100,140,255,0.65)"
             onProfileClick={() => setIsConfigOpen(true)}
+            mobileOpen={mobileSidebarOpen}
+            onCloseMobile={() => setMobileSidebarOpen(false)}
           />
         }
         topbar={
@@ -76,6 +79,7 @@ export function EmployeeDashboardPage() {
             initials={initials}
             profilePicture={user.profilePicture}
             onProfileClick={() => setIsConfigOpen(true)}
+            onMenuToggle={() => setMobileSidebarOpen(true)}
           />
         }
         mainClassName="bg-gris1"

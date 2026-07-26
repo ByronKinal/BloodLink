@@ -42,6 +42,7 @@ export function AdminDashboardPage() {
   const [active, setActive] = useState('inicio')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isConfigOpen, setIsConfigOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
@@ -91,6 +92,8 @@ export function AdminDashboardPage() {
             userCardStyle={{ background: 'rgba(212,32,64,0.08)', border: '1px solid rgba(212,32,64,0.2)' }}
             logoutTone="rgba(255,120,120,0.6)"
             onProfileClick={() => setIsConfigOpen(true)}
+            mobileOpen={mobileSidebarOpen}
+            onCloseMobile={() => setMobileSidebarOpen(false)}
           />
         }
         topbar={
@@ -102,6 +105,7 @@ export function AdminDashboardPage() {
             initials={initials}
             profilePicture={user.profilePicture}
             onProfileClick={() => setIsConfigOpen(true)}
+            onMenuToggle={() => setMobileSidebarOpen(true)}
           />
         }
         mainClassName="bg-[#F5F3F8]"

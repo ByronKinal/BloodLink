@@ -36,6 +36,7 @@ export function ClientDashboardPage() {
   const [active, setActive] = useState('inicio')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isConfigOpen, setIsConfigOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
@@ -58,7 +59,6 @@ export function ClientDashboardPage() {
         const match = NAV_ITEMS.find((i) => i.id === hash)
         if (match) {
           setActive(match.id)
-          // if navigating to citas from the drop click, collapse sidebar like admin
           if (hash === 'citas') setSidebarCollapsed(true)
         }
       } catch (e) {
@@ -90,6 +90,8 @@ export function ClientDashboardPage() {
             userCardStyle={{ background: 'rgba(212,32,64,0.07)', border: '1px solid rgba(212,32,64,0.14)' }}
             logoutTone="rgba(255,100,100,0.65)"
             onProfileClick={() => setIsConfigOpen(true)}
+            mobileOpen={mobileSidebarOpen}
+            onCloseMobile={() => setMobileSidebarOpen(false)}
           />
         }
         topbar={
@@ -101,6 +103,7 @@ export function ClientDashboardPage() {
             initials={initials}
             profilePicture={user.profilePicture}
             onProfileClick={() => setIsConfigOpen(true)}
+            onMenuToggle={() => setMobileSidebarOpen(true)}
           />
         }
         mainClassName="bg-gris1"
