@@ -6,6 +6,7 @@ import { DashboardSidebar } from '../../../shared/components/dashboard/Dashboard
 import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardTopbar.jsx'
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { EmployeeDashboardHome } from '../components/EmployeeDashboardHome.jsx'
+import { EmployeeInventorySection } from '../components/EmployeeInventorySection.jsx'
 import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   EmployeeIconHome,
@@ -77,6 +78,8 @@ export function EmployeeDashboardPage() {
       >
         {active === 'inicio' ? (
           <EmployeeDashboardHome user={user} />
+        ) : active === 'inventario' ? (
+          <EmployeeInventorySection />
         ) : (
           <DashboardPlaceholderSection
             title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

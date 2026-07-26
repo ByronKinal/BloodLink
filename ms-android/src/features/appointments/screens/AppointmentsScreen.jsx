@@ -1,0 +1,194 @@
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAppointments } from '../hooks/useAppointments';
+import { useCreateAppointment } from '../hooks/useCreateAppointment';
+import AppointmentCard from '../components/AppointmentCard';
+import CreateAppointmentForm from '../components/CreateAppointmentForm';
+import AppointmentEligibilityGate from '../components/AppointmentEligibilityGate';
+import TabSwitcher from '../../../shared/components/TabSwitcher';
+
+const APPOINTMENT_TABS = [
+  { value: 'list', label: 'Mis Citas' },
+  { value: 'create', label: 'Agendar Nueva' },
+];
+
+export default function AppointmentsScreen({ navigation }) {
+  const [mode, setMode] = useState('list'); // 'list' | 'create'
+  const { appointments, loading, refreshing, error, refetch, onRefresh } = useAppointments();
+
+  const handleCreated = () => {
+    setMode('list');
+    refetch();
+  };
+
+  const {
+    loadingEligibility,
+    hasTriage,
+    isApto,
+    submitError,
+    handleSubmit,
+    refetchEligibility,
+    ...createFormProps
+  } = useCreateAppointment({ onCreated: handleCreated });
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Mis Citas de Donación</Text>
+        <Text style={styles.headerSubtitle}>Gestiona tus agendamientos de donación de sangre</Text>
+
+        <TabSwitcher tabs={APPOINTMENT_TABS} activeTab={mode} onChange={setMode} />
+      </View>
+
+      {mode === 'create' ? (
+        <ScrollView contentContainerStyle={styles.content}>
+          {loadingEligibility ? (
+            <View style={styles.centerContainer}>
+              <ActivityIndicator size="large" color="#D42040" />
+              <Text style={styles.loadingText}>Verificando tu elegibilidad...</Text>
+            </View>
+          ) : !isApto ? (
+            <AppointmentEligibilityGate hasTriage={hasTriage} onGoToTriage={() => navigation?.navigate('Triage')} />
+          ) : (
+            <CreateAppointmentForm {...createFormProps} submitError={submitError} onSubmit={handleSubmit} />
+          )}
+        </ScrollView>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.content}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#D42040']} />}
+        >
+          {loading ? (
+            <View style={styles.centerContainer}>
+              <ActivityIndicator size="large" color="#D42040" />
+              <Text style={styles.loadingText}>Cargando tus citas...</Text>
+            </View>
+          ) : error ? (
+            <View style={styles.errorCard}>
+              <Ionicons name="alert-circle-outline" size={48} color="#E53935" />
+              <Text style={styles.errorText}>{error}</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={refetch}>
+                <Text style={styles.retryButtonText}>Reintentar</Text>
+              </TouchableOpacity>
+            </View>
+          ) : appointments.length === 0 ? (
+            <View style={styles.emptyCard}>
+              <Ionicons name="calendar-outline" size={64} color="#9E9E9E" />
+              <Text style={styles.emptyTitle}>Aún no tienes citas agendadas</Text>
+              <Text style={styles.emptySub}>Programa una nueva cita en tu centro de donación más cercano.</Text>
+              <TouchableOpacity style={styles.emptyActionBtn} onPress={() => setMode('create')}>
+                <Text style={styles.emptyActionBtnText}>Agendar mi cita</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            appointments.map((item, index) => <AppointmentCard key={item._id || item.id || index} item={item} />)
+          )}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  header: {
+    backgroundColor: '#1E293B',
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#94A3B8',
+    marginTop: 4,
+  },
+  content: {
+    padding: 16,
+  },
+  centerContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    color: '#64748B',
+    fontSize: 14,
+  },
+  errorCard: {
+    backgroundColor: '#FFEBEE',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  errorText: {
+    color: '#C62828',
+    fontSize: 14,
+    marginVertical: 12,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#D42040',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
+  emptyCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 32,
+    alignItems: 'center',
+    marginTop: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#334155',
+    marginTop: 16,
+  },
+  emptySub: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  emptyActionBtn: {
+    backgroundColor: '#D42040',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 18,
+  },
+  emptyActionBtnText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+});
