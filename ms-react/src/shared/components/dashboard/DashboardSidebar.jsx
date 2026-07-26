@@ -32,7 +32,7 @@ export function DashboardSidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[240px] transform flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen ${
+        className={`fixed inset-y-0 left-0 z-50 w-[240px] transform flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen h-full flex-shrink-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         } ${collapsed ? 'lg:w-[82px]' : 'lg:w-[240px]'} ${sidebarClassName}`}
         style={sidebarStyle}
