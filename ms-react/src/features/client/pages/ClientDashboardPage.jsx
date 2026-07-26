@@ -23,7 +23,6 @@ import { AiChatWidget } from '../components/AiChatWidget.jsx'
 
 const NAV_ITEMS = [
   { id: 'inicio', label: 'Inicio', icon: ClientIconHome },
-  { id: 'perfil', label: 'Mi perfil', icon: ClientIconUser },
   { id: 'triaje', label: 'Triaje médico', icon: ClientIconPulse },
   { id: 'donaciones', label: 'Mis donaciones', icon: ClientIconDrop },
   { id: 'tienda', label: 'Tienda', icon: ClientIconGift },

@@ -9,6 +9,7 @@ import { EmployeeDashboardHome } from '../components/EmployeeDashboardHome.jsx'
 import { TriageReviewPanel } from '../components/triage/TriageReviewPanel.jsx'
 import { StaffAgendaPanel } from '../components/appointments/StaffAgendaPanel.jsx'
 import { EmployeeInventorySection } from '../components/EmployeeInventorySection.jsx'
+import { EmployeeDonationsSection } from '../components/EmployeeDonationsSection.jsx'
 import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   EmployeeIconHome,
@@ -25,7 +26,6 @@ const NAV_ITEMS = [
   { id: 'donaciones',  label: 'Donaciones',        icon: EmployeeIconDrop },
   { id: 'inventario',  label: 'Inventario',        icon: EmployeeIconClipboard },
   { id: 'citas',       label: 'Citas',             icon: EmployeeIconCalendar },
-  { id: 'perfil',      label: 'Mi perfil',         icon: EmployeeIconUser },
 ]
 
 export function EmployeeDashboardPage() {
@@ -88,6 +88,8 @@ export function EmployeeDashboardPage() {
           <StaffAgendaPanel />
         ) : active === 'inventario' ? (
           <EmployeeInventorySection />
+        ) : active === 'donaciones' ? (
+          <EmployeeDonationsSection />
         ) : (
           <DashboardPlaceholderSection
             title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

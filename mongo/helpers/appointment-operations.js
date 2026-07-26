@@ -80,6 +80,9 @@ const hydrateAppointment = async (appointmentDoc) => {
     ? await findUserById(appointmentDoc.staffUserId)
     : null;
 
+  const Donation = mongoose.model('Donation');
+  const donation = await Donation.findOne({ appointmentId: appointmentDoc._id }).lean();
+
   return {
     id: String(appointmentDoc._id),
     date: appointmentDoc.appointmentDate,
@@ -87,6 +90,7 @@ const hydrateAppointment = async (appointmentDoc) => {
     status: appointmentDoc.status,
     donor: mapUser(donor),
     staff: mapUser(staff),
+    hasDonation: !!donation,
     createdAt: appointmentDoc.createdAt,
     updatedAt: appointmentDoc.updatedAt,
   };
