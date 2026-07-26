@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { DashboardEmptyState } from '../../../shared/components/dashboard/DashboardEmptyState.jsx'
 import { DashboardSectionCard } from '../../../shared/components/dashboard/DashboardSectionCard.jsx'
 import { AdminUsersTable } from './AdminUsersTable.jsx'
@@ -19,6 +20,9 @@ export function AdminUsersSection({ currentUserId }) {
     loading,
     refreshing,
     error,
+    createError,
+    editError,
+    createSuccessMessage,
     saving,
     rolesModalUser,
     rolesModalLoading,
@@ -31,16 +35,30 @@ export function AdminUsersSection({ currentUserId }) {
     handleSaveUser,
     handleToggleStatus,
     handleCreateUser,
+    clearCreateError,
+    clearCreateSuccessMessage,
+    clearEditError,
     setRolesModalUser,
     setEditModalUser,
     setCreateModalOpen,
   } = useAdminUsersSection()
 
+  const [toastMessage, setToastMessage] = useState('')
+  useEffect(() => {
+    if (createSuccessMessage) {
+      setToastMessage(createSuccessMessage)
+      const t = setTimeout(() => {
+        setToastMessage('')
+        clearCreateSuccessMessage()
+      }, 4000)
+      return () => clearTimeout(t)
+    }
+    return undefined
+  }, [createSuccessMessage, clearCreateSuccessMessage])
+
   return (
     <div className="space-y-5">
-      <DashboardSectionCard
-        title="Panel de usuarios"
-      >
+      <DashboardSectionCard title="Panel de usuarios">
         <div className="px-4 pt-4 sm:px-5 sm:pt-5">
           <AdminUsersToolbar
             search={search}
@@ -53,7 +71,7 @@ export function AdminUsersSection({ currentUserId }) {
 
           <AdminRoleFilterPills
             roles={allowedRoles}
-            selectedRole={selectedRole}
+       onSave={(form) => handleSaveUser(form, currentUserId)}
             onSelectRole={setSelectedRole}
           />
         </div>
@@ -62,6 +80,12 @@ export function AdminUsersSection({ currentUserId }) {
       {error ? (
         <div className="rounded-[14px] border border-[rgba(212,32,64,0.2)] bg-[rgba(212,32,64,0.06)] px-4 py-3 text-[13px] text-rojo">
           {error}
+        </div>
+      ) : null}
+
+      {toastMessage ? (
+        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-[10px] border border-[rgba(22,163,74,0.2)] bg-[rgba(22,163,74,0.06)] px-4 py-3 text-[13px] text-emerald-700 shadow">
+          {toastMessage}
         </div>
       ) : null}
 
@@ -85,6 +109,8 @@ export function AdminUsersSection({ currentUserId }) {
         />
       )}
 
+      {/* success messages are shown as transient toasts via Notyf */}
+
       <AdminUserRolesModal
         open={Boolean(rolesModalUser)}
         user={rolesModalUser}
@@ -99,8 +125,12 @@ export function AdminUsersSection({ currentUserId }) {
         rolesOptions={allowedRoles}
         saving={saving}
         currentUserId={currentUserId}
-        onClose={() => setEditModalUser(null)}
-        onSave={handleSaveUser}
+        editError={editError}
+        onClose={() => {
+          clearEditError()
+          setEditModalUser(null)
+        }}
+          onSave={(form) => handleSaveUser(form, currentUserId)}
       />
 
       <AdminUserCreateModal
@@ -108,8 +138,13 @@ export function AdminUsersSection({ currentUserId }) {
         saving={saving}
         allowedRoles={allowedRoles}
         defaultRole={selectedRole}
-        onClose={() => setCreateModalOpen(false)}
+        onClose={() => {
+          clearCreateError()
+          setCreateModalOpen(false)
+        }}
         onCreate={handleCreateUser}
+        createError={createError}
+        clearCreateError={clearCreateError}
       />
     </div>
   )

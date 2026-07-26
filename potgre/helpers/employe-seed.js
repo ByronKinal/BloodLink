@@ -7,11 +7,11 @@ import { Role, UserRole } from '../src/Auth/role.model.js';
 const parseBoolean = (value) => String(value).toLowerCase() === 'true';
 
 const DEFAULT_EMPLOYEE = {
-  name: 'Employee',
+  name: 'Doctor',
   surname: 'Staff',
-  username: 'employee',
-  email: 'employee@bloodlink.local',
-  password: 'Employee1234',
+  username: 'doctor',
+  email: 'doctor@bloodlink.local',
+  password: 'Doctor1234',
   phone: '55556666',
 };
 

@@ -24,6 +24,8 @@ export function AdminUserCreateModal({
   defaultRole,
   onClose,
   onCreate,
+  createError,
+  clearCreateError,
 }) {
   const [form, setForm] = useState(INITIAL_FORM)
   const [error, setError] = useState('')
@@ -45,6 +47,7 @@ export function AdminUserCreateModal({
     const { name, value } = event.target
     setForm((current) => ({ ...current, [name]: value }))
     setError('')
+    clearCreateError()
   }
 
   const handleSubmit = async (event) => {
@@ -78,7 +81,10 @@ export function AdminUserCreateModal({
         <>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => {
+              clearCreateError()
+              onClose()
+            }}
             className="rounded-[10px] border border-gris2 bg-white px-4 py-2 text-[13px] font-medium text-txt transition-colors hover:border-rojo hover:text-rojo"
           >
             Cancelar
@@ -99,9 +105,9 @@ export function AdminUserCreateModal({
           El usuario quedará activo y verificado al crearse. Zone y municipality son opcionales.
         </div>
 
-        {error ? (
+        {(error || createError) ? (
           <div className="rounded-[14px] border border-[rgba(212,32,64,0.2)] bg-[rgba(212,32,64,0.06)] px-4 py-3 text-[12px] text-rojo">
-            {error}
+            {error || createError}
           </div>
         ) : null}
 

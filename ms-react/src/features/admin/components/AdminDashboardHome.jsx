@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { DashboardActionGrid } from '../../../shared/components/dashboard/DashboardActionGrid.jsx'
 import { DashboardSectionCard } from '../../../shared/components/dashboard/DashboardSectionCard.jsx'
 import { DashboardStatGrid } from '../../../shared/components/dashboard/DashboardStatGrid.jsx'
@@ -40,9 +41,18 @@ function buildDashboardActions(onNavigate) {
 }
 
 export function AdminDashboardHome({ user, onNavigate }) {
-  const { loading, error, totalUsers, usersByRole, recentUsers, stockSummary, criticalBloodTypes } =
+  const { loading, error, totalUsers, usersByRole, recentUsers, stockSummary, criticalBloodTypes, refresh } =
     useAdminDashboard()
 
+  useEffect(() => {
+    const handler = () => {
+      refresh()
+    }
+    window.addEventListener('bl_users_updated', handler)
+    return () => {
+      window.removeEventListener('bl_users_updated', handler)
+    }
+  }, [refresh])
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches'
   const displayName = user.name ? `${user.name} ${user.surname ?? ''}`.trim() : user.username ?? 'Admin'

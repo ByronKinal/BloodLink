@@ -50,6 +50,7 @@ export function ClientDashboardHome({ user, onNavigate }) {
       sub: 'Total histórico',
       accent: '#D42040',
       border: 'rgba(212,32,64,0.15)',
+      onClick: () => onNavigate('donaciones'),
     },
     {
       label: 'Sangre donada',
@@ -71,6 +72,7 @@ export function ClientDashboardHome({ user, onNavigate }) {
       sub: 'Agendadas hasta hoy',
       accent: '#28A060',
       border: 'rgba(40,160,96,0.15)',
+      onClick: () => onNavigate('citas'),
     },
   ]
 
