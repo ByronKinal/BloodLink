@@ -89,6 +89,15 @@ const sendMailViaBrevoOrSmtp = async ({ to, subject, html }) => {
   });
 };
 
+const getFrontendUrl = () => {
+  if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+  if (config.app?.frontendUrl) return config.app.frontendUrl;
+  if (process.env.RENDER || process.env.NODE_ENV === 'production') {
+    return 'https://bloodlink-web-pgq0.onrender.com';
+  }
+  return 'http://localhost:5173';
+};
+
 export const sendVerificationEmail = async (
   email,
   name,
@@ -97,7 +106,7 @@ export const sendVerificationEmail = async (
 ) => {
   ensureTransporter();
 
-  const frontendUrl = config.app.frontendUrl || 'http://localhost:5173';
+  const frontendUrl = getFrontendUrl();
   const verificationUrl = `${frontendUrl}/verify-email?token=${verificationToken}`;
 
   await sendMailViaBrevoOrSmtp({
@@ -207,7 +216,7 @@ export const sendVerificationEmail = async (
 export const sendPasswordResetEmail = async (email, name, resetToken) => {
   ensureTransporter();
 
-  const frontendUrl = config.app.frontendUrl || 'http://localhost:5173';
+  const frontendUrl = getFrontendUrl();
   const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
   await sendMailViaBrevoOrSmtp({
