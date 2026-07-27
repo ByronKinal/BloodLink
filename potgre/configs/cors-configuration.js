@@ -24,7 +24,12 @@ export const corsOptions = {
         .forEach((o) => allowedOrigins.add(o));
     }
 
-    if (allowedOrigins.has(origin)) {
+    if (
+      allowedOrigins.has(origin) ||
+      origin.endsWith('.onrender.com') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1')
+    ) {
       callback(null, true);
     } else {
       callback(new Error('No permitido por CORS'));

@@ -6,22 +6,26 @@ import { DashboardSidebar } from '../../../shared/components/dashboard/Dashboard
 import { DashboardTopbar } from '../../../shared/components/dashboard/DashboardTopbar.jsx'
 import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { EmployeeDashboardHome } from '../components/EmployeeDashboardHome.jsx'
+import { TriageReviewPanel } from '../components/triage/TriageReviewPanel.jsx'
+import { StaffAgendaPanel } from '../components/appointments/StaffAgendaPanel.jsx'
 import { EmployeeInventorySection } from '../components/EmployeeInventorySection.jsx'
+import { EmployeeDonationsSection } from '../components/EmployeeDonationsSection.jsx'
 import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   EmployeeIconHome,
   EmployeeIconDrop,
   EmployeeIconClipboard,
   EmployeeIconCalendar,
+  EmployeeIconPulse,
   EmployeeIconUser,
 } from '../components/EmployeeDashboardIcons.jsx'
 
 const NAV_ITEMS = [
   { id: 'inicio',      label: 'Inicio',           icon: EmployeeIconHome },
+  { id: 'triaje',      label: 'Revisión de triaje', icon: EmployeeIconPulse },
   { id: 'donaciones',  label: 'Donaciones',        icon: EmployeeIconDrop },
   { id: 'inventario',  label: 'Inventario',        icon: EmployeeIconClipboard },
   { id: 'citas',       label: 'Citas',             icon: EmployeeIconCalendar },
-  { id: 'perfil',      label: 'Mi perfil',         icon: EmployeeIconUser },
 ]
 
 export function EmployeeDashboardPage() {
@@ -30,6 +34,7 @@ export function EmployeeDashboardPage() {
   const user = auth?.user ?? {}
   const [active, setActive] = useState('inicio')
   const [isConfigOpen, setIsConfigOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
@@ -61,6 +66,8 @@ export function EmployeeDashboardPage() {
             userCardStyle={{ background: 'rgba(32,96,160,0.07)', border: '1px solid rgba(32,96,160,0.14)' }}
             logoutTone="rgba(100,140,255,0.65)"
             onProfileClick={() => setIsConfigOpen(true)}
+            mobileOpen={mobileSidebarOpen}
+            onCloseMobile={() => setMobileSidebarOpen(false)}
           />
         }
         topbar={
@@ -72,14 +79,21 @@ export function EmployeeDashboardPage() {
             initials={initials}
             profilePicture={user.profilePicture}
             onProfileClick={() => setIsConfigOpen(true)}
+            onMenuToggle={() => setMobileSidebarOpen(true)}
           />
         }
         mainClassName="bg-gris1"
       >
         {active === 'inicio' ? (
-          <EmployeeDashboardHome user={user} />
+          <EmployeeDashboardHome user={user} onNavigate={setActive} />
+        ) : active === 'triaje' ? (
+          <TriageReviewPanel />
+        ) : active === 'citas' ? (
+          <StaffAgendaPanel />
         ) : active === 'inventario' ? (
           <EmployeeInventorySection />
+        ) : active === 'donaciones' ? (
+          <EmployeeDonationsSection />
         ) : (
           <DashboardPlaceholderSection
             title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

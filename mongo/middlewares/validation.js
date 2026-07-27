@@ -164,6 +164,17 @@ export const validateStaffAgendaQuery = [
   handleValidationErrors,
 ];
 
+export const validateAvailabilityQuery = [
+  query('date')
+    .trim()
+    .notEmpty()
+    .withMessage('date es obligatorio')
+    .matches(/^\d{4}-\d{2}-\d{2}$/)
+    .withMessage('date debe tener formato YYYY-MM-DD'),
+
+  handleValidationErrors,
+];
+
 export const validateAppointmentIdParam = [
   param('appointmentId')
     .trim()

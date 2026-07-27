@@ -42,6 +42,7 @@ export const getStaffAgenda = asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
       date: result.selectedDate,
+      weekRange: result.weekRange,
       data: result.appointments.map(buildAppointmentResponse),
     });
   } catch (error) {

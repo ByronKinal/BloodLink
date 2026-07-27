@@ -208,3 +208,62 @@ export const registerDonationWeight = asyncHandler(async (req, res) => {
     },
   });
 });
+
+export const listDonations = asyncHandler(async (req, res) => {
+  if (!ensureMongoReady()) {
+    return res.status(503).json({
+      success: false,
+      message: 'MongoDB no esta conectado',
+    });
+  }
+
+  const requesterRoles = await getUserRoleNames(req.userId);
+  const isStaffOrAdmin = requesterRoles.some((role) =>
+    [STAFF_ROLE, ADMIN_ROLE].includes(role)
+  );
+
+  const query = {};
+  if (!isStaffOrAdmin) {
+    query.donorUserId = req.userId;
+  }
+
+  const donations = await Donation.find(query).sort({ donationDate: -1 }).lean();
+
+  const hydrated = await Promise.all(
+    donations.map(async (donation) => {
+      let donor = null;
+      try {
+        donor = await findUserById(donation.donorUserId);
+      } catch (err) {
+        // Ignore user not found
+      }
+
+      let staff = null;
+      try {
+        staff = await findUserById(donation.staffUserId);
+      } catch (err) {
+        // Ignore user not found
+      }
+
+      const donorName = donor
+        ? `${donor.name ?? ''} ${donor.surname ?? ''}`.trim() || donor.username
+        : 'Donante Desconocido';
+      const staffName = staff
+        ? `${staff.name ?? ''} ${staff.surname ?? ''}`.trim() || staff.username
+        : 'Personal';
+
+      return {
+        ...sanitizeDonation(donation),
+        donorName,
+        donorEmail: donor?.email || '',
+        staffName,
+      };
+    })
+  );
+
+  return res.status(200).json({
+    success: true,
+    total: hydrated.length,
+    data: hydrated,
+  });
+});
