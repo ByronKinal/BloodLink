@@ -5,6 +5,7 @@ import {
   DONOR_ROLE,
 } from '../../helpers/role-constants.js';
 import TriageForm from './triage.model.js';
+import { createNotification } from '../../helpers/notification-operations.js';
 
 const HOURS_24_IN_MS = 0 ;//24 * 60 * 60 * 1000;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -39,7 +40,7 @@ const toDaysBetween = (fromDate, toDate) => {
   return Math.floor(diff / DAY_IN_MS);
 };
 
-const sanitizeTriage = (triage) => ({
+export const sanitizeTriage = (triage) => ({
   id: String(triage._id),
   accountId: triage.accountId,
   edadAnios: triage.ageYears,
@@ -62,6 +63,7 @@ const sanitizeTriage = (triage) => ({
   fechaUltimaCirugia: triage.lastSurgeryDate,
   fechaUltimaDonacion: triage.lastDonationDate,
   evaluation: triage.evaluation,
+  reviewStatus: triage.reviewStatus,
   createdAt: triage.createdAt,
   updatedAt: triage.updatedAt,
 });
@@ -224,6 +226,16 @@ export const createTriageForm = asyncHandler(async (req, res) => {
       ...evaluation,
       checkedAt: now,
     },
+  });
+
+  await createNotification({
+    userId: req.userId,
+    type: 'TRIAGE_RESULT',
+    title: evaluation.result === 'APTO' ? 'Eres apto para donar' : 'Resultado de Triage: No apto',
+    message:
+      evaluation.result === 'APTO'
+        ? 'Tu evaluacion de Triage indica que eres apto para donar sangre.'
+        : evaluation.reasons?.[0] || 'Tu evaluacion de Triage indica que no eres apto por el momento.',
   });
 
   return res.status(201).json({

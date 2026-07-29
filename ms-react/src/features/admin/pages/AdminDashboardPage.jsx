@@ -9,10 +9,11 @@ import { clearAuth, getStoredAuth } from '../../../shared/utils/auth.store.js'
 import { AdminUsersSection } from '../components/AdminUsersSection.jsx'
 import { AdminRewardsSection } from '../components/AdminRewardsSection.jsx'
 import { AdminDashboardHome } from '../components/AdminDashboardHome.jsx'
+import { AdminDonationsSection } from '../components/AdminDonationsSection.jsx'
+import { EmployeeInventorySection } from '../../employee/components/EmployeeInventorySection.jsx'
 import { ProfileConfigModal } from '../../../shared/components/dashboard/ProfileConfigModal.jsx'
 import {
   AdminIconBox,
-  AdminIconChart,
   AdminIconDrop,
   AdminIconGift,
   AdminIconHome,
@@ -25,7 +26,6 @@ const NAV_ITEMS = [
   { id: 'donaciones', label: 'Donaciones', icon: AdminIconDrop },
   { id: 'inventario', label: 'Inventario', icon: AdminIconBox },
   { id: 'premios', label: 'Premios', icon: AdminIconGift },
-  { id: 'reportes', label: 'Reportes', icon: AdminIconChart },
 ]
 
 const ROLE_LABEL = {
@@ -40,6 +40,7 @@ export function AdminDashboardPage() {
   const [active, setActive] = useState('inicio')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isConfigOpen, setIsConfigOpen] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   const handleLogout = () => {
     clearAuth()
@@ -89,6 +90,8 @@ export function AdminDashboardPage() {
             userCardStyle={{ background: 'rgba(212,32,64,0.08)', border: '1px solid rgba(212,32,64,0.2)' }}
             logoutTone="rgba(255,120,120,0.6)"
             onProfileClick={() => setIsConfigOpen(true)}
+            mobileOpen={mobileSidebarOpen}
+            onCloseMobile={() => setMobileSidebarOpen(false)}
           />
         }
         topbar={
@@ -100,16 +103,21 @@ export function AdminDashboardPage() {
             initials={initials}
             profilePicture={user.profilePicture}
             onProfileClick={() => setIsConfigOpen(true)}
+            onMenuToggle={() => setMobileSidebarOpen(true)}
           />
         }
         mainClassName="bg-[#F5F3F8]"
       >
         {active === 'inicio' ? (
-          <AdminDashboardHome user={user} />
+          <AdminDashboardHome user={user} onNavigate={setActive} />
         ) : active === 'usuarios' ? (
           <AdminUsersSection currentUserId={user.id} />
         ) : active === 'premios' ? (
           <AdminRewardsSection />
+        ) : active === 'inventario' ? (
+          <EmployeeInventorySection />
+        ) : active === 'donaciones' ? (
+          <AdminDonationsSection />
         ) : (
           <DashboardPlaceholderSection
             title={NAV_ITEMS.find((item) => item.id === active)?.label ?? 'Sección'}

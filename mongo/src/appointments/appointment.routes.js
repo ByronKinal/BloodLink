@@ -6,8 +6,10 @@ import {
   getStaffAgenda,
   listAppointments,
 } from './appointment.controller.js';
+import { cancelAppointment, getAvailability } from './appointment-actions.controller.js';
 import {
   validateAppointmentIdParam,
+  validateAvailabilityQuery,
   validateConfirmAppointment,
   validateCreateAppointment,
   validateStaffAgendaQuery,
@@ -18,12 +20,19 @@ const router = Router();
 router.get('/', validateJWT, listAppointments);
 router.post('/', validateJWT, validateCreateAppointment, createAppointment);
 router.get('/staff', validateJWT, validateStaffAgendaQuery, getStaffAgenda);
+router.get('/availability', validateJWT, validateAvailabilityQuery, getAvailability);
 router.patch(
   '/:appointmentId/confirm',
   validateJWT,
   validateAppointmentIdParam,
   validateConfirmAppointment,
   confirmAppointment
+);
+router.patch(
+  '/:appointmentId/cancel',
+  validateJWT,
+  validateAppointmentIdParam,
+  cancelAppointment
 );
 
 export default router;
