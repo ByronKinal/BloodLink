@@ -140,7 +140,10 @@ export const getMyStatsReport = asyncHandler(async (req, res) => {
   // Por qué: evita pedir userId por query/params; lo tomas del token y previenes ver stats de otro usuario.
   const userId = req.userId;
 
-  const [appointmentCount, donationCount, donationVolumeAggregation, wallet] =
+  const now = new Date();
+  const sixMonthsAgoStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+
+  const [appointmentCount, donationCount, donationVolumeAggregation, monthlyAggregation, wallet] =
     await Promise.all([
       Appointment.countDocuments({donorUserId: userId}),
       Donation.countDocuments({donorUserId: userId}),
@@ -149,16 +152,43 @@ export const getMyStatsReport = asyncHandler(async (req, res) => {
         {
           $group: {
             _id: null,
-            totalVolumeMl: { $sum: '$bloodUnit.volumeMl' }, 
+            totalVolumeMl: { $sum: '$bloodUnit.volumeMl' },
           },
         },
     ]),
+
+      Donation.aggregate([
+        { $match: { donorUserId: userId, donationDate: { $gte: sixMonthsAgoStart } } },
+        {
+          $group: {
+            _id: { year: { $year: '$donationDate' }, month: { $month: '$donationDate' } },
+            count: { $sum: 1 },
+            volumeMl: { $sum: '$bloodUnit.volumeMl' },
+          },
+        },
+      ]),
 
       getWalletByUserId(userId),
     ]);
 
     const totalBloodDonatedMl = donationVolumeAggregation?.[0]?.totalVolumeMl || 0;
     const totalEarnedPoints = wallet?.totalEarnedPoints || wallet?.total_earned_points || 0;
+
+    const MONTH_LABELS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    const monthlyDonations = [];
+    for (let i = 5; i >= 0; i -= 1) {
+      const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const match = monthlyAggregation.find(
+        (entry) => entry._id.year === monthDate.getFullYear() && entry._id.month === monthDate.getMonth() + 1
+      );
+
+      monthlyDonations.push({
+        month: MONTH_LABELS[monthDate.getMonth()],
+        count: match?.count || 0,
+        volumeMl: match?.volumeMl || 0,
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -170,6 +200,7 @@ export const getMyStatsReport = asyncHandler(async (req, res) => {
         totalEarnedPoints,
         appointmentCount,
         donationCount, // extra útil
+        monthlyDonations,
         },
   });
 });

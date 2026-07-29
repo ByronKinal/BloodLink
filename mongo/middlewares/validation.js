@@ -151,6 +151,13 @@ export const validateCreateAppointment = [
     .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
     .withMessage('La hora debe tener formato HH:mm'),
 
+  body('donationCenterId')
+    .trim()
+    .notEmpty()
+    .withMessage('donationCenterId es obligatorio')
+    .custom((value) => mongoose.isValidObjectId(value))
+    .withMessage('donationCenterId no es un ObjectId válido'),
+
   handleValidationErrors,
 ];
 
@@ -164,6 +171,24 @@ export const validateStaffAgendaQuery = [
   handleValidationErrors,
 ];
 
+export const validateAvailabilityQuery = [
+  query('date')
+    .trim()
+    .notEmpty()
+    .withMessage('date es obligatorio')
+    .matches(/^\d{4}-\d{2}-\d{2}$/)
+    .withMessage('date debe tener formato YYYY-MM-DD'),
+
+  query('donationCenterId')
+    .trim()
+    .notEmpty()
+    .withMessage('donationCenterId es obligatorio')
+    .custom((value) => mongoose.isValidObjectId(value))
+    .withMessage('donationCenterId no es un ObjectId válido'),
+
+  handleValidationErrors,
+];
+
 export const validateAppointmentIdParam = [
   param('appointmentId')
     .trim()
@@ -171,6 +196,104 @@ export const validateAppointmentIdParam = [
     .withMessage('appointmentId es obligatorio')
     .custom((value) => mongoose.isValidObjectId(value))
     .withMessage('appointmentId no es un ObjectId válido'),
+
+  handleValidationErrors,
+];
+
+export const validateBloodBagIdParam = [
+  param('id')
+    .trim()
+    .notEmpty()
+    .withMessage('id es obligatorio')
+    .custom((value) => mongoose.isValidObjectId(value))
+    .withMessage('id no es un ObjectId válido'),
+
+  handleValidationErrors,
+];
+
+export const validateCreateBloodBag = [
+  body('bloodType')
+    .trim()
+    .notEmpty()
+    .withMessage('bloodType es obligatorio')
+    .isIn(VALID_BLOOD_TYPES)
+    .withMessage(`bloodType debe ser uno de: ${VALID_BLOOD_TYPES.join(', ')}`),
+
+  body('quantity')
+    .notEmpty()
+    .withMessage('quantity es obligatorio')
+    .isInt({ min: 1 })
+    .withMessage('quantity debe ser un entero mayor a 0')
+    .toInt(),
+
+  body('donorId')
+    .trim()
+    .notEmpty()
+    .withMessage('donorId es obligatorio'),
+
+  body('collectionDate')
+    .trim()
+    .notEmpty()
+    .withMessage('collectionDate es obligatorio')
+    .isISO8601()
+    .withMessage('collectionDate debe ser una fecha válida'),
+
+  body('expiryDate')
+    .trim()
+    .notEmpty()
+    .withMessage('expiryDate es obligatorio')
+    .isISO8601()
+    .withMessage('expiryDate debe ser una fecha válida'),
+
+  handleValidationErrors,
+];
+
+export const validateUpdateBloodBag = [
+  body('bloodType')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isIn(VALID_BLOOD_TYPES)
+    .withMessage(`bloodType debe ser uno de: ${VALID_BLOOD_TYPES.join(', ')}`),
+
+  body('quantity')
+    .optional({ checkFalsy: true })
+    .isInt({ min: 1 })
+    .withMessage('quantity debe ser un entero mayor a 0')
+    .toInt(),
+
+  body('donorId')
+    .optional({ checkFalsy: true })
+    .trim()
+    .notEmpty()
+    .withMessage('donorId no puede estar vacío cuando se provee'),
+
+  body('collectionDate')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isISO8601()
+    .withMessage('collectionDate debe ser una fecha válida'),
+
+  body('expiryDate')
+    .optional({ checkFalsy: true })
+    .trim()
+    .isISO8601()
+    .withMessage('expiryDate debe ser una fecha válida'),
+
+  body().custom((_, { req }) => {
+    const allowed = ['bloodType', 'quantity', 'donorId', 'collectionDate', 'expiryDate'];
+    const sent = Object.keys(req.body || {});
+
+    if (sent.length === 0) {
+      throw new Error('Debes enviar al menos un campo para actualizar');
+    }
+
+    const invalid = sent.filter((key) => !allowed.includes(key));
+    if (invalid.length > 0) {
+      throw new Error(`Campos no permitidos: ${invalid.join(', ')}`);
+    }
+
+    return true;
+  }),
 
   handleValidationErrors,
 ];

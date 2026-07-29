@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+
+@theme {
+  --color-rojo:      #B81C32;
+  --color-rojo-v:    #D42040;
+  --color-rojo-pal:  #FDEEF1;
+  --color-rojo-med:  #F5C0C8;
+  --color-oro:       #C8942A;
+  --color-oro-v:     #E8B040;
+  --color-oro-pal:   #FDF6E8;
+  --color-carbon:    #111018;
+  --color-carbon2:   #1C1820;
+  --color-carbon3:   #2A2530;
+  --color-blanco:    #FAFAF8;
+  --color-gris1:     #F2EFE8;
+  --color-gris2:     #E0DAD0;
+  --color-gris3:     #A09080;
+  --color-txt:       #1C1010;
+  --color-txt2:      #5A4040;
+  --color-txt3:      #8A7070;
+  --color-verde:     #1A6B40;
+  --color-verde-v:   #28A060;
+  --color-azul:      #2060A0;
+
+  --font-cormorant: 'Cormorant Garamond', serif;
+  --font-outfit:    'Outfit', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #FAFAF8;
+  color: #1C1010;
+}
+
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #111018; }
+::-webkit-scrollbar-thumb { background: #B81C32; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #C8942A; }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.5); }
+}
+
+.animate-blink      { animation: blink 1.4s infinite; }
+.animate-blink-fast { animation: blink 1.2s infinite; }
+
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-ticker { animation: ticker 32s linear infinite; }
+
+/* Hero section: gradient overlay + dark crimson glow */
+.hero-bg {
+  background:
+    linear-gradient(110deg, rgba(17,16,24,0.96) 0%, rgba(17,16,24,0.88) 40%, rgba(17,16,24,0.50) 100%),
+    radial-gradient(ellipse at 75% 45%, rgba(184,28,50,0.30) 0%, transparent 60%),
+    #111018;
+}
+
+/* Shine sweep on buttons (::before) */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-15deg);
+  transition: left 0.5s;
+}
+.btn-shine:hover::before { left: 150%; }
+
+/* Shine sweep on CTA nav button (::after) */
+.btn-shine-alt {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine-alt::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  transform: skewX(-15deg);
+  transition: left 0.5s;
+}
+.btn-shine-alt:hover::after { left: 150%; }
+
+/* Alert bar "donate now" button shine */
+.alert-btn {
+  position: relative;
+  overflow: hidden;
+}
+.alert-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(184,28,50,0.15), transparent);
+  transform: skewX(-15deg);
+  transition: left 0.4s;
+}
+.alert-btn:hover::after { left: 150%; }
+
+/* Step cards: animated bottom accent bar */
+.step-card { position: relative; overflow: hidden; }
+.step-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 3px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.step-card:hover::after        { transform: scaleX(1); }
+.step-card-1::after { background: linear-gradient(90deg, #B81C32, #D42040); }
+.step-card-2::after { background: linear-gradient(90deg, #C8942A, #E8B040); }
+.step-card-3::after { background: linear-gradient(90deg, #2A2530, #1C1820); }
+.step-card-4::after { background: linear-gradient(90deg, #B81C32, #ff4060); }
+
+/* Login: floating blood drop */
+@keyframes floatdrop {
+  0%   { opacity: 0; transform: translateY(30px) rotate(-8deg); }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-80px) rotate(8deg); }
+}
+.animate-float-drop {
+  animation: floatdrop var(--dur, 9s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* Login: ECG horizontal scroll */
+@keyframes ecgmove {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-ecg { animation: ecgmove 3s linear infinite; }
+
+/* Intersection Observer fade-up reveal */
+.fade-up {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

@@ -41,6 +41,7 @@ import {
   revokeAllUserRefreshTokens,
 } from './user-db.js';
 import { DONOR_ROLE } from './role-constants.js';
+import { createMongoProfile } from './MongoServiceClient.js';
 
 const buildTokenResponse = async (user) => {
   const role = user.userRoles?.[0]?.role?.name || DONOR_ROLE;
@@ -106,6 +107,23 @@ export const registerUserHelper = async (userData, profilePictureFile) => {
     throw error;
   }
 
+  // Disparar la creación del documento médico en Mongo de forma asíncrona
+  createMongoProfile({
+    userId: newUser.id,
+    roleName: newUser.role || DONOR_ROLE,
+    email: newUser.email,
+    passwordHash: newUser.password,
+    bloodType: userData.bloodType || 'O+',
+  }).then((res) => {
+    if (res.success) {
+      console.log(`[Mongo Profile] Perfil médico creado para ${newUser.id}`);
+    } else {
+      console.warn(`[Mongo Profile] No se pudo crear el perfil médico: ${res.message}`);
+    }
+  }).catch((err) => {
+    console.error('[Mongo Profile] Error al disparar la creación de perfil:', err);
+  });
+
   const verificationToken = generateEmailVerificationToken();
   const activationCode = generateActivationCode();
   const tokenExpiry = new Date(Date.now() + config.verification.emailTokenExpiry);
@@ -163,12 +181,7 @@ export const loginUserHelper = async (emailOrUsername, password) => {
     success: true,
     message: 'Login exitoso',
     ...tokens,
-    userDetails: {
-      id: profile.id,
-      username: profile.username,
-      profilePicture: profile.profilePicture,
-      role: profile.role,
-    },
+    user: profile,
   };
 };
 

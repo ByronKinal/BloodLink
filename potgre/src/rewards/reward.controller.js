@@ -19,6 +19,7 @@ const mapReward = (reward) => ({
   requiredPoints: reward.required_points,
   stock: reward.stock,
   status: reward.status,
+  imageUrl: reward.image_url,
   createdAt: reward.created_at,
   updatedAt: reward.updated_at,
 });
@@ -33,7 +34,7 @@ export const createRewardController = asyncHandler(async (req, res) => {
     });
   }
 
-  const created = await createReward(req.body);
+  const created = await createReward(req.body, req.file);
 
   return res.status(201).json({
     success: true,
@@ -72,7 +73,7 @@ export const updateRewardController = asyncHandler(async (req, res) => {
     });
   }
 
-  const updated = await updateReward(req.params.rewardId, req.body);
+  const updated = await updateReward(req.params.rewardId, req.body, req.file);
 
   return res.status(200).json({
     success: true,

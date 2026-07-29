@@ -1,7 +1,5 @@
 const SAFETY_NOTE =
   'Esta información es orientativa y no sustituye una evaluación médica profesional.';
-const AI_SUSPENDED_MESSAGE =
-  'Servicio suspendido: el asistente de IA no está disponible en este momento.';
 const OUT_OF_SCOPE_MESSAGE =
   'No soy apto para responder esas preguntas. Solo puedo responder dudas relacionadas con donacion de sangre.';
 const LIMIT_MESSAGE =
@@ -168,12 +166,7 @@ export const askDonationAssistant = async (question) => {
   }
 
   if (!answer) {
-    return {
-      success: false,
-      inScope: false,
-      answer: AI_SUSPENDED_MESSAGE,
-      message: AI_SUSPENDED_MESSAGE,
-    };
+    answer = buildFallbackAnswer(cleanQuestion);
   }
 
   return {

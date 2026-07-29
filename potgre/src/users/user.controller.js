@@ -1,5 +1,6 @@
 import { asyncHandler } from '../../middlewares/errorHandler.js';
 import { findUserById } from '../../helpers/user-db.js';
+import { createNewUser, markEmailAsVerified } from '../../helpers/user-db.js';
 import {
   getUserRoleNames,
   getUsersByRole as repoGetUsersByRole,
@@ -15,6 +16,9 @@ import { buildUserResponse } from '../../utils/user-helpers.js';
 import { sequelize } from '../../configs/db.js';
 import { ApiResponse } from '../../utils/ApiResponse.js';
 import { User, UserProfile } from './user.model.js';
+import { createMongoProfile } from '../../helpers/MongoServiceClient.js';
+import { uploadImage, deleteImage } from '../../helpers/cloudinary-service.js';
+import { FileValidator } from '../../helpers/file-validator.js';
 
 const ensureAdmin = async (req) => {
   const currentUserId = req.userId;
@@ -134,14 +138,85 @@ export const getAllowedRoles = asyncHandler(async (req, res) => {
     .json(ApiResponse.success(ALLOWED_ROLES, 'Roles permitidos obtenidos exitosamente'));
 });
 
-export const updateUserByAdmin = asyncHandler(async (req, res) => {
+export const createUserByAdmin = asyncHandler(async (req, res) => {
   if (!(await ensureAdmin(req))) {
     return res
       .status(403)
-      .json(ApiResponse.error('No autorizado. Solo ADMIN_ROLE puede editar usuarios.'));
+      .json(ApiResponse.error('No autorizado. Solo ADMIN_ROLE puede crear usuarios.'));
   }
 
+  const {
+    name,
+    surname,
+    username,
+    email,
+    password,
+    phone,
+    bloodType,
+    zone,
+    municipality,
+    roleName,
+  } = req.body || {};
+
+  const normalizedRole = (roleName || DONOR_ROLE).trim().toUpperCase();
+
+  const createdUser = await createNewUser({
+    name,
+    surname,
+    username,
+    email,
+    password,
+    phone,
+    bloodType,
+    zone,
+    municipality,
+    profilePicture: null,
+  });
+
+  await markEmailAsVerified(createdUser.id);
+
+  // Disparar la creación de perfil en Mongo de forma asíncrona
+  createMongoProfile({
+    userId: createdUser.id,
+    roleName: normalizedRole,
+    email: createdUser.email,
+    passwordHash: createdUser.password,
+    bloodType: bloodType || 'O+',
+  }).then((res) => {
+    if (res.success) {
+      console.log(`[Mongo Profile] Perfil médico creado para ${createdUser.id} por admin`);
+    } else {
+      console.warn(`[Mongo Profile] No se pudo crear el perfil médico desde admin: ${res.message}`);
+    }
+  }).catch((err) => {
+    console.error('[Mongo Profile] Error al disparar creación de perfil desde admin:', err);
+  });
+
+  if (normalizedRole !== DONOR_ROLE) {
+    const { updatedUser } = await setUserSingleRole(createdUser, normalizedRole, sequelize);
+    return res
+      .status(201)
+      .json(ApiResponse.success(buildUserResponse(updatedUser), 'Usuario creado exitosamente'));
+  }
+
+  const refreshedUser = await findUserById(createdUser.id);
+
+  return res
+    .status(201)
+    .json(ApiResponse.success(buildUserResponse(refreshedUser), 'Usuario creado exitosamente'));
+});
+
+export const updateUserByAdmin = asyncHandler(async (req, res) => {
   const { userId } = req.params;
+  const isSelfEdit = req.userId === userId;
+  const isAdmin = await ensureAdmin(req);
+
+  if (!isAdmin && !isSelfEdit) {
+    return res
+      .status(403)
+      .json(ApiResponse.error('No autorizado. Solo puedes editar tu propia información o debes ser administrador.'));
+  }
+
   const targetUser = await findUserById(userId);
 
   if (!targetUser) {
@@ -151,8 +226,6 @@ export const updateUserByAdmin = asyncHandler(async (req, res) => {
   const targetRoles = (targetUser.userRoles || [])
     .map((ur) => ur.role?.name)
     .filter(Boolean);
-
-  const isSelfEdit = req.userId === userId;
 
   if (targetRoles.includes(ADMIN_ROLE) && !isSelfEdit) {
     return res
@@ -178,59 +251,90 @@ export const updateUserByAdmin = asyncHandler(async (req, res) => {
     status,
   } = req.body || {};
 
-  await sequelize.transaction(async (transaction) => {
-    const userUpdates = {};
-    const profileUpdates = {};
-
-    if (typeof name === 'string') {
-      userUpdates.name = name.trim();
+  let uploadedProfilePicture;
+  if (req.file) {
+    const fileValidation = FileValidator.validateImage(req.file);
+    if (!fileValidation.isValid) {
+      return res.status(400).json(ApiResponse.error(fileValidation.errorMessage || 'Archivo de imagen inválido'));
     }
 
-    if (typeof surname === 'string') {
-      userUpdates.surname = surname.trim();
-    }
+    const secureFileName = FileValidator.generateSecureFileName(
+      req.file.originalname
+    );
+    uploadedProfilePicture = await uploadImage(
+      req.file.path,
+      secureFileName
+    );
+  }
 
-    if (typeof status === 'boolean') {
-      userUpdates.status = status;
-    }
+  try {
+    await sequelize.transaction(async (transaction) => {
+      const userUpdates = {};
+      const profileUpdates = {};
 
-    if (typeof phone === 'string') {
-      profileUpdates.phone = phone.trim();
-    }
-
-    if (typeof zone === 'string') {
-      profileUpdates.zone = zone.trim();
-    }
-
-    if (typeof municipality === 'string') {
-      profileUpdates.municipality = municipality.trim();
-    }
-
-    if (Object.keys(userUpdates).length > 0) {
-      await User.update(userUpdates, {
-        where: { id: userId },
-        transaction,
-      });
-    }
-
-    if (Object.keys(profileUpdates).length > 0) {
-      const profile = await UserProfile.findOne({
-        where: { user_id: userId },
-        transaction,
-      });
-
-      if (!profile) {
-        const error = new Error('Perfil de usuario no encontrado para actualizar');
-        error.status = 409;
-        throw error;
+      if (typeof name === 'string') {
+        userUpdates.name = name.trim();
       }
 
-      await UserProfile.update(profileUpdates, {
-        where: { user_id: userId },
-        transaction,
-      });
+      if (typeof surname === 'string') {
+        userUpdates.surname = surname.trim();
+      }
+
+      if (typeof status === 'boolean') {
+        userUpdates.status = status;
+      }
+
+      if (typeof phone === 'string') {
+        profileUpdates.phone = phone.trim();
+      }
+
+      if (typeof zone === 'string') {
+        profileUpdates.zone = zone.trim();
+      }
+
+      if (typeof municipality === 'string') {
+        profileUpdates.municipality = municipality.trim();
+      }
+
+      if (uploadedProfilePicture) {
+        profileUpdates.profile_picture = uploadedProfilePicture;
+      }
+
+      if (Object.keys(userUpdates).length > 0) {
+        await User.update(userUpdates, {
+          where: { id: userId },
+          transaction,
+        });
+      }
+
+      if (Object.keys(profileUpdates).length > 0) {
+        const profile = await UserProfile.findOne({
+          where: { user_id: userId },
+          transaction,
+        });
+
+        if (!profile) {
+          const error = new Error('Perfil de usuario no encontrado para actualizar');
+          error.status = 409;
+          throw error;
+        }
+
+        await UserProfile.update(profileUpdates, {
+          where: { user_id: userId },
+          transaction,
+        });
+      }
+    });
+
+    if (uploadedProfilePicture && targetUser.userProfile?.profile_picture) {
+      await deleteImage(targetUser.userProfile.profile_picture);
     }
-  });
+  } catch (error) {
+    if (uploadedProfilePicture) {
+      await deleteImage(uploadedProfilePicture);
+    }
+    return res.status(error.status || 500).json(ApiResponse.error(error.message || 'Error al actualizar el usuario'));
+  }
 
   const updatedUser = await findUserById(userId);
 

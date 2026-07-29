@@ -1,5 +1,24 @@
 import swaggerUi from 'swagger-ui-express';
-import { openApiSpec as baseSpec } from '../../mongo/configs/swagger.js';
+
+let baseSpec = {
+  openapi: '3.0.3',
+  info: {
+    title: 'BloodLink API',
+    version: '1.0.0',
+    description: 'Documentación Swagger de BloodLink',
+  },
+  paths: {},
+  tags: [],
+};
+
+try {
+  const mongoSwagger = await import('../../mongo/configs/swagger.js');
+  if (mongoSwagger?.openApiSpec) {
+    baseSpec = mongoSwagger.openApiSpec;
+  }
+} catch (error) {
+  console.warn('Swagger | Módulo global de Swagger en mongo no disponible localmente, utilizando fallback');
+}
 
 const POSTGRES_PATH_PREFIXES = [
   '/auth',

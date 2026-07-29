@@ -72,3 +72,10 @@ export const awardDonationPointsInPostgresService = async (payload) => {
     body: JSON.stringify(payload),
   });
 };
+
+export const awardAppointmentConfirmationPointsInPostgresService = async (payload) => {
+  return requestJson('/internal/incentives/award-confirmation', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+};

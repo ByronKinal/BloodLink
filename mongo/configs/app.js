@@ -11,6 +11,8 @@ import '../src/triage/triage.model.js';
 import '../src/iot/donation.model.js';
 import '../src/blood-bags/blood-bag.model.js';
 import '../src/audit/audit-log.model.js';
+import '../src/donation-centers/donation-center.model.js';
+import '../src/notifications/notification.model.js';
 import { requestLimit } from '../middlewares/request-limit.js';
 import { corsOptions } from './cors-configuration.js';
 import { helmetConfiguration } from './helmet-configuration.js';
@@ -28,6 +30,9 @@ import iotRoutes from '../src/iot/iot.routes.js';
 import bloodBagRoutes from '../src/blood-bags/blood-bag.routes.js';
 import auditRoutes from '../src/audit/audit.routes.js';
 import reportRoutes from '../src/reports/report.routes.js';
+import internalRoutes from '../src/internal/InternalRoutes.js';
+import donationCenterRoutes from '../src/donation-centers/donation-center.routes.js';
+import notificationRoutes from '../src/notifications/notification.routes.js';
 
 const BASE_PATH = '/api/v1';
 
@@ -43,6 +48,8 @@ const middlewares = (app) => {
 const routes = (app) => {
   setupSwagger(app);
 
+  app.use('/internal', internalRoutes);
+
   app.use(`${BASE_PATH}/profiles`, profileRoutes);
   app.use(`${BASE_PATH}/ai`, aiRoutes);
   app.use(`${BASE_PATH}/appointments`, appointmentRoutes);
@@ -51,6 +58,8 @@ const routes = (app) => {
   app.use(`${BASE_PATH}/blood-bags`, bloodBagRoutes);
   app.use(`${BASE_PATH}/audit`, auditRoutes);
   app.use(`${BASE_PATH}/reports`, reportRoutes);
+  app.use(`${BASE_PATH}/donation-centers`, donationCenterRoutes);
+  app.use(`${BASE_PATH}/notifications`, notificationRoutes);
 
   app.get(`${BASE_PATH}/health`, (req, res) => {
     const mongoStatus =

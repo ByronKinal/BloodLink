@@ -1,0 +1,94 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useAuthStore } from '../../auth/store/authStore';
+import * as triageApi from '../../triage/api/triage.api';
+import * as dashboardApi from '../api/dashboard.api';
+import { isTriageApto } from '../../../shared/utils/triageEligibility';
+import { getErrorMessage } from '../../../shared/utils/apiError';
+
+export function useDashboard() {
+  const user = useAuthStore((state) => state.user);
+
+  // Estadísticas de Impacto
+  const [stats, setStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [errorStats, setErrorStats] = useState(null);
+
+  // Semáforo de Elegibilidad (Triage)
+  const [triage, setTriage] = useState(null);
+  const [loadingTriage, setLoadingTriage] = useState(true);
+  const [errorTriage, setErrorTriage] = useState(null);
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchStats = async () => {
+    setLoadingStats(true);
+    setErrorStats(null);
+    try {
+      const res = await dashboardApi.getDashboardStats();
+      setStats(res);
+    } catch (err) {
+      console.log('Dashboard Widget Stats error:', err?.message);
+      setErrorStats(getErrorMessage(err, 'Estadísticas no disponibles'));
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  const fetchTriage = async () => {
+    setLoadingTriage(true);
+    setErrorTriage(null);
+    try {
+      const data = await triageApi.getTriageHistory();
+      if (Array.isArray(data)) {
+        setTriage(data[0] || null);
+      } else {
+        setTriage(data || null);
+      }
+    } catch (err) {
+      console.log('Dashboard Widget Triage error:', err?.message);
+      setErrorTriage('No se pudo verificar el estado');
+    } finally {
+      setLoadingTriage(false);
+    }
+  };
+
+  const fetchAllWidgets = useCallback(async () => {
+    await Promise.allSettled([fetchStats(), fetchTriage()]);
+    setRefreshing(false);
+  }, [user]);
+
+  useEffect(() => {
+    fetchAllWidgets();
+  }, [fetchAllWidgets]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchAllWidgets();
+  }, [fetchAllWidgets]);
+
+  const getEligibilityStatus = () => {
+    if (loadingTriage) return { color: '#94A3B8', text: 'Cargando elegibilidad...', bg: '#F1F5F9', icon: 'time-outline' };
+    if (errorTriage) return { color: '#D97706', text: 'Triage pendiente de realizar', bg: '#FEF3C7', icon: 'alert-circle-outline' };
+    if (!triage) return { color: '#D97706', text: 'Realiza tu Triage clínico', bg: '#FEF3C7', icon: 'clipboard-outline' };
+
+    if (isTriageApto(triage)) {
+      return { color: '#16A34A', text: 'Elegible para Donar', bg: '#DCFCE7', icon: 'checkmark-circle-outline' };
+    } else {
+      return { color: '#DC2626', text: 'No Elegible por el momento', bg: '#FEE2E2', icon: 'close-circle-outline' };
+    }
+  };
+
+  return {
+    user,
+    stats,
+    loadingStats,
+    errorStats,
+    refetchStats: fetchStats,
+    triage,
+    loadingTriage,
+    errorTriage,
+    refreshing,
+    onRefresh,
+    eligibility: getEligibilityStatus(),
+  };
+}

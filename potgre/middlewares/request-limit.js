@@ -24,21 +24,31 @@ export const requestLimit = rateLimit({
 export const authRateLimit = rateLimit({
   windowMs: config.rateLimit.authWindowMs,
   max: config.rateLimit.authMaxRequests,
-  message: {
-    success: false,
-    message:
-      'Demasiados intentos de autenticación, intenta de nuevo más tarde.',
-    retryAfter: Math.ceil(config.rateLimit.authWindowMs / 1000),
-  },
+
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
     console.log(`Rate limit exceeded for IP: ${req.ip} on ${req.path}`);
     res.status(429).json({
       success: false,
-      message:
-        'Demasiados intentos de autenticación, intenta de nuevo más tarde.',
+      message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde.',
       retryAfter: Math.ceil(config.rateLimit.authWindowMs / 1000),
+    });
+  },
+});
+
+// Solo cuenta intentos FALLIDOS de login. 3 intentos por 60 segundos.
+export const loginRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: 'Demasiados intentos fallidos. Esperá 1 minuto e intentá de nuevo.',
+      retryAfter: 60,
     });
   },
 });

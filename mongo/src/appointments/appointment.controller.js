@@ -9,12 +9,13 @@ import {
 
 export const createAppointment = asyncHandler(async (req, res) => {
   try {
-    const { date, time } = req.body;
+    const { date, time, donationCenterId } = req.body;
 
     const appointment = await createAppointmentHelper({
       donorUserId: req.userId,
       date,
       time,
+      donationCenterId,
     });
 
     return res.status(201).json({
@@ -42,6 +43,7 @@ export const getStaffAgenda = asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
       date: result.selectedDate,
+      weekRange: result.weekRange,
       data: result.appointments.map(buildAppointmentResponse),
     });
   } catch (error) {
