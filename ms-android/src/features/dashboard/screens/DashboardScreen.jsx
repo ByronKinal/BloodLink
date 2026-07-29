@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, RefreshControl } from 'react-native';
+import { ImageBackground, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useDashboard } from '../hooks/useDashboard';
 import DashboardHeader from '../components/DashboardHeader';
 import BloodTypeStatusCard from '../components/BloodTypeStatusCard';
@@ -20,7 +20,11 @@ export default function DashboardScreen({ navigation }) {
   } = useDashboard();
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require('../../../../assets/img/bloodlink_background_clean.png')}
+      style={styles.container}
+      resizeMode="cover"
+    >
       <DashboardHeader
         user={user}
         onOpenProfile={() => navigation?.navigate('Perfil')}
@@ -51,7 +55,7 @@ export default function DashboardScreen({ navigation }) {
           onRetry={refetchStats}
         />
       </ScrollView>
-    </View>
+    </ImageBackground>
   );
 }
 
