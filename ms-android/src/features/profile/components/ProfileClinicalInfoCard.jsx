@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileClinicalInfoCard({ loading, profileError, phone, email }) {
+export default function ProfileClinicalInfoCard({ loading, profileError, phone, email, lastDonationDate, onRetry }) {
   if (loading) {
     return (
       <View style={styles.loadingBox}>
@@ -17,6 +17,11 @@ export default function ProfileClinicalInfoCard({ loading, profileError, phone, 
         <Ionicons name="information-circle-outline" size={32} color="#D97706" />
         <Text style={styles.infoErrorText}>{profileError}</Text>
         <Text style={styles.infoErrorSub}>Realiza tu primer Triage o consulta médica para actualizar tu perfil.</Text>
+        {onRetry ? (
+          <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
+            <Text style={styles.retryButtonText}>Reintentar</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     );
   }
@@ -37,8 +42,10 @@ export default function ProfileClinicalInfoCard({ loading, profileError, phone, 
       <View style={styles.divider} />
       <View style={styles.infoRow}>
         <Ionicons name="medkit-outline" size={20} color="#64748B" />
-        <Text style={styles.infoLabel}>Estado:</Text>
-        <Text style={[styles.infoVal, { color: '#16A34A', fontWeight: 'bold' }]}>Activo para Donar</Text>
+        <Text style={styles.infoLabel}>Última donación:</Text>
+        <Text style={styles.infoVal}>
+          {lastDonationDate ? new Date(lastDonationDate).toLocaleDateString('es-GT') : 'Sin registro'}
+        </Text>
       </View>
     </View>
   );
@@ -77,6 +84,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     marginTop: 4,
+  },
+  retryButton: {
+    backgroundColor: '#D97706',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  retryButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 13,
   },
   infoRow: {
     flexDirection: 'row',

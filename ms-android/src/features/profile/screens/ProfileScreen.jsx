@@ -16,16 +16,20 @@ export default function ProfileScreen() {
     refreshing,
     profileError,
     onRefresh,
+    refetch,
     signOut,
   } = useProfile();
 
-  const donorName = profile?.nombre || profile?.name || user?.name || user?.email?.split('@')[0] || 'Donante BloodLink';
-  const bloodType = profile?.tipoSangre || profile?.bloodType || user?.bloodType || 'O+';
-  const rhFactor = profile?.rhFactor || '+';
-  const phone = profile?.telefono || profile?.phone || user?.phone || 'No registrado';
-  const email = profile?.correo || profile?.email || user?.email || 'Sin correo';
-  const totalDonations = stats?.totalDonations ?? stats?.donacionesTotales ?? profile?.totalDonations ?? 0;
-  const livesImpacted = stats?.livesImpacted ?? stats?.vidasImpactadas ?? totalDonations * 3;
+  const donorName =
+    [user?.name, user?.surname].filter(Boolean).join(' ') ||
+    user?.email?.split('@')[0] ||
+    'Donante BloodLink';
+  const bloodType = user?.bloodType || profile?.donorData?.bloodType || 'No registrado';
+  const phone = user?.phone || 'No registrado';
+  const email = user?.email || profile?.email || 'Sin correo';
+  const lastDonationDate = profile?.donorData?.lastDonationDate || null;
+  const totalDonations = stats?.donationCount ?? 0;
+  const totalLitersDonated = stats?.totalBloodDonatedLiters ?? 0;
 
   return (
     <View style={styles.container}>
@@ -42,14 +46,13 @@ export default function ProfileScreen() {
           donorName={donorName}
           email={email}
           bloodType={bloodType}
-          rhFactor={rhFactor}
         />
 
         <Text style={styles.sectionTitle}>Impacto de Donación</Text>
         <ProfileStatsSection
           loading={loadingStats}
           totalDonations={totalDonations}
-          livesImpacted={livesImpacted}
+          totalLitersDonated={totalLitersDonated}
         />
 
         <Text style={styles.sectionTitle}>Información Clínica y Contacto</Text>
@@ -58,6 +61,8 @@ export default function ProfileScreen() {
           profileError={profileError}
           phone={phone}
           email={email}
+          lastDonationDate={lastDonationDate}
+          onRetry={refetch}
         />
 
         <TouchableOpacity style={styles.logoutBtn} onPress={signOut}>

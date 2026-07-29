@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import * as assistantApi from '../api/assistant.api';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 /**
  * Hook para la gestión del chatbot asistencial y consultas médicas del donante.
@@ -26,11 +27,15 @@ export function useAssistant() {
 
     try {
       const response = await assistantApi.askQuestion(userText);
-      const botText = response?.answer || response?.message || 'Consulta médica procesada correctamente.';
+      const botText = response?.answer?.trim();
 
       setMessages((prev) => [
         ...prev,
-        { id: (Date.now() + 1).toString(), sender: 'bot', text: botText },
+        {
+          id: (Date.now() + 1).toString(),
+          sender: 'bot',
+          text: botText || 'El asistente no devolvió una respuesta. Intenta reformular tu pregunta.',
+        },
       ]);
     } catch (err) {
       console.log('Error in assistant query:', err?.message);
@@ -39,7 +44,7 @@ export function useAssistant() {
         {
           id: (Date.now() + 1).toString(),
           sender: 'bot',
-          text: 'No pude procesar tu consulta en este momento. Por favor intenta de nuevo.',
+          text: getErrorMessage(err, 'No se pudo conectar con el asistente. Revisa tu conexión e intenta de nuevo.'),
         },
       ]);
     } finally {

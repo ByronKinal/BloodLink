@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileStatsSection({ loading, totalDonations, livesImpacted }) {
+export default function ProfileStatsSection({ loading, totalDonations, totalLitersDonated }) {
   if (loading) {
     return (
       <View style={styles.loadingBox}>
@@ -19,9 +19,9 @@ export default function ProfileStatsSection({ loading, totalDonations, livesImpa
         <Text style={styles.statLabel}>Donaciones</Text>
       </View>
       <View style={styles.statBox}>
-        <Ionicons name="people" size={28} color="#2563EB" />
-        <Text style={styles.statNumber}>{livesImpacted}</Text>
-        <Text style={styles.statLabel}>Vidas Impactadas</Text>
+        <Ionicons name="water" size={28} color="#2563EB" />
+        <Text style={styles.statNumber}>{totalLitersDonated} L</Text>
+        <Text style={styles.statLabel}>Sangre Donada</Text>
       </View>
     </View>
   );

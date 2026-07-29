@@ -1,9 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity, useWindowDimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, Text, View, FlatList, RefreshControl, useWindowDimensions } from 'react-native';
 import { useWallet } from '../hooks/useWallet';
 import WalletBalanceCard from '../components/WalletBalanceCard';
 import RewardItemCard from '../components/RewardItemCard';
+import LoadingView from '../../../shared/components/LoadingView';
+import ErrorView from '../../../shared/components/ErrorView';
+import EmptyView from '../../../shared/components/EmptyView';
 
 const GRID_BREAKPOINT = 600;
 
@@ -58,24 +60,15 @@ export default function WalletScreen() {
         )}
         ListEmptyComponent={
           loadingCatalog ? (
-            <View style={styles.centerContainer}>
-              <ActivityIndicator size="large" color="#D42040" />
-              <Text style={styles.loadingText}>Cargando catálogo...</Text>
-            </View>
+            <LoadingView message="Cargando catálogo..." />
           ) : catalogError ? (
-            <View style={styles.errorCard}>
-              <Ionicons name="alert-circle-outline" size={48} color="#E53935" />
-              <Text style={styles.errorText}>{catalogError}</Text>
-              <TouchableOpacity style={styles.retryButton} onPress={refetch}>
-                <Text style={styles.retryButtonText}>Reintentar</Text>
-              </TouchableOpacity>
-            </View>
+            <ErrorView message={catalogError} onRetry={refetch} />
           ) : (
-            <View style={styles.emptyCard}>
-              <Ionicons name="gift-outline" size={64} color="#9E9E9E" />
-              <Text style={styles.emptyTitle}>Sin recompensas disponibles</Text>
-              <Text style={styles.emptySub}>Vuelve pronto para ver nuevos beneficios por canjear.</Text>
-            </View>
+            <EmptyView
+              icon="gift-outline"
+              title="Sin recompensas disponibles"
+              subtitle="Vuelve pronto para ver nuevos beneficios por canjear."
+            />
           )
         }
       />
@@ -120,60 +113,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1E293B',
     marginBottom: 12,
-  },
-  centerContainer: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    color: '#64748B',
-    fontSize: 14,
-  },
-  errorCard: {
-    backgroundColor: '#FFEBEE',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  errorText: {
-    color: '#C62828',
-    fontSize: 14,
-    marginVertical: 12,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: '#D42040',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-  },
-  emptyCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 32,
-    alignItems: 'center',
-    marginTop: 4,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#334155',
-    marginTop: 16,
-  },
-  emptySub: {
-    fontSize: 14,
-    color: '#64748B',
-    textAlign: 'center',
-    marginTop: 8,
   },
 });
