@@ -7,10 +7,14 @@ export function formatAppointmentDate(dateStr) {
   return date.toLocaleDateString('es-GT', DATE_LABEL_OPTIONS);
 }
 
+const STATUS_INFO = {
+  PENDING: { label: 'Pendiente de Confirmación', color: '#D97706', bg: '#FEF3C7' },
+  CONFIRMED: { label: 'Confirmada', color: '#16A34A', bg: '#D1FAE5' },
+  CANCELLED: { label: 'Cancelada', color: '#DC2626', bg: '#FEE2E2' },
+};
+
 export function getAppointmentStatusInfo(status) {
-  return status
-    ? { label: 'Confirmada', color: '#16A34A', bg: '#D1FAE5' }
-    : { label: 'Pendiente de Confirmación', color: '#D97706', bg: '#FEF3C7' };
+  return STATUS_INFO[status] || STATUS_INFO.PENDING;
 }
 
 export function isAppointmentInPast(item) {

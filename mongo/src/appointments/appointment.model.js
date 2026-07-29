@@ -10,6 +10,11 @@ const appointmentSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    donationCenterId: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     staffUserId: {
       type: String,
       default: null,
@@ -43,8 +48,8 @@ const appointmentSchema = new mongoose.Schema(
 const activeStatusFilter = { status: { $in: ACTIVE_APPOINTMENT_STATUSES } };
 
 appointmentSchema.index(
-  { appointmentDate: 1, appointmentTime: 1 },
-  { unique: true, partialFilterExpression: activeStatusFilter }
+  { donationCenterId: 1, appointmentDate: 1, appointmentTime: 1 },
+  { partialFilterExpression: activeStatusFilter }
 );
 appointmentSchema.index(
   { donorUserId: 1, appointmentDate: 1, appointmentTime: 1 },

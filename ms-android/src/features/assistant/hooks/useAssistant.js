@@ -13,6 +13,7 @@ export function useAssistant() {
       id: '1',
       sender: 'bot',
       text: '¡Hola! Soy tu Asistente IA de BloodLink. ¿Tienes dudas sobre requisitos para donar sangre, tiempos de espera o recomendaciones de salud?',
+      createdAt: new Date(),
     },
   ]);
 
@@ -20,7 +21,7 @@ export function useAssistant() {
     if (!input.trim()) return;
 
     const userText = input.trim();
-    const userMsg = { id: Date.now().toString(), sender: 'user', text: userText };
+    const userMsg = { id: Date.now().toString(), sender: 'user', text: userText, createdAt: new Date() };
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setLoading(true);
@@ -35,6 +36,7 @@ export function useAssistant() {
           id: (Date.now() + 1).toString(),
           sender: 'bot',
           text: botText || 'El asistente no devolvió una respuesta. Intenta reformular tu pregunta.',
+          createdAt: new Date(),
         },
       ]);
     } catch (err) {
@@ -45,6 +47,7 @@ export function useAssistant() {
           id: (Date.now() + 1).toString(),
           sender: 'bot',
           text: getErrorMessage(err, 'No se pudo conectar con el asistente. Revisa tu conexión e intenta de nuevo.'),
+          createdAt: new Date(),
         },
       ]);
     } finally {

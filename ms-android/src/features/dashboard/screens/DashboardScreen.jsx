@@ -2,28 +2,18 @@ import React from 'react';
 import { StyleSheet, View, ScrollView, RefreshControl } from 'react-native';
 import { useDashboard } from '../hooks/useDashboard';
 import DashboardHeader from '../components/DashboardHeader';
-import EligibilityWidget from '../components/EligibilityWidget';
-import NextAppointmentWidget from '../components/NextAppointmentWidget';
-import WalletWidget from '../components/WalletWidget';
+import BloodTypeStatusCard from '../components/BloodTypeStatusCard';
+import QuickActionsRow from '../components/QuickActionsRow';
 import DonationStatsWidget from '../components/DonationStatsWidget';
-import AssistantWidget from '../components/AssistantWidget';
+import UrgentCentersSection from '../../centers/components/UrgentCentersSection';
 
 export default function DashboardScreen({ navigation }) {
   const {
     user,
-    appointment,
-    loadingAppointment,
-    errorAppointment,
-    refetchAppointment,
-    wallet,
-    loadingWallet,
-    errorWallet,
-    refetchWallet,
     stats,
     loadingStats,
     errorStats,
     refetchStats,
-    triage,
     refreshing,
     onRefresh,
     eligibility,
@@ -31,32 +21,27 @@ export default function DashboardScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <DashboardHeader user={user} onOpenProfile={() => navigation?.navigate('Perfil')} />
+      <DashboardHeader
+        user={user}
+        onOpenProfile={() => navigation?.navigate('Perfil')}
+        onOpenNotifications={() => navigation?.navigate('Notifications')}
+      />
 
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#D42040']} />}
       >
-        <EligibilityWidget
+        <BloodTypeStatusCard
+          bloodType={user?.bloodType}
           eligibility={eligibility}
-          hasTriage={Boolean(triage)}
           onPress={() => navigation?.navigate('Triage')}
         />
 
-        <NextAppointmentWidget
-          loading={loadingAppointment}
-          error={errorAppointment}
-          appointment={appointment}
-          onNavigate={() => navigation?.navigate('Citas')}
-          onRetry={refetchAppointment}
-        />
+        <UrgentCentersSection onSeeAll={() => navigation?.navigate('DonationCenters')} />
 
-        <WalletWidget
-          loading={loadingWallet}
-          wallet={wallet}
-          error={errorWallet}
-          onNavigate={() => navigation?.navigate('Billetera')}
-          onRetry={refetchWallet}
+        <QuickActionsRow
+          onSchedule={() => navigation?.navigate('Citas')}
+          onSeeCenters={() => navigation?.navigate('DonationCenters')}
         />
 
         <DonationStatsWidget
@@ -65,8 +50,6 @@ export default function DashboardScreen({ navigation }) {
           stats={stats}
           onRetry={refetchStats}
         />
-
-        <AssistantWidget onPress={() => navigation?.navigate('Asistente')} />
       </ScrollView>
     </View>
   );

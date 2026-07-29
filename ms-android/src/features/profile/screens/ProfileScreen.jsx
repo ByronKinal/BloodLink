@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { ImageBackground, StyleSheet, Text, View, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useProfile } from '../hooks/useProfile';
 import ProfileUserCard from '../components/ProfileUserCard';
 import ProfileStatsSection from '../components/ProfileStatsSection';
 import ProfileClinicalInfoCard from '../components/ProfileClinicalInfoCard';
+import AppAlertModal from '../../../shared/components/AppAlertModal';
 
 export default function ProfileScreen() {
   const {
@@ -18,6 +19,10 @@ export default function ProfileScreen() {
     onRefresh,
     refetch,
     signOut,
+    uploadingPhoto,
+    photoError,
+    clearPhotoError,
+    changeProfilePicture,
   } = useProfile();
 
   const donorName =
@@ -32,7 +37,11 @@ export default function ProfileScreen() {
   const totalLitersDonated = stats?.totalBloodDonatedLiters ?? 0;
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require('../../../../assets/img/bloodlink_background_clean.png')}
+      style={styles.container}
+      resizeMode="cover"
+    >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Perfil Médico del Donante</Text>
         <Text style={styles.headerSubtitle}>Tus datos de salud y resumen de impacto</Text>
@@ -46,16 +55,25 @@ export default function ProfileScreen() {
           donorName={donorName}
           email={email}
           bloodType={bloodType}
+          profilePicture={user?.profilePicture}
+          uploading={uploadingPhoto}
+          onChangePhoto={changeProfilePicture}
         />
 
-        <Text style={styles.sectionTitle}>Impacto de Donación</Text>
+        <View style={styles.sectionTitleRow}>
+          <View style={styles.sectionAccent} />
+          <Text style={styles.sectionTitle}>Impacto de Donación</Text>
+        </View>
         <ProfileStatsSection
           loading={loadingStats}
           totalDonations={totalDonations}
           totalLitersDonated={totalLitersDonated}
         />
 
-        <Text style={styles.sectionTitle}>Información Clínica y Contacto</Text>
+        <View style={styles.sectionTitleRow}>
+          <View style={styles.sectionAccent} />
+          <Text style={styles.sectionTitle}>Información Clínica y Contacto</Text>
+        </View>
         <ProfileClinicalInfoCard
           loading={loadingProfile}
           profileError={profileError}
@@ -70,7 +88,14 @@ export default function ProfileScreen() {
           <Text style={styles.logoutBtnText}>Cerrar Sesión</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+
+      <AppAlertModal
+        visible={!!photoError}
+        title="No se pudo actualizar la foto"
+        message={photoError}
+        onClose={clearPhotoError}
+      />
+    </ImageBackground>
   );
 }
 
@@ -80,32 +105,42 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
   },
   header: {
-    backgroundColor: '#1E293B',
     paddingTop: 50,
-    paddingBottom: 20,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingBottom: 24,
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '800',
+    color: '#1E293B',
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: '#94A3B8',
-    marginTop: 4,
+    fontSize: 13,
+    color: '#64748B',
+    marginTop: 6,
   },
   content: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 4,
+    paddingBottom: 16,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+    marginTop: 4,
+  },
+  sectionAccent: {
+    width: 4,
+    height: 16,
+    borderRadius: 2,
+    backgroundColor: '#D42040',
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#1E293B',
-    marginBottom: 10,
-    marginTop: 4,
   },
   logoutBtn: {
     backgroundColor: '#FEE2E2',

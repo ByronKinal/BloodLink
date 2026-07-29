@@ -3,6 +3,7 @@ import Appointment, {
   ACTIVE_APPOINTMENT_STATUSES,
   APPOINTMENT_STATUSES,
 } from '../src/appointments/appointment.model.js';
+import DonationCenter from '../src/donation-centers/donation-center.model.js';
 import TriageForm from '../src/triage/triage.model.js';
 import {
   ADMIN_ROLE,
@@ -15,12 +16,48 @@ import {
   getUsersByRole as getUsersByRoleRepo,
 } from './role-db.js';
 import { awardPointsForAppointmentConfirmation } from './incentive-operations.js';
+import { createNotification } from './notification-operations.js';
+
+// Horario y cupo fijo aplicado a todos los centros de donacion.
+const OPERATING_START_TIME = '08:00';
+const OPERATING_END_TIME = '16:00';
+const SLOT_MINUTES = 30;
+const CAPACITY_PER_SLOT = 5;
+const CLOSED_WEEKDAY = 0; // Domingo
 
 const isValidDateString = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date || '');
 
 const isValidTimeString = (time) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(time || '');
 
 const asScheduleDate = (date, time) => new Date(`${date}T${time}:00`);
+
+const timeToMinutes = (time) => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+const minutesToTime = (totalMinutes) => {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
+const buildDaySlotTimes = () => {
+  const slots = [];
+  const startMinutes = timeToMinutes(OPERATING_START_TIME);
+  const endMinutes = timeToMinutes(OPERATING_END_TIME);
+  for (let minutes = startMinutes; minutes < endMinutes; minutes += SLOT_MINUTES) {
+    slots.push(minutesToTime(minutes));
+  }
+  return slots;
+};
+
+const isValidSlotTime = (time) => buildDaySlotTimes().includes(time);
+
+const getDayOfWeek = (dateStr) => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day).getDay();
+};
 
 const ensureMongoReady = () => mongoose.connection.readyState === 1;
 
@@ -94,6 +131,23 @@ const hydrateAppointment = async (appointmentDoc) => {
   const Donation = mongoose.model('Donation');
   const donation = await Donation.findOne({ appointmentId: appointmentDoc._id }).lean();
 
+  let center = null;
+  if (appointmentDoc.donationCenterId) {
+    try {
+      const centerDoc = await DonationCenter.findById(appointmentDoc.donationCenterId).lean();
+      if (centerDoc) {
+        center = {
+          id: String(centerDoc._id),
+          name: centerDoc.name,
+          address: centerDoc.address,
+          zone: centerDoc.zone,
+        };
+      }
+    } catch (err) {
+      // Ignore center not found
+    }
+  }
+
   return {
     id: String(appointmentDoc._id),
     date: appointmentDoc.appointmentDate,
@@ -101,6 +155,7 @@ const hydrateAppointment = async (appointmentDoc) => {
     status: appointmentDoc.status,
     donor: mapUser(donor),
     staff: mapUser(staff),
+    center,
     hasDonation: !!donation,
     createdAt: appointmentDoc.createdAt,
     updatedAt: appointmentDoc.updatedAt,
@@ -163,11 +218,36 @@ const findAlternativeStaff = async ({
 
 export const buildAppointmentResponse = (appointment) => appointment;
 
-export const createAppointmentHelper = async ({ donorUserId, date, time }) => {
+export const createAppointmentHelper = async ({ donorUserId, date, time, donationCenterId }) => {
   assertMongoReady();
 
   const normalizedDate = normalizeDate(date);
   const normalizedTime = normalizeTime(time);
+
+  if (!donationCenterId) {
+    const error = new Error('Debes seleccionar un centro de donación');
+    error.status = 400;
+    throw error;
+  }
+
+  const center = await DonationCenter.findById(donationCenterId).lean();
+  if (!center || !center.active) {
+    const error = new Error('Centro de donación no encontrado o inactivo');
+    error.status = 404;
+    throw error;
+  }
+
+  if (getDayOfWeek(normalizedDate) === CLOSED_WEEKDAY) {
+    const error = new Error('El centro no atiende los domingos. Selecciona otra fecha.');
+    error.status = 400;
+    throw error;
+  }
+
+  if (!isValidSlotTime(normalizedTime)) {
+    const error = new Error('El horario seleccionado no es válido para este centro.');
+    error.status = 400;
+    throw error;
+  }
 
   const donor = await findUserById(donorUserId);
 
@@ -227,15 +307,16 @@ export const createAppointmentHelper = async ({ donorUserId, date, time }) => {
     throw error;
   }
 
-  const existingAtSlot = await Appointment.findOne({
+  const activeCountAtSlot = await Appointment.countDocuments({
+    donationCenterId,
     appointmentDate: normalizedDate,
     appointmentTime: normalizedTime,
     status: { $in: ACTIVE_APPOINTMENT_STATUSES },
-  }).lean();
+  });
 
-  if (existingAtSlot) {
+  if (activeCountAtSlot >= CAPACITY_PER_SLOT) {
     const error = new Error('El horario ya no está disponible. Selecciona otra fecha u hora.');
-    error.status = 400;
+    error.status = 409;
     throw error;
   }
 
@@ -243,6 +324,7 @@ export const createAppointmentHelper = async ({ donorUserId, date, time }) => {
   try {
     created = await Appointment.create({
       donorUserId,
+      donationCenterId,
       appointmentDate: normalizedDate,
       appointmentTime: normalizedTime,
       status: 'PENDING',
@@ -450,6 +532,13 @@ export const confirmAppointmentHelper = async ({
     });
   }
 
+  await createNotification({
+    userId: appointment.donorUserId,
+    type: 'APPOINTMENT_CONFIRMED',
+    title: 'Cita confirmada',
+    message: `Tu cita de donacion del ${appointment.appointmentDate} a las ${appointment.appointmentTime} fue confirmada.`,
+  });
+
   return {
     appointment: await hydrateAppointment(appointment),
     replacedStaff,
@@ -484,24 +573,67 @@ export const cancelAppointmentHelper = async ({ appointmentId, requesterUserId }
   appointment.status = 'CANCELLED';
   await appointment.save();
 
+  await createNotification({
+    userId: appointment.donorUserId,
+    type: 'APPOINTMENT_CANCELLED',
+    title: 'Cita cancelada',
+    message: `Tu cita de donacion del ${appointment.appointmentDate} a las ${appointment.appointmentTime} fue cancelada.`,
+  });
+
   return hydrateAppointment(appointment);
 };
 
-export const getAvailabilityHelper = async ({ date }) => {
+export const getAvailabilityHelper = async ({ date, donationCenterId }) => {
   assertMongoReady();
 
   const normalizedDate = normalizeDate(date);
 
-  const busyAppointments = await Appointment.find({
-    appointmentDate: normalizedDate,
-    status: { $in: ACTIVE_APPOINTMENT_STATUSES },
-  })
-    .select('appointmentTime')
-    .lean();
+  if (!donationCenterId) {
+    const error = new Error('donationCenterId es requerido');
+    error.status = 400;
+    throw error;
+  }
 
-  const bookedTimes = [
-    ...new Set(busyAppointments.map((appointment) => appointment.appointmentTime)),
-  ].sort();
+  const center = await DonationCenter.findById(donationCenterId).lean();
+  if (!center || !center.active) {
+    const error = new Error('Centro de donación no encontrado o inactivo');
+    error.status = 404;
+    throw error;
+  }
 
-  return { date: normalizedDate, bookedTimes };
+  if (getDayOfWeek(normalizedDate) === CLOSED_WEEKDAY) {
+    return { date: normalizedDate, donationCenterId, slots: [] };
+  }
+
+  const busyAppointments = await Appointment.aggregate([
+    {
+      $match: {
+        donationCenterId,
+        appointmentDate: normalizedDate,
+        status: { $in: ACTIVE_APPOINTMENT_STATUSES },
+      },
+    },
+    { $group: { _id: '$appointmentTime', count: { $sum: 1 } } },
+  ]);
+
+  const bookedCountByTime = busyAppointments.reduce((acc, item) => {
+    acc[item._id] = item.count;
+    return acc;
+  }, {});
+
+  const now = new Date();
+  const isToday = normalizedDate === now.toISOString().slice(0, 10);
+
+  const slots = buildDaySlotTimes().map((time) => {
+    const bookedCount = bookedCountByTime[time] || 0;
+    const isPast = isToday && asScheduleDate(normalizedDate, time) <= now;
+
+    return {
+      time,
+      remaining: Math.max(0, CAPACITY_PER_SLOT - bookedCount),
+      available: !isPast && bookedCount < CAPACITY_PER_SLOT,
+    };
+  });
+
+  return { date: normalizedDate, donationCenterId, slots };
 };

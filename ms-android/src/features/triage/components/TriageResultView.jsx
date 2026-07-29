@@ -5,6 +5,7 @@ import { isTriageApto } from '../../../shared/utils/triageEligibility';
 
 export default function TriageResultView({ result, onReset }) {
   const isApto = isTriageApto(result?.data);
+  const reasons = !isApto ? result?.data?.evaluation?.reasons : null;
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
@@ -13,6 +14,7 @@ export default function TriageResultView({ result, onReset }) {
         icon={isApto ? 'checkmark-circle' : 'alert-circle'}
         title={isApto ? '¡Eres Apto para Donar!' : 'Evaluación Completada'}
         message={result?.message}
+        reasons={reasons}
         actionLabel="Realizar Nuevo Triage"
         onAction={onReset}
       />

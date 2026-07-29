@@ -1,15 +1,19 @@
 import React from 'react';
-import { StyleSheet, Text, View, FlatList, RefreshControl, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, FlatList, RefreshControl, useWindowDimensions, Image, ImageBackground } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useWallet } from '../hooks/useWallet';
 import WalletBalanceCard from '../components/WalletBalanceCard';
 import RewardItemCard from '../components/RewardItemCard';
+import NotificationBell from '../../notifications/components/NotificationBell';
 import LoadingView from '../../../shared/components/LoadingView';
 import ErrorView from '../../../shared/components/ErrorView';
 import EmptyView from '../../../shared/components/EmptyView';
+import AppAlertModal from '../../../shared/components/AppAlertModal';
+import AppConfirmModal from '../../../shared/components/AppConfirmModal';
 
 const GRID_BREAKPOINT = 600;
 
-export default function WalletScreen() {
+export default function WalletScreen({ navigation }) {
   const { width } = useWindowDimensions();
   const numColumns = width >= GRID_BREAKPOINT ? 2 : 1;
 
@@ -21,6 +25,11 @@ export default function WalletScreen() {
     catalogError,
     refreshing,
     claimingRewardId,
+    pendingClaim,
+    confirmClaim,
+    cancelClaim,
+    alertInfo,
+    clearAlert,
     refetch,
     onRefresh,
     claimReward,
@@ -29,10 +38,21 @@ export default function WalletScreen() {
   const balancePoints = wallet?.balancePoints ?? 0;
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require('../../../../assets/img/bloodlink_triage_background.png')}
+      style={styles.container}
+      resizeMode="cover"
+    >
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Billetera de Donante</Text>
-        <Text style={styles.headerSubtitle}>Tus puntos acumulados e incentivos de salud</Text>
+        <View style={styles.headerTitleRow}>
+          <Image
+            source={require('../../../../assets/img/bloodlink_icon.png')}
+            style={styles.brandIcon}
+            resizeMode="contain"
+          />
+          <Text style={styles.headerTitle}>Mi Billetera</Text>
+        </View>
+        <NotificationBell dark onPress={() => navigation?.navigate('Notifications')} />
       </View>
 
       <FlatList
@@ -46,7 +66,10 @@ export default function WalletScreen() {
         ListHeaderComponent={
           <>
             <WalletBalanceCard wallet={wallet} loading={loadingWallet} />
-            <Text style={styles.sectionTitle}>Beneficios Disponibles</Text>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="gift" size={20} color="#D42040" />
+              <Text style={styles.sectionTitle}>Beneficios Disponibles</Text>
+            </View>
           </>
         }
         renderItem={({ item }) => (
@@ -72,7 +95,29 @@ export default function WalletScreen() {
           )
         }
       />
-    </View>
+
+      <AppConfirmModal
+        visible={!!pendingClaim}
+        title="Confirmar canje"
+        message={
+          pendingClaim
+            ? `¿Deseas canjear "${pendingClaim.name}" por ${pendingClaim.requiredPoints} BloodPoints?`
+            : ''
+        }
+        icon="gift"
+        confirmLabel="Confirmar"
+        cancelLabel="Cancelar"
+        onConfirm={confirmClaim}
+        onCancel={cancelClaim}
+      />
+
+      <AppAlertModal
+        visible={!!alertInfo}
+        title={alertInfo?.title}
+        message={alertInfo?.message}
+        onClose={clearAlert}
+      />
+    </ImageBackground>
   );
 }
 
@@ -82,25 +127,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
   },
   header: {
-    backgroundColor: '#1E293B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingTop: 50,
-    paddingBottom: 20,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingBottom: 16,
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  brandIcon: {
+    width: 26,
+    height: 26,
   },
   headerTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#94A3B8',
-    marginTop: 4,
+    fontWeight: '800',
+    color: '#1E293B',
   },
   content: {
     padding: 16,
+    paddingTop: 4,
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -108,10 +158,15 @@ const styles = StyleSheet.create({
   gridItem: {
     width: '48%',
   },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 14,
+  },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontWeight: '800',
     color: '#1E293B',
-    marginBottom: 12,
   },
 });

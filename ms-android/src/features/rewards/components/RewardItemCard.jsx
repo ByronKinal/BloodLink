@@ -8,35 +8,48 @@ export default function RewardItemCard({ reward, userBalance, isClaiming, onClai
   const insufficientPoints = userBalance < reward.requiredPoints;
   const disabled = outOfStock || inactive || insufficientPoints || isClaiming;
 
-  const helperText = inactive
+  const statusText = inactive
     ? 'No disponible'
     : outOfStock
     ? 'Sin stock'
     : insufficientPoints
     ? 'Puntos insuficientes'
-    : null;
+    : 'Stock disponible';
 
   return (
     <View style={[styles.rewardCard, style]}>
       <View style={styles.iconWrap}>
-        <Ionicons name="gift" size={26} color="#D42040" />
+        <Ionicons name="gift" size={22} color="#D42040" />
       </View>
 
-      <Text style={styles.rewardTitle} numberOfLines={2}>
-        {reward.name}
-      </Text>
-      <Text style={styles.rewardCost}>{reward.requiredPoints} BloodPoints</Text>
-      {helperText ? <Text style={styles.helperText}>{helperText}</Text> : null}
+      <View style={styles.info}>
+        <Text style={styles.rewardTitle} numberOfLines={1}>
+          {reward.name}
+        </Text>
+        <View style={styles.costRow}>
+          <Ionicons name="water" size={12} color="#D42040" />
+          <Text style={styles.rewardCost}>{reward.requiredPoints} BloodPoints</Text>
+        </View>
+        <Text style={styles.statusText}>{statusText}</Text>
+      </View>
 
       <TouchableOpacity
         style={[styles.claimButton, disabled && styles.claimButtonDisabled]}
         onPress={onClaim}
         disabled={disabled}
+        activeOpacity={0.85}
       >
         {isClaiming ? (
-          <ActivityIndicator size="small" color="#FFF" />
+          <ActivityIndicator size="small" color={disabled ? '#94A3B8' : '#D42040'} />
         ) : (
-          <Text style={[styles.claimButtonText, disabled && styles.claimButtonTextDisabled]}>Reclamar</Text>
+          <>
+            <Ionicons
+              name="checkmark-circle-outline"
+              size={15}
+              color={disabled ? '#94A3B8' : '#D42040'}
+            />
+            <Text style={[styles.claimButtonText, disabled && styles.claimButtonTextDisabled]}>Reclamar</Text>
+          </>
         )}
       </TouchableOpacity>
     </View>
@@ -45,57 +58,74 @@ export default function RewardItemCard({ reward, userBalance, isClaiming, onClai
 
 const styles = StyleSheet.create({
   rewardCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.78)',
+    borderRadius: 20,
     padding: 16,
     marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.9)',
+    elevation: 1,
+    shadowColor: '#94A3B8',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   iconWrap: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FFEBEE',
+    backgroundColor: '#FEE2E2',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginRight: 12,
+  },
+  info: {
+    flex: 1,
+    marginRight: 10,
   },
   rewardTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '700',
     color: '#1E293B',
-    minHeight: 36,
+  },
+  costRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
   },
   rewardCost: {
     fontSize: 13,
     color: '#D42040',
-    marginTop: 4,
     fontWeight: '600',
   },
-  helperText: {
-    fontSize: 11,
+  statusText: {
+    fontSize: 12,
     color: '#94A3B8',
-    marginTop: 4,
+    marginTop: 3,
   },
   claimButton: {
-    backgroundColor: '#1E293B',
-    paddingVertical: 10,
-    borderRadius: 8,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 12,
+    gap: 5,
+    backgroundColor: 'rgba(212,32,64,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(212,32,64,0.3)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 14,
   },
   claimButtonDisabled: {
-    backgroundColor: '#CBD5E1',
+    backgroundColor: 'rgba(241,245,249,0.7)',
+    borderColor: '#E2E8F0',
   },
   claimButtonText: {
-    color: '#FFF',
+    color: '#D42040',
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   claimButtonTextDisabled: {
-    color: '#64748B',
+    color: '#94A3B8',
   },
 });

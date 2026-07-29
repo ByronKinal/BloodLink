@@ -1,215 +1,232 @@
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text } from 'react-native';
-import { useForm } from 'react-hook-form';
-import { useAuth } from '../hooks/useAuth';
-import FormField from '../../../shared/components/FormField';
-import PrimaryButton from '../../../shared/components/PrimaryButton';
+import {
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useRegisterWizard } from '../hooks/useRegisterWizard';
+import RegisterStep1Info from '../components/RegisterStep1Info';
+import RegisterStep2Security from '../components/RegisterStep2Security';
+import AuthPrimaryButton from '../components/AuthPrimaryButton';
 import Banner from '../../../shared/components/Banner';
-import BloodTypeSelector from '../../../shared/components/BloodTypeSelector';
-import ProfilePicturePicker from '../../../shared/components/ProfilePicturePicker';
-import { getErrorMessage } from '../../../shared/utils/apiError';
 
 export default function RegisterScreen({ navigation }) {
-  const { signUp } = useAuth();
-  const [serverError, setServerError] = useState('');
-  const [bloodType, setBloodType] = useState('');
-  const [bloodTypeError, setBloodTypeError] = useState('');
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [profilePictureError, setProfilePictureError] = useState('');
-
   const {
     control,
-    handleSubmit,
-    watch,
-    formState: { isSubmitting },
-  } = useForm({
-    defaultValues: {
-      name: '',
-      surname: '',
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      phone: '',
-      zone: '',
-    },
+    step,
+    handleNext,
+    handlePrev,
+    onSubmit,
+    isSubmitting,
+    password,
+    serverError,
+    bloodType,
+    setBloodType,
+    bloodTypeError,
+    profilePicture,
+    setProfilePicture,
+    profilePictureError,
+  } = useRegisterWizard({
+    onSuccess: (email) => navigation.navigate('VerifyEmail', { email }),
   });
 
-  const password = watch('password');
-
-  const onSubmit = async (values) => {
-    setServerError('');
-    setBloodTypeError('');
-    setProfilePictureError('');
-
-    let hasError = false;
-
-    if (!bloodType) {
-      setBloodTypeError('Selecciona un tipo de sangre');
-      hasError = true;
-    }
-
-    if (!profilePicture) {
-      setProfilePictureError('La foto de perfil es obligatoria');
-      hasError = true;
-    }
-
-    if (hasError) return;
-
-    const formData = new FormData();
-    formData.append('name', values.name);
-    formData.append('surname', values.surname);
-    formData.append('username', values.username);
-    formData.append('email', values.email);
-    formData.append('password', values.password);
-    formData.append('phone', values.phone);
-    formData.append('bloodType', bloodType);
-    formData.append('zone', values.zone);
-    formData.append('profilePicture', {
-      uri: profilePicture.uri,
-      name: profilePicture.fileName || 'profile.jpg',
-      type: profilePicture.mimeType || 'image/jpeg',
-    });
-
-    try {
-      await signUp(formData);
-      navigation.navigate('VerifyEmail', { email: values.email });
-    } catch (error) {
-      setServerError(getErrorMessage(error, 'No se pudo completar el registro. Intenta de nuevo.'));
-    }
-  };
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Crear cuenta</Text>
+    <ImageBackground
+      source={require('../../../../assets/img/bloodlink_background_clean.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <View style={styles.logoRow}>
+          <Image
+            source={require('../../../../assets/img/bloodlink_icon.png')}
+            style={styles.logoIcon}
+            resizeMode="contain"
+          />
+          <View>
+            <Text style={styles.logoText}>
+              Blood<Text style={styles.logoTextAccent}>Link</Text>
+            </Text>
+            <Text style={styles.tagline}>CONECTAMOS VIDAS, SALVAMOS VIDAS</Text>
+          </View>
+        </View>
 
-      <FormField
-        control={control}
-        name="name"
-        label="Nombre"
-        placeholder="María"
-        rules={{
-          required: 'El nombre es obligatorio',
-          maxLength: { value: 25, message: 'Máximo 25 caracteres' },
-          pattern: { value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, message: 'Solo letras y espacios' },
-        }}
-      />
+        <View style={styles.titleWrap}>
+          <Text style={styles.title}>Crear cuenta</Text>
+          <View style={styles.titleUnderline} />
+        </View>
 
-      <FormField
-        control={control}
-        name="surname"
-        label="Apellido"
-        placeholder="García"
-        rules={{
-          required: 'El apellido es obligatorio',
-          maxLength: { value: 25, message: 'Máximo 25 caracteres' },
-          pattern: { value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/, message: 'Solo letras y espacios' },
-        }}
-      />
+        <Text style={styles.subtitle}>Únete a la red que conecta vidas y salva vidas.</Text>
 
-      <FormField
-        control={control}
-        name="username"
-        label="Usuario"
-        placeholder="mgarcia"
-        autoCapitalize="none"
-        rules={{
-          required: 'El nombre de usuario es obligatorio',
-          maxLength: { value: 50, message: 'Máximo 50 caracteres' },
-        }}
-      />
+        <View style={styles.stepperHeader}>
+          <Text style={styles.stepperStepText}>Paso {step} de 2</Text>
+          <View style={styles.progressBarBg}>
+            <View style={[styles.progressBarFill, { width: `${(step / 2) * 100}%` }]} />
+          </View>
+        </View>
 
-      <FormField
-        control={control}
-        name="email"
-        label="Correo electrónico"
-        placeholder="maria@correo.com"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        rules={{
-          required: 'El correo es obligatorio',
-          pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Correo inválido' },
-        }}
-      />
+        {step === 1 ? (
+          <RegisterStep1Info
+            control={control}
+            profilePicture={profilePicture}
+            onChangePicture={setProfilePicture}
+            profilePictureError={profilePictureError}
+          />
+        ) : (
+          <RegisterStep2Security
+            control={control}
+            password={password}
+            bloodType={bloodType}
+            onChangeBloodType={setBloodType}
+            bloodTypeError={bloodTypeError}
+          />
+        )}
 
-      <FormField
-        control={control}
-        name="password"
-        label="Contraseña"
-        placeholder="********"
-        secureTextEntry
-        autoCapitalize="none"
-        rules={{
-          required: 'La contraseña es obligatoria',
-          minLength: { value: 8, message: 'Debe tener al menos 8 caracteres' },
-        }}
-      />
+        {step === 2 ? <Banner message={serverError} /> : null}
 
-      <FormField
-        control={control}
-        name="confirmPassword"
-        label="Confirmar contraseña"
-        placeholder="********"
-        secureTextEntry
-        autoCapitalize="none"
-        rules={{
-          required: 'Confirma tu contraseña',
-          validate: (value) => value === password || 'Las contraseñas no coinciden',
-        }}
-      />
+        <View style={styles.buttonRow}>
+          {step === 2 ? (
+            <TouchableOpacity style={styles.prevBtn} onPress={handlePrev}>
+              <Text style={styles.prevBtnText}>Anterior</Text>
+            </TouchableOpacity>
+          ) : null}
 
-      <FormField
-        control={control}
-        name="phone"
-        label="Teléfono"
-        placeholder="55550000"
-        keyboardType="number-pad"
-        rules={{
-          required: 'El teléfono es obligatorio',
-          pattern: { value: /^\d{8}$/, message: 'Debe tener exactamente 8 dígitos' },
-        }}
-      />
+          <View style={step === 2 ? styles.mainBtnHalf : styles.mainBtnFull}>
+            {step === 1 ? (
+              <AuthPrimaryButton label="Siguiente" onPress={handleNext} />
+            ) : (
+              <AuthPrimaryButton label="Registrarme" onPress={onSubmit} loading={isSubmitting} />
+            )}
+          </View>
+        </View>
 
-      <FormField
-        control={control}
-        name="zone"
-        label="Zona"
-        placeholder="Zona 10"
-        rules={{ required: 'La zona es obligatoria' }}
-      />
-
-      <BloodTypeSelector value={bloodType} onChange={setBloodType} error={bloodTypeError} />
-
-      <ProfilePicturePicker value={profilePicture} onChange={setProfilePicture} error={profilePictureError} />
-
-      <Banner message={serverError} />
-
-      <PrimaryButton label="Registrarme" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
-
-      <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
-        ¿Ya tienes cuenta? Inicia sesión
-      </Text>
-    </ScrollView>
+        <Text style={styles.linkText} onPress={() => navigation.navigate('Login')}>
+          ¿Ya tienes cuenta? <Text style={styles.linkTextStrong}>Inicia sesión</Text>
+        </Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
+    flex: 1,
+  },
+  flex: {
+    flex: 1,
+  },
+  content: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingVertical: 40,
-    backgroundColor: '#fff',
+    paddingVertical: 36,
+  },
+  logoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  logoIcon: {
+    width: 64,
+    height: 64,
+    marginRight: 12,
+  },
+  logoText: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  logoTextAccent: {
+    color: '#D42040',
+  },
+  tagline: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#94A3B8',
+    letterSpacing: 1,
+    marginTop: 2,
+  },
+  titleWrap: {
+    alignItems: 'center',
+    marginBottom: 10,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  titleUnderline: {
+    width: 56,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#D42040',
+    marginTop: 10,
+  },
+  subtitle: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  stepperHeader: {
     marginBottom: 24,
+  },
+  stepperStepText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#1E293B',
+    marginBottom: 6,
     textAlign: 'center',
   },
+  progressBarBg: {
+    height: 8,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#D42040',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  mainBtnFull: {
+    flex: 1,
+  },
+  mainBtnHalf: {
+    flex: 0.62,
+  },
+  prevBtn: {
+    flex: 0.34,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  prevBtnText: {
+    color: '#334155',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
   linkText: {
-    color: '#D42040',
+    color: '#64748B',
     fontSize: 13,
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: 20,
+  },
+  linkTextStrong: {
+    color: '#D42040',
+    fontWeight: '700',
   },
 });

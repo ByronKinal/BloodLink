@@ -288,6 +288,14 @@ export const createBloodBag = asyncHandler(async (req, res) => {
     });
   }
 
+  const requesterRoles = await getUserRoleNames(req.userId);
+  if (!hasPersonnelRole(requesterRoles)) {
+    return res.status(403).json({
+      success: false,
+      message: 'Solo personal autorizado puede crear bolsas de sangre',
+    });
+  }
+
   const {
     bloodType,
     quantity,
@@ -323,6 +331,14 @@ export const updateBloodBag = asyncHandler(async (req, res) => {
     return res.status(503).json({
       success: false,
       message: 'MongoDB no esta conectado',
+    });
+  }
+
+  const requesterRoles = await getUserRoleNames(req.userId);
+  if (!hasPersonnelRole(requesterRoles)) {
+    return res.status(403).json({
+      success: false,
+      message: 'Solo personal autorizado puede actualizar bolsas de sangre',
     });
   }
 
@@ -371,6 +387,14 @@ export const deleteBloodBag = asyncHandler(async (req, res) => {
     return res.status(503).json({
       success: false,
       message: 'MongoDB no esta conectado',
+    });
+  }
+
+  const requesterRoles = await getUserRoleNames(req.userId);
+  if (!hasPersonnelRole(requesterRoles)) {
+    return res.status(403).json({
+      success: false,
+      message: 'Solo personal autorizado puede eliminar bolsas de sangre',
     });
   }
 

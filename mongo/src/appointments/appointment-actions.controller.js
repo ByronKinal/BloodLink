@@ -29,14 +29,15 @@ export const cancelAppointment = asyncHandler(async (req, res) => {
 
 export const getAvailability = asyncHandler(async (req, res) => {
   try {
-    const { date } = req.query;
+    const { date, donationCenterId } = req.query;
 
-    const result = await getAvailabilityHelper({ date });
+    const result = await getAvailabilityHelper({ date, donationCenterId });
 
     return res.status(200).json({
       success: true,
       date: result.date,
-      bookedTimes: result.bookedTimes,
+      donationCenterId: result.donationCenterId,
+      slots: result.slots,
     });
   } catch (error) {
     return res.status(error.status || 400).json({

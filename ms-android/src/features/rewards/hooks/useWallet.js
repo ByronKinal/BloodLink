@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Alert } from 'react-native';
 import { useAuthStore } from '../../auth/store/authStore';
 import * as rewardsApi from '../api/rewards.api';
 import { getErrorMessage } from '../../../shared/utils/apiError';
@@ -20,6 +19,8 @@ export function useWallet() {
 
   const [refreshing, setRefreshing] = useState(false);
   const [claimingRewardId, setClaimingRewardId] = useState(null);
+  const [pendingClaim, setPendingClaim] = useState(null);
+  const [alertInfo, setAlertInfo] = useState(null);
 
   const fetchWallet = useCallback(async () => {
     if (!userId) return;
@@ -64,14 +65,15 @@ export function useWallet() {
   }, [fetchAll]);
 
   const performClaim = async (reward) => {
+    setPendingClaim(null);
     setClaimingRewardId(reward.id);
     try {
       await rewardsApi.claimReward(reward.id);
-      Alert.alert('Canje exitoso', `Reclamaste "${reward.name}" correctamente.`);
+      setAlertInfo({ title: 'Canje exitoso', message: `Reclamaste "${reward.name}" correctamente.` });
       await fetchAll();
     } catch (err) {
       const message = getErrorMessage(err, 'No se pudo canjear el beneficio.');
-      Alert.alert('No se pudo canjear', message);
+      setAlertInfo({ title: 'No se pudo canjear', message });
     } finally {
       setClaimingRewardId(null);
     }
@@ -80,19 +82,22 @@ export function useWallet() {
   const handleClaimReward = (reward) => {
     const currentBalance = wallet?.balancePoints ?? 0;
     if (currentBalance < reward.requiredPoints) {
-      Alert.alert('Puntos insuficientes', 'No tienes suficientes BloodPoints para canjear este beneficio.');
+      setAlertInfo({
+        title: 'Puntos insuficientes',
+        message: 'No tienes suficientes BloodPoints para canjear este beneficio.',
+      });
       return;
     }
 
-    Alert.alert(
-      'Confirmar canje',
-      `¿Deseas canjear "${reward.name}" por ${reward.requiredPoints} BloodPoints?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Confirmar', onPress: () => performClaim(reward) },
-      ]
-    );
+    setPendingClaim(reward);
   };
+
+  const confirmClaim = () => {
+    if (pendingClaim) performClaim(pendingClaim);
+  };
+
+  const cancelClaim = () => setPendingClaim(null);
+  const clearAlert = () => setAlertInfo(null);
 
   return {
     wallet,
@@ -102,6 +107,11 @@ export function useWallet() {
     catalogError,
     refreshing,
     claimingRewardId,
+    pendingClaim,
+    confirmClaim,
+    cancelClaim,
+    alertInfo,
+    clearAlert,
     refetch: fetchAll,
     onRefresh,
     claimReward: handleClaimReward,

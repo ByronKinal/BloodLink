@@ -9,12 +9,13 @@ import {
 
 export const createAppointment = asyncHandler(async (req, res) => {
   try {
-    const { date, time } = req.body;
+    const { date, time, donationCenterId } = req.body;
 
     const appointment = await createAppointmentHelper({
       donorUserId: req.userId,
       date,
       time,
+      donationCenterId,
     });
 
     return res.status(201).json({

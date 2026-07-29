@@ -6,6 +6,7 @@ import { getErrorMessage } from '../../../shared/utils/apiError';
 export function useProfile() {
   const user = useAuthStore((state) => state.user);
   const clearSession = useAuthStore((state) => state.clearSession);
+  const updateUserSession = useAuthStore((state) => state.updateUser);
 
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);
@@ -14,6 +15,9 @@ export function useProfile() {
   const [refreshing, setRefreshing] = useState(false);
   const [profileError, setProfileError] = useState(null);
   const [statsError, setStatsError] = useState(null);
+
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState(null);
 
   const fetchProfileData = useCallback(async () => {
     // 1. Fetch profile
@@ -53,6 +57,32 @@ export function useProfile() {
     fetchProfileData();
   }, [fetchProfileData]);
 
+  const changeProfilePicture = async (asset) => {
+    const userId = user?.id || user?._id;
+    if (!userId || !asset) return;
+
+    setUploadingPhoto(true);
+    setPhotoError(null);
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', {
+        uri: asset.uri,
+        name: asset.fileName || 'profile.jpg',
+        type: asset.mimeType || 'image/jpeg',
+      });
+
+      const updatedUser = await profileApi.updateUser(userId, formData);
+      if (updatedUser) {
+        await updateUserSession({ ...user, ...updatedUser });
+      }
+    } catch (err) {
+      console.log('Error updating profile picture:', err?.message);
+      setPhotoError(getErrorMessage(err, 'No se pudo actualizar la foto de perfil.'));
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   return {
     user,
     profile,
@@ -65,5 +95,9 @@ export function useProfile() {
     onRefresh,
     refetch: fetchProfileData,
     signOut: clearSession,
+    uploadingPhoto,
+    photoError,
+    clearPhotoError: () => setPhotoError(null),
+    changeProfilePicture,
   };
 }

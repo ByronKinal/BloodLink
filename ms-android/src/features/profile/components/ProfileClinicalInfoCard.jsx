@@ -2,6 +2,21 @@ import React from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+function InfoRow({ icon, iconBg, label, value }) {
+  return (
+    <View style={styles.infoRow}>
+      <View style={[styles.iconSquare, { backgroundColor: iconBg }]}>
+        <Ionicons name={icon} size={20} color="#FFFFFF" />
+      </View>
+      <View style={styles.infoTextWrap}>
+        <Text style={styles.infoLabel}>{label}</Text>
+        <Text style={styles.infoVal}>{value}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color="#CBD5E1" />
+    </View>
+  );
+}
+
 export default function ProfileClinicalInfoCard({ loading, profileError, phone, email, lastDonationDate, onRetry }) {
   if (loading) {
     return (
@@ -28,25 +43,16 @@ export default function ProfileClinicalInfoCard({ loading, profileError, phone, 
 
   return (
     <View style={styles.infoCard}>
-      <View style={styles.infoRow}>
-        <Ionicons name="call-outline" size={20} color="#64748B" />
-        <Text style={styles.infoLabel}>Teléfono:</Text>
-        <Text style={styles.infoVal}>{phone}</Text>
-      </View>
+      <InfoRow icon="call" iconBg="#D42040" label="Teléfono:" value={phone} />
       <View style={styles.divider} />
-      <View style={styles.infoRow}>
-        <Ionicons name="mail-outline" size={20} color="#64748B" />
-        <Text style={styles.infoLabel}>Correo:</Text>
-        <Text style={styles.infoVal}>{email}</Text>
-      </View>
+      <InfoRow icon="mail" iconBg="#2563EB" label="Correo:" value={email} />
       <View style={styles.divider} />
-      <View style={styles.infoRow}>
-        <Ionicons name="medkit-outline" size={20} color="#64748B" />
-        <Text style={styles.infoLabel}>Última donación:</Text>
-        <Text style={styles.infoVal}>
-          {lastDonationDate ? new Date(lastDonationDate).toLocaleDateString('es-GT') : 'Sin registro'}
-        </Text>
-      </View>
+      <InfoRow
+        icon="medkit"
+        iconBg="#16A34A"
+        label="Última donación:"
+        value={lastDonationDate ? new Date(lastDonationDate).toLocaleDateString('es-GT') : 'Sin registro'}
+      />
     </View>
   );
 }
@@ -58,8 +64,8 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    padding: 8,
     marginBottom: 24,
     elevation: 2,
     shadowColor: '#000',
@@ -100,22 +106,32 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    padding: 10,
+  },
+  iconSquare: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  infoTextWrap: {
+    flex: 1,
   },
   infoLabel: {
-    fontSize: 14,
-    color: '#64748B',
-    marginLeft: 10,
-    width: 80,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1E293B',
   },
   infoVal: {
-    fontSize: 14,
-    color: '#1E293B',
-    flex: 1,
-    textAlign: 'right',
+    fontSize: 13,
+    color: '#64748B',
+    marginTop: 2,
   },
   divider: {
     height: 1,
     backgroundColor: '#F1F5F9',
+    marginHorizontal: 10,
   },
 });
