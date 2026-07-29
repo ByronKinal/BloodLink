@@ -8,6 +8,7 @@ import TriageStep3Habits from '../components/TriageStep3Habits';
 import TriageResultView from '../components/TriageResultView';
 import TriageHistoryView from '../components/TriageHistoryView';
 import TriageLockedView from '../components/TriageLockedView';
+import Banner from '../../../shared/components/Banner';
 
 export default function TriageStepperScreen() {
   const {
@@ -22,9 +23,11 @@ export default function TriageStepperScreen() {
     handleResetForm,
     submitting,
     result,
+    submitError,
     history,
     loadingHistory,
     historyError,
+    refetchHistory,
     triageLock,
   } = useTriage();
 
@@ -33,7 +36,12 @@ export default function TriageStepperScreen() {
       <TriageStepperHeader activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === 'history' ? (
-        <TriageHistoryView history={history} loading={loadingHistory} error={historyError} />
+        <TriageHistoryView
+          history={history}
+          loading={loadingHistory}
+          error={historyError}
+          onRetry={refetchHistory}
+        />
       ) : result ? (
         <TriageResultView result={result} onReset={handleResetForm} />
       ) : triageLock.isLocked ? (
@@ -52,6 +60,8 @@ export default function TriageStepperScreen() {
           {step === 1 && <TriageStep1Vitals formData={formData} onChangeField={handleChangeField} />}
           {step === 2 && <TriageStep2Health formData={formData} onChangeField={handleChangeField} />}
           {step === 3 && <TriageStep3Habits formData={formData} onChangeField={handleChangeField} />}
+
+          {step === 3 ? <Banner message={submitError} /> : null}
 
           {/* Stepper Navigation Buttons */}
           <View style={styles.buttonRow}>

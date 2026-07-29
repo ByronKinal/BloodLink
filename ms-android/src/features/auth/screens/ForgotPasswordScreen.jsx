@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import FormField from '../../../shared/components/FormField';
 import PrimaryButton from '../../../shared/components/PrimaryButton';
 import Banner from '../../../shared/components/Banner';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 export default function ForgotPasswordScreen({ navigation }) {
   const { forgotPassword } = useAuth();
@@ -27,7 +28,7 @@ export default function ForgotPasswordScreen({ navigation }) {
       await forgotPassword(values);
       setSuccessMessage('Si el correo existe, te enviamos un enlace de recuperación.');
     } catch (error) {
-      setServerError(error?.response?.data?.message || 'No se pudo procesar la solicitud.');
+      setServerError(getErrorMessage(error, 'No se pudo procesar la solicitud.'));
     }
   };
 

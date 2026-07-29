@@ -6,6 +6,7 @@ import EligibilityWidget from '../components/EligibilityWidget';
 import NextAppointmentWidget from '../components/NextAppointmentWidget';
 import WalletWidget from '../components/WalletWidget';
 import DonationStatsWidget from '../components/DonationStatsWidget';
+import AssistantWidget from '../components/AssistantWidget';
 
 export default function DashboardScreen({ navigation }) {
   const {
@@ -13,12 +14,15 @@ export default function DashboardScreen({ navigation }) {
     appointment,
     loadingAppointment,
     errorAppointment,
+    refetchAppointment,
     wallet,
     loadingWallet,
     errorWallet,
+    refetchWallet,
     stats,
     loadingStats,
     errorStats,
+    refetchStats,
     triage,
     refreshing,
     onRefresh,
@@ -44,6 +48,7 @@ export default function DashboardScreen({ navigation }) {
           error={errorAppointment}
           appointment={appointment}
           onNavigate={() => navigation?.navigate('Citas')}
+          onRetry={refetchAppointment}
         />
 
         <WalletWidget
@@ -51,13 +56,17 @@ export default function DashboardScreen({ navigation }) {
           wallet={wallet}
           error={errorWallet}
           onNavigate={() => navigation?.navigate('Billetera')}
+          onRetry={refetchWallet}
         />
 
         <DonationStatsWidget
           loading={loadingStats}
           error={errorStats}
           stats={stats}
+          onRetry={refetchStats}
         />
+
+        <AssistantWidget onPress={() => navigation?.navigate('Asistente')} />
       </ScrollView>
     </View>
   );

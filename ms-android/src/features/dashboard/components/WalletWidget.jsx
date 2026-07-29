@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function WalletWidget({ loading, wallet, error, onNavigate }) {
+export default function WalletWidget({ loading, wallet, error, onNavigate, onRetry }) {
   return (
     <View style={styles.widgetCard}>
       <View style={styles.widgetHeader}>
@@ -22,7 +22,16 @@ export default function WalletWidget({ loading, wallet, error, onNavigate }) {
           <Text style={styles.walletPoints}>
             {wallet?.balancePoints ?? 0} <Text style={styles.walletUnit}>BloodPoints</Text>
           </Text>
-          {error && <Text style={styles.widgetErrorText}>({error})</Text>}
+          {error ? (
+            <View style={styles.errorRow}>
+              <Text style={styles.widgetErrorText}>({error})</Text>
+              {onRetry ? (
+                <TouchableOpacity onPress={onRetry}>
+                  <Text style={styles.retryText}>Reintentar</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          ) : null}
         </View>
       )}
     </View>
@@ -77,5 +86,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#94A3B8',
     marginTop: 4,
+  },
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  retryText: {
+    fontSize: 12,
+    color: '#D42040',
+    fontWeight: '600',
   },
 });

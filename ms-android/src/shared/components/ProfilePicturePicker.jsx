@@ -20,6 +20,7 @@ export default function ProfilePicturePicker({ value, onChange, error }) {
       quality: 0.7,
       allowsEditing: true,
       aspect: [1, 1],
+      legacy: true,
     });
 
     if (!result.canceled) {

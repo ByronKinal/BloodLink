@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import FormField from '../../../shared/components/FormField';
 import PrimaryButton from '../../../shared/components/PrimaryButton';
 import Banner from '../../../shared/components/Banner';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 export default function ResetPasswordScreen({ navigation }) {
   const { resetPassword } = useAuth();
@@ -27,7 +28,7 @@ export default function ResetPasswordScreen({ navigation }) {
       await resetPassword({ token: values.token, newPassword: values.newPassword });
       navigation.navigate('Login');
     } catch (error) {
-      setServerError(error?.response?.data?.message || 'No se pudo restablecer la contraseña.');
+      setServerError(getErrorMessage(error, 'No se pudo restablecer la contraseña.'));
     }
   };
 

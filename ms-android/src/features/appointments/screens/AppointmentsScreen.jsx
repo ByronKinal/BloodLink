@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, Text, View, ScrollView, RefreshControl } from 'react-native';
 import { useAppointments } from '../hooks/useAppointments';
 import { useCreateAppointment } from '../hooks/useCreateAppointment';
 import AppointmentCard from '../components/AppointmentCard';
 import CreateAppointmentForm from '../components/CreateAppointmentForm';
 import AppointmentEligibilityGate from '../components/AppointmentEligibilityGate';
 import TabSwitcher from '../../../shared/components/TabSwitcher';
+import LoadingView from '../../../shared/components/LoadingView';
+import ErrorView from '../../../shared/components/ErrorView';
+import EmptyView from '../../../shared/components/EmptyView';
 
 const APPOINTMENT_TABS = [
   { value: 'list', label: 'Mis Citas' },
@@ -52,10 +46,7 @@ export default function AppointmentsScreen({ navigation }) {
       {mode === 'create' ? (
         <ScrollView contentContainerStyle={styles.content}>
           {loadingEligibility ? (
-            <View style={styles.centerContainer}>
-              <ActivityIndicator size="large" color="#D42040" />
-              <Text style={styles.loadingText}>Verificando tu elegibilidad...</Text>
-            </View>
+            <LoadingView message="Verificando tu elegibilidad..." />
           ) : !isApto ? (
             <AppointmentEligibilityGate hasTriage={hasTriage} onGoToTriage={() => navigation?.navigate('Triage')} />
           ) : (
@@ -68,27 +59,17 @@ export default function AppointmentsScreen({ navigation }) {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#D42040']} />}
         >
           {loading ? (
-            <View style={styles.centerContainer}>
-              <ActivityIndicator size="large" color="#D42040" />
-              <Text style={styles.loadingText}>Cargando tus citas...</Text>
-            </View>
+            <LoadingView message="Cargando tus citas..." />
           ) : error ? (
-            <View style={styles.errorCard}>
-              <Ionicons name="alert-circle-outline" size={48} color="#E53935" />
-              <Text style={styles.errorText}>{error}</Text>
-              <TouchableOpacity style={styles.retryButton} onPress={refetch}>
-                <Text style={styles.retryButtonText}>Reintentar</Text>
-              </TouchableOpacity>
-            </View>
+            <ErrorView message={error} onRetry={refetch} />
           ) : appointments.length === 0 ? (
-            <View style={styles.emptyCard}>
-              <Ionicons name="calendar-outline" size={64} color="#9E9E9E" />
-              <Text style={styles.emptyTitle}>Aún no tienes citas agendadas</Text>
-              <Text style={styles.emptySub}>Programa una nueva cita en tu centro de donación más cercano.</Text>
-              <TouchableOpacity style={styles.emptyActionBtn} onPress={() => setMode('create')}>
-                <Text style={styles.emptyActionBtnText}>Agendar mi cita</Text>
-              </TouchableOpacity>
-            </View>
+            <EmptyView
+              icon="calendar-outline"
+              title="Aún no tienes citas agendadas"
+              subtitle="Programa una nueva cita en tu centro de donación más cercano."
+              actionLabel="Agendar mi cita"
+              onAction={() => setMode('create')}
+            />
           ) : (
             appointments.map((item, index) => <AppointmentCard key={item._id || item.id || index} item={item} />)
           )}
@@ -123,72 +104,5 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-  },
-  centerContainer: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    color: '#64748B',
-    fontSize: 14,
-  },
-  errorCard: {
-    backgroundColor: '#FFEBEE',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  errorText: {
-    color: '#C62828',
-    fontSize: 14,
-    marginVertical: 12,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: '#D42040',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-  },
-  emptyCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 32,
-    alignItems: 'center',
-    marginTop: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#334155',
-    marginTop: 16,
-  },
-  emptySub: {
-    fontSize: 14,
-    color: '#64748B',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  emptyActionBtn: {
-    backgroundColor: '#D42040',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginTop: 18,
-  },
-  emptyActionBtnText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 14,
   },
 });

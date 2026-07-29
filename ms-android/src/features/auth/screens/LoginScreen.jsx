@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import FormField from '../../../shared/components/FormField';
 import PrimaryButton from '../../../shared/components/PrimaryButton';
 import Banner from '../../../shared/components/Banner';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 export default function LoginScreen({ navigation }) {
   const { signIn } = useAuth();
@@ -23,7 +24,7 @@ export default function LoginScreen({ navigation }) {
     try {
       await signIn(values);
     } catch (error) {
-      setServerError(error?.response?.data?.message || 'No se pudo iniciar sesión. Intenta de nuevo.');
+      setServerError(getErrorMessage(error, 'No se pudo iniciar sesión. Intenta de nuevo.'));
     }
   };
 

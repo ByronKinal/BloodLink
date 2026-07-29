@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileUserCard({ donorName, email, bloodType, rhFactor }) {
+export default function ProfileUserCard({ donorName, email, bloodType }) {
   return (
     <View style={styles.userCard}>
       <View style={styles.avatarCircle}>
@@ -14,7 +14,7 @@ export default function ProfileUserCard({ donorName, email, bloodType, rhFactor 
       <View style={styles.bloodBadgeContainer}>
         <View style={styles.bloodBadge}>
           <Ionicons name="water" size={16} color="#FFF" />
-          <Text style={styles.bloodBadgeText}>Tipo: {bloodType} ({rhFactor})</Text>
+          <Text style={styles.bloodBadgeText}>Tipo: {bloodType}</Text>
         </View>
       </View>
     </View>

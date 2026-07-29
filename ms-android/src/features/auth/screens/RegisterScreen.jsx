@@ -7,6 +7,7 @@ import PrimaryButton from '../../../shared/components/PrimaryButton';
 import Banner from '../../../shared/components/Banner';
 import BloodTypeSelector from '../../../shared/components/BloodTypeSelector';
 import ProfilePicturePicker from '../../../shared/components/ProfilePicturePicker';
+import { getErrorMessage } from '../../../shared/utils/apiError';
 
 export default function RegisterScreen({ navigation }) {
   const { signUp } = useAuth();
@@ -74,7 +75,7 @@ export default function RegisterScreen({ navigation }) {
       await signUp(formData);
       navigation.navigate('VerifyEmail', { email: values.email });
     } catch (error) {
-      setServerError(error?.response?.data?.message || 'No se pudo completar el registro. Intenta de nuevo.');
+      setServerError(getErrorMessage(error, 'No se pudo completar el registro. Intenta de nuevo.'));
     }
   };
 

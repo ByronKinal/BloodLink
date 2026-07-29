@@ -1,9 +1,10 @@
 import React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import StatusCard from '../../../shared/components/StatusCard';
+import { isTriageApto } from '../../../shared/utils/triageEligibility';
 
 export default function TriageResultView({ result, onReset }) {
-  const isApto = result?.data?.esApto !== false;
+  const isApto = isTriageApto(result?.data);
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
