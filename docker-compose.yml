@@ -1,0 +1,132 @@
+services:
+  # Base de Datos PostgreSQL
+  postgres:
+    image: postgres:16
+    container_name: bloodlink-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: bloodlink
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d bloodlink"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bloodlink-net
+
+  # Base de Datos MongoDB
+  mongo-db:
+    image: mongo:7
+    container_name: bloodlink-mongo-db
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bloodlink-net
+
+  # Microservicio PostgreSQL (Node.js)
+  postgres-service:
+    build:
+      context: ./potgre
+      dockerfile: Dockerfile
+    container_name: bloodlink-postgres-service
+    restart: always
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=development
+      - PORT=3007
+      - DB_HOST=ep-autumn-queen-ayp1zkv0-pooler.c-5.us-east-2.aws.neon.tech
+      - DB_PORT=5432
+      - DB_NAME=neondb
+      - DB_USERNAME=neondb_owner
+      - DB_PASSWORD=npg_J6zbaRHeUOy7
+      - DB_SSL=true
+      - DB_SQL_LOGGING=false
+      - JWT_SECRET=MyVerySecretKeyForJWTTokenAuthenticationWith256Bits!
+      - JWT_EXPIRES_IN=30m
+      - JWT_REFRESH_EXPIRES_IN=7d
+      - JWT_ISSUER=BloodLinkAuthService
+      - JWT_AUDIENCE=BloodLinkApp
+      - CLOUDINARY_CLOUD_NAME=dut08rmaz
+      - CLOUDINARY_API_KEY=279612751725163
+      - CLOUDINARY_API_SECRET=UxGMRqU1iB580Kxb2AlDR4n4hu0
+      - CLOUDINARY_BASE_URL=https://res.cloudinary.com/dut08rmaz/image/upload/
+      - CLOUDINARY_FOLDER=gastroflow/profiles
+      - CLOUDINARY_DEFAULT_AVATAR_FILENAME=default-avatar_ewzxwx.png
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=465
+      - SMTP_ENABLE_SSL=true
+      - SMTP_USERNAME=narutoshippude745@gmail.com
+      - SMTP_PASSWORD=rhcs dgno ywts egrt
+      - EMAIL_FROM_NAME=AuthDotnet App
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - bloodlink-net
+
+  # Microservicio MongoDB (Node.js)
+  mongo-service:
+    build:
+      context: ./mongo
+      dockerfile: Dockerfile
+    container_name: bloodlink-mongo-service
+    restart: always
+    ports:
+      - "3006:3006"
+    environment:
+      - PORT=3006
+      - MONGODB_URI=mongodb+srv://billyrey3645_db_user:DlYUai23wP2AmNld@cluster0.rmvfkzq.mongodb.net/bloodlink?retryWrites=true&w=majority&appName=Cluster0
+      - POSTGRES_SERVICE_URL=http://postgres-service:3007
+      - JWT_SECRET=MyVerySecretKeyForJWTTokenAuthenticationWith256Bits!
+      - JWT_EXPIRES_IN=30m
+      - JWT_REFRESH_EXPIRES_IN=7d
+      - JWT_ISSUER=BloodLinkAuthService
+      - JWT_AUDIENCE=BloodLinkApp
+    depends_on:
+      mongo-db:
+        condition: service_healthy
+      postgres-service:
+        condition: service_started
+    networks:
+      - bloodlink-net
+
+  # Aplicación Web Frontend (React)
+  ms-react:
+    build:
+      context: ./ms-react
+      dockerfile: Dockerfile
+    container_name: bloodlink-ms-react
+    restart: always
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_MONGO_API_URL=http://localhost:3006
+      - VITE_POSTGRES_API_URL=http://localhost:3007
+    depends_on:
+      - mongo-service
+      - postgres-service
+    networks:
+      - bloodlink-net
+
+networks:
+  bloodlink-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:

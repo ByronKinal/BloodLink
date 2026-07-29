@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+export const TRIAGE_REVIEW_STATUSES = ['PENDIENTE', 'APROBADO', 'RECHAZADO'];
+
 const triageSchema = new mongoose.Schema(
   {
     accountId: {
@@ -112,6 +114,11 @@ const triageSchema = new mongoose.Schema(
         type: Date,
         default: Date.now,
       },
+    },
+    reviewStatus: {
+      type: String,
+      enum: TRIAGE_REVIEW_STATUSES,
+      default: 'PENDIENTE',
     },
   },
   {

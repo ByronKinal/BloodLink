@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import * as NavigationBar from 'expo-navigation-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
@@ -10,6 +12,10 @@ export default function App() {
 
   useEffect(() => {
     loadSession();
+
+    if (Platform.OS === 'android') {
+      NavigationBar.setVisibilityAsync('hidden');
+    }
   }, []);
 
   return (
@@ -17,7 +23,7 @@ export default function App() {
       <NavigationContainer>
         <AppNavigator />
       </NavigationContainer>
-      <StatusBar style="auto" />
+      <StatusBar hidden />
     </SafeAreaProvider>
   );
 }

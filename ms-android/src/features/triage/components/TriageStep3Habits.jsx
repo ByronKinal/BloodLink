@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, Switch } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import YesNoToggle from './YesNoToggle';
 
 export default function TriageStep3Habits({ formData, onChangeField }) {
   return (
@@ -7,106 +8,66 @@ export default function TriageStep3Habits({ formData, onChangeField }) {
       <Text style={styles.stepTitle}>Paso 3: Hábitos y Factores de Riesgo</Text>
       <Text style={styles.stepSubtitle}>Último paso para determinar tu elegibilidad</Text>
 
-      <View style={styles.switchRow}>
-        <View style={styles.switchTextCol}>
-          <Text style={styles.switchLabel}>¿Consumiste alcohol en las últimas 24 horas?</Text>
-        </View>
-        <Switch
-          value={formData.consumioAlcoholUltimas24h}
-          onValueChange={(val) => onChangeField('consumioAlcoholUltimas24h', val)}
-          trackColor={{ false: '#CBD5E1', true: '#FCA5A5' }}
-          thumbColor={formData.consumioAlcoholUltimas24h ? '#D42040' : '#F8FAFC'}
-        />
-      </View>
+      <YesNoToggle
+        icon="wine-outline"
+        label="¿Consumiste alcohol en las últimas 24 horas?"
+        value={formData.consumioAlcoholUltimas24h}
+        onChange={(val) => onChangeField('consumioAlcoholUltimas24h', val)}
+      />
 
-      <View style={styles.switchRow}>
-        <View style={styles.switchTextCol}>
-          <Text style={styles.switchLabel}>¿Has tomado antibióticos en los últimos 7 días?</Text>
-        </View>
-        <Switch
-          value={formData.tomoAntibioticosUltimos7d}
-          onValueChange={(val) => onChangeField('tomoAntibioticosUltimos7d', val)}
-          trackColor={{ false: '#CBD5E1', true: '#FCA5A5' }}
-          thumbColor={formData.tomoAntibioticosUltimos7d ? '#D42040' : '#F8FAFC'}
-        />
-      </View>
+      <YesNoToggle
+        icon="medkit-outline"
+        label="¿Has tomado antibióticos en los últimos 7 días?"
+        value={formData.tomoAntibioticosUltimos7d}
+        onChange={(val) => onChangeField('tomoAntibioticosUltimos7d', val)}
+      />
 
-      <View style={styles.switchRow}>
-        <View style={styles.switchTextCol}>
-          <Text style={styles.switchLabel}>¿Estás embarazada o en periodo de lactancia?</Text>
-        </View>
-        <Switch
-          value={formData.embarazadaOLactando}
-          onValueChange={(val) => onChangeField('embarazadaOLactando', val)}
-          trackColor={{ false: '#CBD5E1', true: '#FCA5A5' }}
-          thumbColor={formData.embarazadaOLactando ? '#D42040' : '#F8FAFC'}
-        />
-      </View>
+      <YesNoToggle
+        icon="woman-outline"
+        label="¿Estás embarazada o en periodo de lactancia?"
+        value={formData.embarazadaOLactando}
+        onChange={(val) => onChangeField('embarazadaOLactando', val)}
+      />
 
-      <View style={styles.switchRow}>
-        <View style={styles.switchTextCol}>
-          <Text style={styles.switchLabel}>¿Te has hecho un tatuaje o piercing recientemente?</Text>
-        </View>
-        <Switch
-          value={formData.tuvoTatuajeOPiercing}
-          onValueChange={(val) => onChangeField('tuvoTatuajeOPiercing', val)}
-          trackColor={{ false: '#CBD5E1', true: '#FCA5A5' }}
-          thumbColor={formData.tuvoTatuajeOPiercing ? '#D42040' : '#F8FAFC'}
-        />
-      </View>
+      <YesNoToggle
+        icon="body-outline"
+        label="¿Te has hecho un tatuaje o piercing recientemente?"
+        value={formData.tuvoTatuajeOPiercing}
+        onChange={(val) => onChangeField('tuvoTatuajeOPiercing', val)}
+      />
 
-      <View style={styles.switchRow}>
-        <View style={styles.switchTextCol}>
-          <Text style={styles.switchLabel}>¿Tuviste alguna cirugía o procedimiento reciente?</Text>
-        </View>
-        <Switch
-          value={formData.tuvoCirugiaReciente}
-          onValueChange={(val) => onChangeField('tuvoCirugiaReciente', val)}
-          trackColor={{ false: '#CBD5E1', true: '#FCA5A5' }}
-          thumbColor={formData.tuvoCirugiaReciente ? '#D42040' : '#F8FAFC'}
-        />
-      </View>
+      <YesNoToggle
+        icon="cut-outline"
+        label="¿Tuviste alguna cirugía o procedimiento reciente?"
+        value={formData.tuvoCirugiaReciente}
+        onChange={(val) => onChangeField('tuvoCirugiaReciente', val)}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   stepContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.78)',
+    borderRadius: 20,
     padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.9)',
     elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowColor: '#94A3B8',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
     marginBottom: 20,
   },
   stepTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: '#1E293B',
   },
   stepSubtitle: {
     fontSize: 13,
     color: '#64748B',
-    marginBottom: 16,
+    marginBottom: 4,
     marginTop: 2,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  switchTextCol: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  switchLabel: {
-    fontSize: 14,
-    color: '#1E293B',
-    lineHeight: 20,
   },
 });

@@ -7,6 +7,9 @@ import VerifyEmailScreen from '../features/auth/screens/VerifyEmailScreen';
 import ForgotPasswordScreen from '../features/auth/screens/ForgotPasswordScreen';
 import ResetPasswordScreen from '../features/auth/screens/ResetPasswordScreen';
 import MainTabNavigator from './MainTabNavigator';
+import DonationCentersScreen from '../features/centers/screens/DonationCentersScreen';
+import NotificationsScreen from '../features/notifications/screens/NotificationsScreen';
+import TriageHistoryScreen from '../features/triage/screens/TriageHistoryScreen';
 
 const AuthStack = createNativeStackNavigator();
 const MainStack = createNativeStackNavigator();
@@ -27,6 +30,9 @@ function MainNavigator() {
   return (
     <MainStack.Navigator screenOptions={{ headerShown: false }}>
       <MainStack.Screen name="MainTabs" component={MainTabNavigator} />
+      <MainStack.Screen name="DonationCenters" component={DonationCentersScreen} />
+      <MainStack.Screen name="Notifications" component={NotificationsScreen} />
+      <MainStack.Screen name="TriageHistory" component={TriageHistoryScreen} />
     </MainStack.Navigator>
   );
 }

@@ -1,8 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuthStore } from '../features/auth/store/authStore';
 
 import DashboardScreen from '../features/dashboard/screens/DashboardScreen';
 import ProfileScreen from '../features/profile/screens/ProfileScreen';
@@ -14,31 +12,10 @@ import AssistantScreen from '../features/assistant/screens/AssistantScreen';
 const Tab = createBottomTabNavigator();
 
 export default function MainTabNavigator() {
-  const clearSession = useAuthStore((state) => state.clearSession);
-
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: '#1E293B',
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-        headerTitleStyle: {
-          color: '#FFFFFF',
-          fontWeight: 'bold',
-          fontSize: 18,
-        },
-        headerRight: () => (
-          <TouchableOpacity
-            style={styles.logoutHeaderBtn}
-            onPress={() => clearSession()}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="log-out-outline" size={22} color="#FF6B6B" />
-          </TouchableOpacity>
-        ),
+        headerShown: false,
         tabBarActiveTintColor: '#D42040',
         tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
@@ -79,43 +56,33 @@ export default function MainTabNavigator() {
       <Tab.Screen
         name="Dashboard"
         component={DashboardScreen}
-        options={{ title: 'Inicio', headerTitle: 'BloodLink Donante' }}
+        options={{ title: 'Inicio', headerShown: false }}
       />
       <Tab.Screen
         name="Triage"
         component={TriageStepperScreen}
-        options={{ title: 'Triage', headerTitle: 'Evaluación de Triage' }}
+        options={{ title: 'Triage', headerShown: false }}
       />
       <Tab.Screen
         name="Citas"
         component={AppointmentsScreen}
-        options={{ title: 'Citas', headerTitle: 'Gestión de Citas' }}
+        options={{ title: 'Citas', headerShown: false }}
       />
       <Tab.Screen
         name="Billetera"
         component={WalletScreen}
-        options={{ title: 'Billetera', headerTitle: 'Puntos y Recompensas' }}
+        options={{ title: 'Billetera', headerShown: false }}
       />
       <Tab.Screen
         name="Asistente"
         component={AssistantScreen}
-        options={{ title: 'IA Asistente', headerTitle: 'Asistente Médico IA' }}
+        options={{ title: 'IA Asistente', headerShown: false }}
       />
       <Tab.Screen
         name="Perfil"
         component={ProfileScreen}
-        options={{ title: 'Perfil', headerTitle: 'Perfil del Donante' }}
+        options={{ title: 'Perfil' }}
       />
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  logoutHeaderBtn: {
-    paddingRight: 16,
-    paddingLeft: 8,
-    paddingVertical: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

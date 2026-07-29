@@ -1,72 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../../auth/store/authStore';
-import * as appointmentsApi from '../../appointments/api/appointments.api';
-import * as rewardsApi from '../../rewards/api/rewards.api';
 import * as triageApi from '../../triage/api/triage.api';
 import * as dashboardApi from '../api/dashboard.api';
 import { isTriageApto } from '../../../shared/utils/triageEligibility';
-import { isAppointmentInPast } from '../../../shared/utils/appointment';
 import { getErrorMessage } from '../../../shared/utils/apiError';
 
 export function useDashboard() {
   const user = useAuthStore((state) => state.user);
 
-  // Widget 1: Próxima Cita
-  const [appointment, setAppointment] = useState(null);
-  const [loadingAppointment, setLoadingAppointment] = useState(true);
-  const [errorAppointment, setErrorAppointment] = useState(null);
-
-  // Widget 2: Saldo Wallet
-  const [wallet, setWallet] = useState(null);
-  const [loadingWallet, setLoadingWallet] = useState(true);
-  const [errorWallet, setErrorWallet] = useState(null);
-
-  // Widget 3: Estadísticas de Impacto
+  // Estadísticas de Impacto
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [errorStats, setErrorStats] = useState(null);
 
-  // Widget 4: Semáforo de Elegibilidad (Triage)
+  // Semáforo de Elegibilidad (Triage)
   const [triage, setTriage] = useState(null);
   const [loadingTriage, setLoadingTriage] = useState(true);
   const [errorTriage, setErrorTriage] = useState(null);
 
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch Widget 1: Citas
-  const fetchAppointment = async () => {
-    setLoadingAppointment(true);
-    setErrorAppointment(null);
-    try {
-      const list = await appointmentsApi.getAppointments();
-      const upcoming = Array.isArray(list) ? list.find((item) => !isAppointmentInPast(item)) : null;
-      setAppointment(upcoming || null);
-    } catch (err) {
-      console.log('Dashboard Widget Appointment error:', err?.message);
-      setErrorAppointment(getErrorMessage(err, 'No se pudo obtener la cita.'));
-    } finally {
-      setLoadingAppointment(false);
-    }
-  };
-
-  // Fetch Widget 2: Wallet
-  const fetchWallet = async () => {
-    setLoadingWallet(true);
-    setErrorWallet(null);
-    try {
-      const userId = user?.id || user?._id;
-      const data = await rewardsApi.getWallet(userId);
-      setWallet(data);
-    } catch (err) {
-      console.log('Dashboard Widget Wallet error:', err?.message);
-      setErrorWallet(getErrorMessage(err, 'No disponible'));
-      setWallet({ balancePoints: 0, totalEarnedPoints: 0 });
-    } finally {
-      setLoadingWallet(false);
-    }
-  };
-
-  // Fetch Widget 3: Stats
   const fetchStats = async () => {
     setLoadingStats(true);
     setErrorStats(null);
@@ -81,7 +34,6 @@ export function useDashboard() {
     }
   };
 
-  // Fetch Widget 4: Triage
   const fetchTriage = async () => {
     setLoadingTriage(true);
     setErrorTriage(null);
@@ -101,12 +53,7 @@ export function useDashboard() {
   };
 
   const fetchAllWidgets = useCallback(async () => {
-    await Promise.allSettled([
-      fetchAppointment(),
-      fetchWallet(),
-      fetchStats(),
-      fetchTriage(),
-    ]);
+    await Promise.allSettled([fetchStats(), fetchTriage()]);
     setRefreshing(false);
   }, [user]);
 
@@ -119,7 +66,6 @@ export function useDashboard() {
     fetchAllWidgets();
   }, [fetchAllWidgets]);
 
-  // Semáforo de Elegibilidad helper
   const getEligibilityStatus = () => {
     if (loadingTriage) return { color: '#94A3B8', text: 'Cargando elegibilidad...', bg: '#F1F5F9', icon: 'time-outline' };
     if (errorTriage) return { color: '#D97706', text: 'Triage pendiente de realizar', bg: '#FEF3C7', icon: 'alert-circle-outline' };
@@ -134,14 +80,6 @@ export function useDashboard() {
 
   return {
     user,
-    appointment,
-    loadingAppointment,
-    errorAppointment,
-    refetchAppointment: fetchAppointment,
-    wallet,
-    loadingWallet,
-    errorWallet,
-    refetchWallet: fetchWallet,
     stats,
     loadingStats,
     errorStats,

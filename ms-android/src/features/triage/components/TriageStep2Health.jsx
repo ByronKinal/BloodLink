@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, Switch } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import YesNoToggle from './YesNoToggle';
 
 export default function TriageStep2Health({ formData, onChangeField }) {
   return (
@@ -7,96 +8,61 @@ export default function TriageStep2Health({ formData, onChangeField }) {
       <Text style={styles.stepTitle}>Paso 2: Infecciones y Salud General</Text>
       <Text style={styles.stepSubtitle}>Responde con precisión a las siguientes preguntas</Text>
 
-      <View style={styles.switchRow}>
-        <View style={styles.switchTextCol}>
-          <Text style={styles.switchLabel}>¿Tienes o has tenido fiebre en los últimos días?</Text>
-        </View>
-        <Switch
-          value={formData.tieneFiebre}
-          onValueChange={(val) => onChangeField('tieneFiebre', val)}
-          trackColor={{ false: '#CBD5E1', true: '#FCA5A5' }}
-          thumbColor={formData.tieneFiebre ? '#D42040' : '#F8FAFC'}
-        />
-      </View>
+      <YesNoToggle
+        icon="thermometer-outline"
+        label="¿Tienes o has tenido fiebre en los últimos días?"
+        value={formData.tieneFiebre}
+        onChange={(val) => onChangeField('tieneFiebre', val)}
+      />
 
-      <View style={styles.switchRow}>
-        <View style={styles.switchTextCol}>
-          <Text style={styles.switchLabel}>¿Presentas síntomas de infección activa (tos, dolor, etc.)?</Text>
-        </View>
-        <Switch
-          value={formData.tieneSintomasInfeccion}
-          onValueChange={(val) => onChangeField('tieneSintomasInfeccion', val)}
-          trackColor={{ false: '#CBD5E1', true: '#FCA5A5' }}
-          thumbColor={formData.tieneSintomasInfeccion ? '#D42040' : '#F8FAFC'}
-        />
-      </View>
+      <YesNoToggle
+        icon="bandage-outline"
+        label="¿Presentas síntomas de infección activa (tos, dolor, etc.)?"
+        value={formData.tieneSintomasInfeccion}
+        onChange={(val) => onChangeField('tieneSintomasInfeccion', val)}
+      />
 
-      <View style={styles.switchRow}>
-        <View style={styles.switchTextCol}>
-          <Text style={styles.switchLabel}>¿Padeces alguna enfermedad crónica?</Text>
-        </View>
-        <Switch
-          value={formData.tieneEnfermedadCronica}
-          onValueChange={(val) => onChangeField('tieneEnfermedadCronica', val)}
-          trackColor={{ false: '#CBD5E1', true: '#FCA5A5' }}
-          thumbColor={formData.tieneEnfermedadCronica ? '#D42040' : '#F8FAFC'}
-        />
-      </View>
+      <YesNoToggle
+        icon="fitness-outline"
+        label="¿Padeces alguna enfermedad crónica?"
+        value={formData.tieneEnfermedadCronica}
+        onChange={(val) => onChangeField('tieneEnfermedadCronica', val)}
+      />
 
-      {formData.tieneEnfermedadCronica && (
-        <View style={styles.switchRow}>
-          <View style={styles.switchTextCol}>
-            <Text style={styles.switchLabel}>¿Tu enfermedad crónica se encuentra controlada?</Text>
-          </View>
-          <Switch
-            value={formData.enfermedadCronicaControlada}
-            onValueChange={(val) => onChangeField('enfermedadCronicaControlada', val)}
-            trackColor={{ false: '#CBD5E1', true: '#86EFAC' }}
-            thumbColor={formData.enfermedadCronicaControlada ? '#16A34A' : '#F8FAFC'}
-          />
-        </View>
-      )}
+      {formData.tieneEnfermedadCronica ? (
+        <YesNoToggle
+          icon="checkmark-done-outline"
+          label="¿Tu enfermedad crónica se encuentra controlada?"
+          value={formData.enfermedadCronicaControlada}
+          onChange={(val) => onChangeField('enfermedadCronicaControlada', val)}
+        />
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   stepContainer: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.78)',
+    borderRadius: 20,
     padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.9)',
     elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowColor: '#94A3B8',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
     marginBottom: 20,
   },
   stepTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: '#1E293B',
   },
   stepSubtitle: {
     fontSize: 13,
     color: '#64748B',
-    marginBottom: 16,
+    marginBottom: 4,
     marginTop: 2,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  switchTextCol: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  switchLabel: {
-    fontSize: 14,
-    color: '#1E293B',
-    lineHeight: 20,
   },
 });

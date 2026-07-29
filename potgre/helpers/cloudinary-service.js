@@ -89,7 +89,11 @@ export const deleteImage = async (imagePath) => {
 
 export const getFullImageUrl = (imagePath) => {
   if (!imagePath) {
-    return getDefaultAvatarUrl();
+    const defaultPath = getDefaultAvatarPath();
+    if (!defaultPath || defaultPath === imagePath) {
+      return '';
+    }
+    return getFullImageUrl(defaultPath);
   }
 
   if (typeof imagePath === 'string' && /^https?:\/\//i.test(imagePath)) {
@@ -124,7 +128,7 @@ export const getFullImageUrl = (imagePath) => {
     }
   }
 
-  const folder = config.cloudinary.folder;
+  const folder = config.cloudinary.folder || 'gastroflow/profiles';
   const publicId = imagePath.includes('/')
     ? imagePath
     : `${folder}/${imagePath}`;
@@ -138,21 +142,33 @@ export const getFullImageUrl = (imagePath) => {
 
 export const getDefaultAvatarUrl = () => {
   const defaultPath = getDefaultAvatarPath();
-  return getFullImageUrl(defaultPath);
+  if (!defaultPath) {
+    return '';
+  }
+  const folder = config.cloudinary.folder || 'gastroflow/profiles';
+  const publicId = defaultPath.includes('/')
+    ? defaultPath
+    : `${folder}/${defaultPath}`;
+
+  return cloudinary.url(publicId, {
+    secure: true,
+    resource_type: 'image',
+    type: 'upload',
+  });
 };
 
 export const getDefaultAvatarPath = () => {
   const defaultPath = config.cloudinary.defaultAvatarPath;
 
   if (defaultPath && defaultPath.includes('${')) {
-    const folder = process.env.CLOUDINARY_FOLDER;
-    const filename = process.env.CLOUDINARY_DEFAULT_AVATAR_FILENAME;
+    const folder = process.env.CLOUDINARY_FOLDER || 'gastroflow/profiles';
+    const filename = process.env.CLOUDINARY_DEFAULT_AVATAR_FILENAME || 'default-avatar_ewzxwx.png';
     if (folder || filename) {
       return [folder, filename].filter(Boolean).join('/');
     }
   }
 
-  return defaultPath;
+  return defaultPath || 'gastroflow/profiles/default-avatar_ewzxwx.png';
 };
 
 export default {

@@ -151,6 +151,13 @@ export const validateCreateAppointment = [
     .matches(/^([01]\d|2[0-3]):([0-5]\d)$/)
     .withMessage('La hora debe tener formato HH:mm'),
 
+  body('donationCenterId')
+    .trim()
+    .notEmpty()
+    .withMessage('donationCenterId es obligatorio')
+    .custom((value) => mongoose.isValidObjectId(value))
+    .withMessage('donationCenterId no es un ObjectId válido'),
+
   handleValidationErrors,
 ];
 
@@ -160,6 +167,24 @@ export const validateStaffAgendaQuery = [
     .trim()
     .matches(/^\d{4}-\d{2}-\d{2}$/)
     .withMessage('date debe tener formato YYYY-MM-DD'),
+
+  handleValidationErrors,
+];
+
+export const validateAvailabilityQuery = [
+  query('date')
+    .trim()
+    .notEmpty()
+    .withMessage('date es obligatorio')
+    .matches(/^\d{4}-\d{2}-\d{2}$/)
+    .withMessage('date debe tener formato YYYY-MM-DD'),
+
+  query('donationCenterId')
+    .trim()
+    .notEmpty()
+    .withMessage('donationCenterId es obligatorio')
+    .custom((value) => mongoose.isValidObjectId(value))
+    .withMessage('donationCenterId no es un ObjectId válido'),
 
   handleValidationErrors,
 ];

@@ -33,11 +33,23 @@ export const appointmentsApi = {
 
   /**
    * Cancela una cita de donación activa.
-   * @param {string} appointmentId 
+   * @param {string} appointmentId
    */
   cancelAppointment: async (appointmentId) => {
-    const response = await mongoApi.delete(`/api/v1/appointments/${appointmentId}`);
+    const response = await mongoApi.patch(`/api/v1/appointments/${appointmentId}/cancel`);
     return response.data?.data || response.data;
+  },
+
+  /**
+   * Obtiene los horarios disponibles de un centro de donación para una fecha.
+   * @param {string} date formato YYYY-MM-DD
+   * @param {string} donationCenterId
+   */
+  getAvailability: async (date, donationCenterId) => {
+    const response = await mongoApi.get('/api/v1/appointments/availability', {
+      params: { date, donationCenterId },
+    });
+    return response.data;
   },
 };
 
@@ -45,3 +57,4 @@ export const getAppointments = appointmentsApi.getAppointments;
 export const getAppointmentById = appointmentsApi.getAppointmentById;
 export const createAppointment = appointmentsApi.createAppointment;
 export const cancelAppointment = appointmentsApi.cancelAppointment;
+export const getAvailability = appointmentsApi.getAvailability;

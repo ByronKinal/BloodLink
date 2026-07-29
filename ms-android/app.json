@@ -34,7 +34,13 @@
           "cameraPermission": "BloodLink necesita acceso a tu cámara para tu foto de perfil."
         }
       ],
-      "expo-splash-screen"
+      "expo-splash-screen",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "BloodLink necesita tu ubicación para mostrarte los centros de donación más cercanos."
+        }
+      ]
     ]
   }
 }

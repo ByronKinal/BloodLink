@@ -1,9 +1,18 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../hooks/useAuth';
-import FormField from '../../../shared/components/FormField';
-import PrimaryButton from '../../../shared/components/PrimaryButton';
+import OtpCodeInput from '../components/OtpCodeInput';
+import AuthPrimaryButton from '../components/AuthPrimaryButton';
 import Banner from '../../../shared/components/Banner';
 import { getErrorMessage } from '../../../shared/utils/apiError';
 
@@ -72,70 +81,124 @@ export default function VerifyEmailScreen({ navigation, route }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Verifica tu correo</Text>
-      <Text style={styles.subtitle}>Ingresa el código de activación que enviamos a tu correo electrónico.</Text>
+    <ImageBackground
+      source={require('../../../../assets/img/bloodlink_background_clean.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <View style={styles.logoRow}>
+            <Image
+              source={require('../../../../assets/img/bloodlink_icon.png')}
+              style={styles.logoIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.logoText}>
+              Blood<Text style={styles.logoTextAccent}>Link</Text>
+            </Text>
+            <Text style={styles.tagline}>CONECTAMOS VIDAS, SALVAMOS VIDAS</Text>
+          </View>
 
-      <FormField
-        control={control}
-        name="email"
-        label="Correo electrónico"
-        placeholder="maria@correo.com"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        rules={{ required: 'El correo es obligatorio' }}
-      />
+          <Text style={styles.title}>Verifica tu cuenta</Text>
+          <Text style={styles.subtitle}>
+            Hemos enviado un código de 6 dígitos a tu correo electrónico. Por favor, ingrésalo a continuación.
+          </Text>
 
-      <FormField
-        control={control}
-        name="activationCode"
-        label="Código de activación"
-        placeholder="123456"
-        keyboardType="number-pad"
-        rules={{ required: 'El código de activación es obligatorio' }}
-      />
+          <OtpCodeInput
+            control={control}
+            name="activationCode"
+            rules={{
+              required: 'El código de activación es obligatorio',
+              minLength: { value: 6, message: 'El código debe tener 6 dígitos' },
+            }}
+          />
 
-      <Banner message={serverError} />
-      <Banner message={resendMessage} tone="success" />
+          <Banner message={serverError} />
+          <Banner message={resendMessage} tone="success" />
 
-      <PrimaryButton label="Verificar cuenta" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+          <AuthPrimaryButton label="Verificar" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
 
-      <Text
-        style={[styles.linkText, cooldown > 0 ? styles.linkTextDisabled : null]}
-        onPress={cooldown > 0 || isResending ? undefined : onResend}
-      >
-        {cooldown > 0 ? `Reenviar código (${cooldown}s)` : 'Reenviar código'}
-      </Text>
-    </View>
+          <Text style={styles.resendRow}>
+            <Text style={styles.resendMuted}>¿No recibiste el código? </Text>
+            <Text
+              style={[styles.resendLink, cooldown > 0 && styles.resendLinkDisabled]}
+              onPress={cooldown > 0 || isResending ? undefined : onResend}
+            >
+              {cooldown > 0 ? `Reenviar código (${cooldown}s)` : 'Reenviar código'}
+            </Text>
+          </Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
+  },
+  flex: {
+    flex: 1,
+  },
+  content: {
+    flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    backgroundColor: '#fff',
+    paddingHorizontal: 28,
+    paddingVertical: 40,
+  },
+  logoRow: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  logoIcon: {
+    width: 100,
+    height: 100,
+    marginBottom: 12,
+  },
+  logoText: {
+    fontSize: 30,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  logoTextAccent: {
+    color: '#D42040',
+  },
+  tagline: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#94A3B8',
+    letterSpacing: 1,
+    marginTop: 4,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 8,
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1E293B',
     textAlign: 'center',
+    marginBottom: 16,
   },
   subtitle: {
-    fontSize: 13,
-    color: '#666',
+    fontSize: 14,
+    color: '#64748B',
     textAlign: 'center',
-    marginBottom: 24,
+    lineHeight: 20,
+    marginBottom: 28,
   },
-  linkText: {
+  resendRow: {
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  resendMuted: {
+    color: '#64748B',
+    fontSize: 13,
+  },
+  resendLink: {
     color: '#D42040',
     fontSize: 13,
-    textAlign: 'center',
-    marginTop: 16,
+    fontWeight: '700',
   },
-  linkTextDisabled: {
-    color: '#999',
+  resendLinkDisabled: {
+    color: '#94A3B8',
   },
 });

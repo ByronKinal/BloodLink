@@ -1,19 +1,21 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, Text, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ImageBackground } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTriage } from '../hooks/useTriage';
-import TriageStepperHeader from '../components/TriageStepperHeader';
+import TriageLandingHero from '../components/TriageLandingHero';
 import TriageStep1Vitals from '../components/TriageStep1Vitals';
 import TriageStep2Health from '../components/TriageStep2Health';
 import TriageStep3Habits from '../components/TriageStep3Habits';
 import TriageResultView from '../components/TriageResultView';
-import TriageHistoryView from '../components/TriageHistoryView';
 import TriageLockedView from '../components/TriageLockedView';
+import NotificationBell from '../../notifications/components/NotificationBell';
 import Banner from '../../../shared/components/Banner';
+import AppAlertModal from '../../../shared/components/AppAlertModal';
 
-export default function TriageStepperScreen() {
+export default function TriageStepperScreen({ navigation }) {
   const {
-    activeTab,
-    setActiveTab,
+    landingStarted,
+    startNewTriage,
     step,
     formData,
     handleChangeField,
@@ -24,70 +26,90 @@ export default function TriageStepperScreen() {
     submitting,
     result,
     submitError,
-    history,
-    loadingHistory,
-    historyError,
-    refetchHistory,
+    validationMessage,
+    clearValidationMessage,
     triageLock,
   } = useTriage();
 
-  return (
-    <View style={styles.container}>
-      <TriageStepperHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+  const showForm = landingStarted && !triageLock.isLocked && !result;
 
-      {activeTab === 'history' ? (
-        <TriageHistoryView
-          history={history}
-          loading={loadingHistory}
-          error={historyError}
-          onRetry={refetchHistory}
-        />
-      ) : result ? (
+  return (
+    <ImageBackground
+      source={require('../../../../assets/img/bloodlink_triage_background.png')}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <View style={styles.topHeader}>
+        <View style={styles.topHeaderTitleRow}>
+          <Text style={styles.topHeaderTitle}>Evaluación Médica</Text>
+          <Ionicons name="heart" size={20} color="#D42040" />
+          <Ionicons name="pulse" size={20} color="#D42040" style={styles.pulseIcon} />
+        </View>
+        <NotificationBell dark onPress={() => navigation?.navigate('Notifications')} />
+      </View>
+
+      {result ? (
         <TriageResultView result={result} onReset={handleResetForm} />
-      ) : triageLock.isLocked ? (
-        <TriageLockedView message={triageLock.message} />
+      ) : showForm ? (
+        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+            <View style={styles.stepperHeader}>
+              <Text style={styles.stepperStepText}>Paso {step} de 3</Text>
+              <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarFill, { width: `${(step / 3) * 100}%` }]} />
+              </View>
+            </View>
+
+            {step === 1 && <TriageStep1Vitals formData={formData} onChangeField={handleChangeField} />}
+            {step === 2 && <TriageStep2Health formData={formData} onChangeField={handleChangeField} />}
+            {step === 3 && <TriageStep3Habits formData={formData} onChangeField={handleChangeField} />}
+
+            {step === 3 ? <Banner message={submitError} /> : null}
+
+            <View style={styles.buttonRow}>
+              {step > 1 && (
+                <TouchableOpacity style={styles.prevBtn} onPress={handlePrev}>
+                  <Text style={styles.prevBtnText}>Anterior</Text>
+                </TouchableOpacity>
+              )}
+
+              {step < 3 ? (
+                <TouchableOpacity style={[styles.nextBtn, { flex: step === 1 ? 1 : 0.48 }]} onPress={handleNext}>
+                  <Text style={styles.nextBtnText}>Siguiente</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={[styles.submitBtn, { flex: 0.48 }]} onPress={handleSubmit} disabled={submitting}>
+                  {submitting ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <Text style={styles.submitBtnText}>Enviar Triage</Text>
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
-          {/* Progress Indicator */}
-          <View style={styles.stepperHeader}>
-            <Text style={styles.stepperStepText}>Paso {step} de 3</Text>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: `${(step / 3) * 100}%` }]} />
-            </View>
-          </View>
+          <TriageLandingHero
+            onStart={startNewTriage}
+            onSeeHistory={() => navigation?.navigate('TriageHistory')}
+            startDisabled={triageLock.isLocked}
+          />
 
-          {/* Stepper Forms */}
-          {step === 1 && <TriageStep1Vitals formData={formData} onChangeField={handleChangeField} />}
-          {step === 2 && <TriageStep2Health formData={formData} onChangeField={handleChangeField} />}
-          {step === 3 && <TriageStep3Habits formData={formData} onChangeField={handleChangeField} />}
-
-          {step === 3 ? <Banner message={submitError} /> : null}
-
-          {/* Stepper Navigation Buttons */}
-          <View style={styles.buttonRow}>
-            {step > 1 && (
-              <TouchableOpacity style={styles.prevBtn} onPress={handlePrev}>
-                <Text style={styles.prevBtnText}>Anterior</Text>
-              </TouchableOpacity>
-            )}
-
-            {step < 3 ? (
-              <TouchableOpacity style={[styles.nextBtn, { flex: step === 1 ? 1 : 0.48 }]} onPress={handleNext}>
-                <Text style={styles.nextBtnText}>Siguiente</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={[styles.submitBtn, { flex: 0.48 }]} onPress={handleSubmit} disabled={submitting}>
-                {submitting ? (
-                  <ActivityIndicator size="small" color="#FFF" />
-                ) : (
-                  <Text style={styles.submitBtnText}>Enviar Triage</Text>
-                )}
-              </TouchableOpacity>
-            )}
-          </View>
+          {triageLock.isLocked ? (
+            <TriageLockedView remainingMs={triageLock.remainingMs} progress={triageLock.progress} />
+          ) : null}
         </ScrollView>
       )}
-    </View>
+
+      <AppAlertModal
+        visible={!!validationMessage}
+        title="Validación Requerida"
+        message={validationMessage}
+        onClose={clearValidationMessage}
+      />
+    </ImageBackground>
   );
 }
 
@@ -95,6 +117,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+  },
+  flex: {
+    flex: 1,
+  },
+  topHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  topHeaderTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  pulseIcon: {
+    marginLeft: -4,
+  },
+  topHeaderTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1E293B',
   },
   content: {
     padding: 16,

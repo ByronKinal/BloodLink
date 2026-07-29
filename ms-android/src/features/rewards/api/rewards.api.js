@@ -31,22 +31,8 @@ export const rewardsApi = {
     const response = await postgresApi.post('/api/v1/rewards/redeem', { rewardId, quantity });
     return response.data?.data || response.data;
   },
-
-  /**
-   * Obtiene el historial de transacciones y puntos ganados/canjeados.
-   */
-  getTransactionHistory: async () => {
-    try {
-      const response = await postgresApi.get('/api/v1/wallet/transactions');
-      return response.data?.data || response.data || [];
-    } catch (err) {
-      console.log('Error fetching transaction history:', err?.message);
-      return [];
-    }
-  },
 };
 
 export const getWallet = rewardsApi.getWallet;
 export const getAvailableRewards = rewardsApi.getAvailableRewards;
 export const claimReward = rewardsApi.claimReward;
-export const getTransactionHistory = rewardsApi.getTransactionHistory;

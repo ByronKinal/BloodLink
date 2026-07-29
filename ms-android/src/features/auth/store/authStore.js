@@ -39,6 +39,11 @@ export const useAuthStore = create((set) => ({
     set({ accessToken });
   },
 
+  updateUser: async (user) => {
+    await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
+    set({ user });
+  },
+
   clearSession: async () => {
     await Promise.all([
       SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY),

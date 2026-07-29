@@ -1,8 +1,16 @@
 import mongoose from 'mongoose';
 
+export const APPOINTMENT_STATUSES = ['PENDING', 'CONFIRMED', 'CANCELLED'];
+export const ACTIVE_APPOINTMENT_STATUSES = ['PENDING', 'CONFIRMED'];
+
 const appointmentSchema = new mongoose.Schema(
   {
     donorUserId: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    donationCenterId: {
       type: String,
       required: true,
       trim: true,
@@ -25,9 +33,10 @@ const appointmentSchema = new mongoose.Schema(
       match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'La hora debe tener formato HH:mm'],
     },
     status: {
-      type: Boolean,
+      type: String,
+      enum: APPOINTMENT_STATUSES,
       required: true,
-      default: false,
+      default: 'PENDING',
     },
   },
   {
@@ -36,15 +45,18 @@ const appointmentSchema = new mongoose.Schema(
   }
 );
 
+const activeStatusFilter = { status: { $in: ACTIVE_APPOINTMENT_STATUSES } };
+
 appointmentSchema.index(
-  { appointmentDate: 1, appointmentTime: 1 },
-  { unique: true }
+  { donationCenterId: 1, appointmentDate: 1, appointmentTime: 1 },
+  { partialFilterExpression: activeStatusFilter }
 );
 appointmentSchema.index(
   { donorUserId: 1, appointmentDate: 1, appointmentTime: 1 },
-  { unique: true }
+  { unique: true, partialFilterExpression: activeStatusFilter }
 );
 appointmentSchema.index({ staffUserId: 1, appointmentDate: 1, appointmentTime: 1 });
+appointmentSchema.index({ donorUserId: 1, status: 1 });
 
 const Appointment =
   mongoose.models.Appointment ||

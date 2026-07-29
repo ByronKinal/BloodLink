@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Alert } from 'react-native';
 import * as triageApi from '../api/triage.api';
 import { getErrorMessage } from '../../../shared/utils/apiError';
 
 const TRIAGE_LOCK_WINDOW_MS = 24 * 60 * 60 * 1000;
-const LOCK_COUNTDOWN_TICK_MS = 60 * 1000;
+const LOCK_COUNTDOWN_TICK_MS = 1000;
 
 function formatRemainingTime(ms) {
   const totalMinutes = Math.max(1, Math.ceil(ms / 60000));
@@ -36,13 +35,14 @@ const INITIAL_FORM = {
 };
 
 export function useTriage() {
-  const [activeTab, setActiveTab] = useState('new'); // 'new' | 'history'
+  const [landingStarted, setLandingStarted] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(INITIAL_FORM);
 
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [submitError, setSubmitError] = useState(null);
+  const [validationMessage, setValidationMessage] = useState(null);
 
   // History state
   const [history, setHistory] = useState([]);
@@ -67,12 +67,6 @@ export function useTriage() {
     fetchTriageHistory();
   }, [fetchTriageHistory]);
 
-  useEffect(() => {
-    if (activeTab === 'history') {
-      fetchTriageHistory();
-    }
-  }, [activeTab, fetchTriageHistory]);
-
   // Bloqueo de 24h: se basa en la fecha del último formulario devuelto por GET /api/v1/triage.
   const [now, setNow] = useState(() => Date.now());
 
@@ -85,12 +79,14 @@ export function useTriage() {
 
     const remainingMs = TRIAGE_LOCK_WINDOW_MS - (now - submittedAt.getTime());
     if (remainingMs <= 0) {
-      return { isLocked: false, message: null };
+      return { isLocked: false, message: null, remainingMs: 0, progress: 0 };
     }
 
     return {
       isLocked: true,
       message: `Debes esperar ${formatRemainingTime(remainingMs)} para volver a intentar`,
+      remainingMs,
+      progress: remainingMs / TRIAGE_LOCK_WINDOW_MS,
     };
   }, [history, now]);
 
@@ -114,35 +110,37 @@ export function useTriage() {
     const hemo = parseFloat(formData.hemoglobinaGdl);
 
     if (isNaN(edad) || edad < 18 || edad > 65) {
-      Alert.alert('Validación Requerida', 'La edad debe estar entre 18 y 65 años.');
+      setValidationMessage('La edad debe estar entre 18 y 65 años.');
       return false;
     }
     if (isNaN(peso) || peso < 40 || peso > 220) {
-      Alert.alert('Validación Requerida', 'El peso debe ser mayor a 40 kg (recomendado >50kg).');
+      setValidationMessage('El peso debe ser mayor a 40 kg (recomendado >50kg).');
       return false;
     }
     if (isNaN(pulso) || pulso < 40 || pulso > 140) {
-      Alert.alert('Validación Requerida', 'El pulso debe estar entre 40 y 140 BPM.');
+      setValidationMessage('El pulso debe estar entre 40 y 140 BPM.');
       return false;
     }
     if (isNaN(sist) || sist < 80 || sist > 200) {
-      Alert.alert('Validación Requerida', 'Presión Sistólica fuera de rango razonable (80-200 mmHg).');
+      setValidationMessage('Presión Sistólica fuera de rango razonable (80-200 mmHg).');
       return false;
     }
     if (isNaN(diast) || diast < 40 || diast > 120) {
-      Alert.alert('Validación Requerida', 'Presión Diastólica fuera de rango razonable (40-120 mmHg).');
+      setValidationMessage('Presión Diastólica fuera de rango razonable (40-120 mmHg).');
       return false;
     }
     if (isNaN(temp) || temp < 34 || temp > 42) {
-      Alert.alert('Validación Requerida', 'Temperatura corporal fuera de rango (34-42 °C).');
+      setValidationMessage('Temperatura corporal fuera de rango (34-42 °C).');
       return false;
     }
     if (isNaN(hemo) || hemo < 8 || hemo > 22) {
-      Alert.alert('Validación Requerida', 'Nivel de hemoglobina fuera de rango (8-22 g/dL).');
+      setValidationMessage('Nivel de hemoglobina fuera de rango (8-22 g/dL).');
       return false;
     }
     return true;
   };
+
+  const clearValidationMessage = () => setValidationMessage(null);
 
   const handleNext = () => {
     if (step === 1 && !validateStep1()) return;
@@ -198,11 +196,14 @@ export function useTriage() {
     setStep(1);
     setResult(null);
     setSubmitError(null);
+    setLandingStarted(false);
   };
 
+  const startNewTriage = () => setLandingStarted(true);
+
   return {
-    activeTab,
-    setActiveTab,
+    landingStarted,
+    startNewTriage,
     step,
     formData,
     handleChangeField,
@@ -213,6 +214,8 @@ export function useTriage() {
     submitting,
     result,
     submitError,
+    validationMessage,
+    clearValidationMessage,
     history,
     loadingHistory,
     historyError,

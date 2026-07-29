@@ -1,25 +1,31 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Alert } from 'react-native';
 import * as appointmentsApi from '../api/appointments.api';
 import * as triageApi from '../../triage/api/triage.api';
+import { useDonationCenters } from '../../centers/hooks/useDonationCenters';
 import { isTriageApto } from '../../../shared/utils/triageEligibility';
 import { getErrorMessage } from '../../../shared/utils/apiError';
 
 const pad = (n) => String(n).padStart(2, '0');
 const formatDateForApi = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const formatTimeForApi = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
 export function useCreateAppointment({ onCreated } = {}) {
   const [loadingEligibility, setLoadingEligibility] = useState(true);
   const [hasTriage, setHasTriage] = useState(false);
   const [isApto, setIsApto] = useState(false);
 
-  const [date, setDate] = useState(null);
-  const [time, setTime] = useState(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const { centers, loading: loadingCenters, error: centersError } = useDonationCenters();
+
+  const [selectedDate, setSelectedDateState] = useState(null);
+  const [selectedCenter, setSelectedCenterState] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+
+  const [slots, setSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [slotsError, setSlotsError] = useState(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [alertInfo, setAlertInfo] = useState(null);
 
   const fetchEligibility = useCallback(async () => {
     setLoadingEligibility(true);
@@ -41,33 +47,78 @@ export function useCreateAppointment({ onCreated } = {}) {
     fetchEligibility();
   }, [fetchEligibility]);
 
-  const handleChangeDate = (event, selectedDate) => {
-    setShowDatePicker(false);
-    if (event.type === 'set' && selectedDate) {
-      setDate(selectedDate);
-      setSubmitError(null);
-    }
+  const setSelectedDate = (date) => {
+    setSelectedDateState(date);
+    setSelectedCenterState(null);
+    setSelectedTime(null);
+    setSubmitError(null);
   };
 
-  const handleChangeTime = (event, selectedTime) => {
-    setShowTimePicker(false);
-    if (event.type === 'set' && selectedTime) {
-      setTime(selectedTime);
-      setSubmitError(null);
-    }
+  const setSelectedCenter = (center) => {
+    setSelectedCenterState(center);
+    setSelectedTime(null);
+    setSubmitError(null);
   };
+
+  const handleSelectTime = (time) => {
+    setSelectedTime(time);
+    setSubmitError(null);
+  };
+
+  const resetToDate = () => {
+    setSelectedDateState(null);
+    setSelectedCenterState(null);
+    setSelectedTime(null);
+  };
+
+  const resetToCenter = () => {
+    setSelectedCenterState(null);
+    setSelectedTime(null);
+  };
+
+  const resetToTime = () => {
+    setSelectedTime(null);
+  };
+
+  useEffect(() => {
+    if (!selectedDate || !selectedCenter) {
+      setSlots([]);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      setLoadingSlots(true);
+      setSlotsError(null);
+      try {
+        const dateStr = formatDateForApi(selectedDate);
+        const data = await appointmentsApi.getAvailability(dateStr, selectedCenter.id);
+        if (!cancelled) {
+          setSlots(Array.isArray(data?.slots) ? data.slots : []);
+        }
+      } catch (err) {
+        console.log('Error fetching availability:', err?.message);
+        if (!cancelled) {
+          setSlotsError(getErrorMessage(err, 'No se pudo obtener la disponibilidad.'));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingSlots(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDate, selectedCenter]);
+
+  const clearAlert = () => setAlertInfo(null);
 
   const handleSubmit = async () => {
-    if (!date || !time) {
-      Alert.alert('Datos incompletos', 'Selecciona una fecha y una hora para tu cita.');
-      return;
-    }
-
-    const scheduledAt = new Date(date);
-    scheduledAt.setHours(time.getHours(), time.getMinutes(), 0, 0);
-
-    if (scheduledAt.getTime() <= Date.now()) {
-      Alert.alert('Fecha inválida', 'La cita debe programarse en una fecha y hora futura.');
+    if (!selectedDate || !selectedCenter || !selectedTime) {
+      setAlertInfo({ title: 'Datos incompletos', message: 'Selecciona fecha, centro y hora para tu cita.' });
       return;
     }
 
@@ -75,17 +126,22 @@ export function useCreateAppointment({ onCreated } = {}) {
     setSubmitError(null);
     try {
       const created = await appointmentsApi.createAppointment({
-        date: formatDateForApi(date),
-        time: formatTimeForApi(time),
+        date: formatDateForApi(selectedDate),
+        time: selectedTime,
+        donationCenterId: selectedCenter.id,
       });
-      Alert.alert('Cita agendada', 'Tu cita de donación fue registrada. Queda pendiente de confirmación.');
-      setDate(null);
-      setTime(null);
+      setAlertInfo({
+        title: 'Cita agendada',
+        message: 'Tu cita de donación fue registrada. Queda pendiente de confirmación.',
+      });
+      setSelectedDateState(null);
+      setSelectedCenterState(null);
+      setSelectedTime(null);
       onCreated?.(created);
     } catch (err) {
       setSubmitError(getErrorMessage(err, 'No se pudo agendar la cita.'));
       if (err?.response?.status === 409) {
-        setTime(null);
+        setSelectedTime(null);
       }
     } finally {
       setSubmitting(false);
@@ -96,16 +152,25 @@ export function useCreateAppointment({ onCreated } = {}) {
     loadingEligibility,
     hasTriage,
     isApto,
-    date,
-    time,
-    showDatePicker,
-    showTimePicker,
-    setShowDatePicker,
-    setShowTimePicker,
-    handleChangeDate,
-    handleChangeTime,
+    centers,
+    loadingCenters,
+    centersError,
+    selectedDate,
+    setSelectedDate,
+    selectedCenter,
+    setSelectedCenter,
+    selectedTime,
+    handleSelectTime,
+    resetToDate,
+    resetToCenter,
+    resetToTime,
+    slots,
+    loadingSlots,
+    slotsError,
     submitting,
     submitError,
+    alertInfo,
+    clearAlert,
     handleSubmit,
     refetchEligibility: fetchEligibility,
   };
